@@ -3,12 +3,12 @@ import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
-import { createUserWithEmailAndPassword, onAuthStateChanged, validatePassword, type PasswordValidationStatus, type User } from 'firebase/auth';
+import { EmailAuthProvider, linkWithCredential, onAuthStateChanged, validatePassword, type PasswordValidationStatus, type User } from 'firebase/auth';
 import { computed, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const {auth, isAnonymous} = useAuthenticationStore();
+const {auth, user, isAnonymous} = useAuthenticationStore();
 const {validateEmail} = useMainStore();
 const email = ref('');
 const password = ref('');
@@ -66,9 +66,12 @@ async function register() {
 
     // createfirebase user
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+        const credential = EmailAuthProvider.credential(email.value, password.value);
+        const userCredential = await linkWithCredential(user.value!, credential);
+
         console.log('register.userCredential', userCredential);
         serverErrors.value = [];
+        router.push({name: 'home'});
     }
     catch(error: any) {
         console.log('register.error');

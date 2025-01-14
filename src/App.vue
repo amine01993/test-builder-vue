@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { RouterView } from 'vue-router';
 import { useAuthenticationStore } from './stores/auth';
 
@@ -7,7 +7,17 @@ const {auth, setUser} = useAuthenticationStore();
 
 onAuthStateChanged(auth, (user) => {
     console.log('onAuthStateChanged', user)
-    setUser(user);
+    if(user === null) { // signin anonymously
+        signInAnonymously(auth)
+        .then(() => {
+            // signed in
+        })
+        .catch(error => {
+            console.log('signInAnonymously.error');
+            console.log(error.code, error.message);
+        });
+    }
+    setUser(user);  
 });
 </script>
 

@@ -63,7 +63,7 @@ async function signOutUser() {
                 </button>
                 <ul class="dropdown-menu">
                     <template v-if="!isAnonymous(user)">
-                        <li><span class="dropdown-item-text">{{ user.email }}</span></li>
+                        <li><span class="dropdown-item-text">{{ user!.email }}</span></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <a class="dropdown-item di-icon" href="#" @click.prevent="signOutUser">
