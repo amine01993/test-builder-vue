@@ -1,0 +1,22 @@
+@use "sass:string";
+@use "@/assets/variables" as vars;
+
+@use "~bootstrap/scss/bootstrap" with (
+	$blue: vars.$app-blue,
+	$btn-border-radius: 1.5rem,
+	$btn-padding-y: .6rem,
+	$btn-padding-x: 1.6rem,
+	$dropdown-border-radius: 0,
+	$dropdown-border-color: vars.$app-grey,
+	$alert-border-radius: 0,
+);
+@use "~bootstrap-icons/font/bootstrap-icons" with (
+	$bootstrap-icons-font-dir: "~bootstrap-icons/font/fonts"
+);
+
+@use '@/assets/header';
+@use '@/assets/menu';
+
+body {
+	background-color: string.unquote(vars.$app-grey + '75');
+}

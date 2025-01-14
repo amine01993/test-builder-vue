@@ -1,0 +1,61 @@
+
+@use "sass:string";
+@use '@/assets/variables' as vars;
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    background-color: vars.$app-blue;
+    height: 60px;
+    align-items: center;
+    color: vars.$app-white;
+    font-size: 1.2em;
+    box-shadow: 0 -5px 25px vars.$app-blue;
+
+    .left-side {
+        display: flex;
+        gap: 3vh;
+        padding-left: 3vh;
+
+        .menu-btn {
+            i {
+                font-size: 27px;
+            }
+        }
+
+        .logo {
+            img {
+                height: 40px;
+            }
+        }
+    }
+
+    .right-side {
+        display: flex;
+        gap: 3vh;
+        padding-right: 3vh;
+
+        .localization {
+
+        }
+
+        .user {
+            [type=button] {
+                background-color: inherit;
+                color: inherit;
+                border: none;
+            }
+
+            &.dropdown {
+                .dropdown-item.di-icon {
+                    display: flex;
+                    gap: 2vh;
+                }
+
+                .dropdown-menu {
+                    box-shadow: -15px 15px 10px string.unquote(vars.$app-grey + '75');
+                }
+            }
+        }
+    }
+}
