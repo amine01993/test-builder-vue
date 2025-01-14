@@ -8,7 +8,7 @@ import { computed, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const {auth, user, isAnonymous} = useAuthenticationStore();
+const {auth, user, isAnonymous, signUpWithGoogle} = useAuthenticationStore();
 const {validateEmail} = useMainStore();
 const email = ref('');
 const password = ref('');
@@ -70,16 +70,26 @@ async function register() {
         const userCredential = await linkWithCredential(user.value!, credential);
 
         console.log('register.userCredential', userCredential);
-        serverErrors.value = [];
         router.push({name: 'home'});
     }
     catch(error: any) {
         console.log('register.error');
-        let message = error?.customData?._tokenResponse?.error?.message;
-        serverErrors.value = ['Server Error' +  (message ? ': ' + message : '')];
+        serverErrors.value = ['Server Error: ' + error.code];
     }
     finally {
         submitting.value = false;
+    }
+}
+
+async function signUpWithG() {
+
+    try {
+        await signUpWithGoogle();
+        router.push({name: 'home'});
+    }
+    catch(error: any) {
+        console.log('register.error');
+        serverErrors.value = ['Server Error: ' + error.code];
     }
 }
 </script>
@@ -133,7 +143,7 @@ async function register() {
             </div>
             <div class="signup-parties">
                 Or Sign Up Using <br>
-                <button type="button" class="btn btn-danger google-auth">
+                <button type="button" class="btn btn-danger google-auth" @click="signUpWithG">
                     <i class="bi bi-google"></i>
                 </button>
             </div>

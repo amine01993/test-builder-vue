@@ -1,6 +1,6 @@
 import { ref, computed, type Ref } from 'vue';
 import { defineStore } from 'pinia';
-import { getAuth, type User } from 'firebase/auth'
+import { getAuth, GoogleAuthProvider, linkWithPopup, type User } from 'firebase/auth'
 import { useFirebaseStore } from './firebase';
 
 export const useAuthenticationStore = defineStore('auth', () => {
@@ -19,10 +19,18 @@ export const useAuthenticationStore = defineStore('auth', () => {
         return _user === null || _user.isAnonymous;
     }
 
+    async function signUpWithGoogle() {
+        const provider = new GoogleAuthProvider();
+    
+        const userCredential = await linkWithPopup(user.value!, provider);
+        console.log('signUpWithGoogle.userCredential', userCredential);
+    }
+
     return {
         user: computed(() => user),
         setUser,
         auth,
         isAnonymous,
+        signUpWithGoogle,
     };
 })
