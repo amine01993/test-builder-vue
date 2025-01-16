@@ -1,1 +1,0 @@
-import{_ as a,a as o}from"./AppMenu.vue_vue_type_script_setup_true_lang-Dv5cL-QV.js";import{d as n,c as s,a as e,F as t,o as r}from"./index-BVQELQFO.js";const i=n({__name:"HomeView",setup(_){return(c,m)=>(r(),s(t,null,[e(a),e(o)],64))}});export{i as default};

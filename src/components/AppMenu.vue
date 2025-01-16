@@ -12,6 +12,16 @@ const { isMenuOpen, closeMenu } = useMainStore();
                 Home
             </RouterLink>
         </div>
+        <div class="menu-item">
+            <RouterLink exactActiveClass="selected-item" :to="{name: 'tests'}">
+                Tests
+            </RouterLink>
+        </div>
+        <div class="menu-item">
+            <RouterLink exactActiveClass="selected-item" :to="{name: 'settings'}">
+                Settings
+            </RouterLink>
+        </div>
     </div>
 </template>
 

@@ -1,6 +1,6 @@
 import { ref, computed, type Ref } from 'vue';
 import { defineStore } from 'pinia';
-import { getAuth, GoogleAuthProvider, linkWithPopup, type User } from 'firebase/auth'
+import { connectAuthEmulator, getAuth, GoogleAuthProvider, linkWithPopup, type User } from 'firebase/auth'
 import { useFirebaseStore } from './firebase';
 
 export const useAuthenticationStore = defineStore('auth', () => {
@@ -8,7 +8,11 @@ export const useAuthenticationStore = defineStore('auth', () => {
     const { firebaseApp } = useFirebaseStore();
 
     const auth = getAuth(firebaseApp);
-
+    
+    if(import.meta.env.DEV) {
+        connectAuthEmulator(auth, "http://127.0.0.1:9099");
+    }
+    
     const user: Ref<User|null> = ref(null);
 
     function setUser(_user: User|null) {
