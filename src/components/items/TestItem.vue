@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { Test } from '@/models/Test';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { useRouter } from 'vue-router';
 
 
 const { test } = defineProps<{test: Test}>();
+const router = useRouter();
 const testDescriptionEl = useTemplateRef('test-description');
 const showMore = ref(false);
 const currentDate = new Date();
@@ -47,7 +49,16 @@ function deleteTest() {
 }
 
 function copyTestLink() {
-
+    const routeLocation = router.resolve({name: 'test-portal', params: {test_id: test.id}});
+    const testLink = location.origin + routeLocation.fullPath;
+    console.log('testLink', testLink)
+    navigator.clipboard.writeText(testLink)
+    .then(() => {
+        console.log('copyTestLink.then');
+    })
+    .catch(() => {
+        console.log('copyTestLink.catch');
+    })
 }
 </script>
 
