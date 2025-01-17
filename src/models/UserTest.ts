@@ -2,7 +2,7 @@ import type { Timestamp } from "firebase/firestore";
 import type { Answer } from "./Answer";
 
 export interface UserTest {
-    id: string;
+    id?: string;
     user_id: string;
     test_id: string;
     report: Report;

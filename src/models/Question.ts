@@ -1,6 +1,6 @@
 
 export interface Question {
-    id: string;
+    id?: string;
     text: string;
     test_id: string;
     max_points: number;

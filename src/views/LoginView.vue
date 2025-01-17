@@ -47,7 +47,7 @@ async function login() {
 
     // validation
     if(Object.keys(errors.value).length > 0) {
-        submitting.value = true;
+        submitting.value = false;
         return;
     }
 
@@ -97,7 +97,7 @@ async function signUpWithG() {
                     <label for="login-input-email" class="form-label">Email</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-at"></i></span>
-                        <input type="email" class="form-control" :class="{'is-invalid': errors.email}" id="login-input-email" v-model="email">
+                        <input type="email" class="form-control" :class="{'is-invalid': errors.email}" id="login-input-email" v-model="email" :disabled="submitting">
                         <div class="invalid-feedback is-invalid" v-if="errors.email">{{ errors.email }}</div>
                     </div>
                 </div>
@@ -105,11 +105,14 @@ async function signUpWithG() {
                     <label for="login-input-password" class="form-label">Password</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                        <input type="password" class="form-control" :class="{'is-invalid': errors.password}" id="login-input-password" v-model="password">
+                        <input type="password" class="form-control" :class="{'is-invalid': errors.password}" id="login-input-password" v-model="password" :disabled="submitting">
                         <div class="invalid-feedback is-invalid" v-if="errors.password">{{ errors.password }}</div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-primary" @click="login">LOGIN</button>
+                <button type="button" class="btn btn-primary" @click="login" :disabled="submitting">
+                    <template v-if="!submitting">LOGIN</template>
+                    <template v-else>LOGGING IN ...</template>
+                </button>
 
             </div>
             <div class="signup-parties">

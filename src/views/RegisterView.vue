@@ -55,7 +55,9 @@ async function register() {
     if(submitting.value) return;
 
     submitting.value = true;
-    validationStatus.value = await validatePassword(auth, password.value);
+    if(import.meta.env.PROD) {
+        validationStatus.value = await validatePassword(auth, password.value);
+    }
     submitted.value = true;
 
     // validation

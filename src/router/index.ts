@@ -28,6 +28,21 @@ const router = createRouter({
             name: 'settings',
             component: () => import('../views/SettingsView.vue'),
         },
+        {
+            path: '/create/test',
+            name: 'create-test',
+            component: () => import('../views/CreateTest.vue'),
+        },
+        {
+            path: '/edit/test/:test_id',
+            name: 'edit-test',
+            component: () => import('../views/EditTest.vue'),
+        },
+        {
+            path: '/view/test/:test_id',
+            name: 'view-test',
+            component: () => import('../views/ViewTest.vue'),
+        },
     ],
 })
 

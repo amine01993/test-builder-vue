@@ -1,8 +1,9 @@
-@use "sass:string";
-@use "@/assets/variables" as vars;
+@use 'sass:string';
+@use '@/assets/variables' as vars;
 
-@use "~bootstrap/scss/bootstrap" with (
-	$blue: vars.$app-blue,
+@use '~bootstrap/scss/bootstrap' with (
+	$primary: vars.$app-blue,
+	$warning: vars.$app-orange,
 	$btn-border-radius: 1.5rem,
 	$btn-padding-y: .6rem,
 	$btn-padding-x: 1.6rem,
@@ -10,7 +11,7 @@
 	$dropdown-border-color: vars.$app-grey,
 	$alert-border-radius: 0,
 );
-@use "~bootstrap-icons/font/bootstrap-icons" with (
+@use '~bootstrap-icons/font/bootstrap-icons' with (
 	$bootstrap-icons-font-dir: "~bootstrap-icons/font/fonts"
 );
 

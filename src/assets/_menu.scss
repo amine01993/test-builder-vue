@@ -1,4 +1,4 @@
-@use "sass:string";
+@use 'sass:string';
 @use '@/assets/variables' as vars;
 
 .app-menu {
@@ -11,7 +11,8 @@
     padding: 2vh 0;
     transform: translateX(calc(-100% - 30px));
     transition: transform 100ms;
-
+    z-index: 1;
+    
     &.open {
         transform: translateX(0);
     }

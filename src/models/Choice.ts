@@ -1,6 +1,6 @@
 
 export interface Choice {
-    id: string;
+    id?: string;
     text: string;
     question_id: string;
     is_correct: boolean;
