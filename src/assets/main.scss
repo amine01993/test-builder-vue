@@ -10,6 +10,8 @@
 	$dropdown-border-radius: 0,
 	$dropdown-border-color: vars.$app-grey,
 	$alert-border-radius: 0,
+	$btn-close-color: vars.$app-blue,
+	$modal-content-border-radius: 0,
 );
 @use '~bootstrap-icons/font/bootstrap-icons' with (
 	$bootstrap-icons-font-dir: "~bootstrap-icons/font/fonts"

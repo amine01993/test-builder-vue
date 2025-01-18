@@ -1,8 +1,10 @@
-import { ref, computed } from 'vue'
+import { ref, computed, type Ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useMainStore = defineStore('main', () => {
     const isMenuOpen = ref(false);
+    const loading = ref(false);
+    const toastOpt: Ref<{message: string, status: 'success'|'failure'|''}> = ref({message: '', status: ''});
 
     function openMenu() {
         isMenuOpen.value = true;
@@ -20,9 +22,25 @@ export const useMainStore = defineStore('main', () => {
         return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
     }
 
+    function startLoading() {
+        loading.value = true;
+    }
+
+    function endLoading() {
+        loading.value = false;
+    }
+
+    function showMessage(status: 'success'|'failure'|'', message: string) {
+        toastOpt.value = {status, message};
+    }
+
     return {
         isMenuOpen: computed(() => isMenuOpen),
         openMenu, closeMenu, toggleMenu,
-        validateEmail
+        validateEmail,
+        loading: computed(() => loading),
+        startLoading, endLoading,
+        toastOpt: computed(() => toastOpt),
+        showMessage,
     };
 })

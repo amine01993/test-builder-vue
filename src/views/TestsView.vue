@@ -1,21 +1,23 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
-import { onUnmounted, ref, type Ref } from 'vue';
+import { onUnmounted } from 'vue';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
-import type { Test } from '@/models/Test';
 import { useTestServiceStore } from '@/stores/testService';
 import TestItem from '@/components/items/TestItem.vue';
 import { useAuthenticationStore } from '@/stores/auth';
+import { useMainStore } from '@/stores/main';
 
+const {startLoading, endLoading} = useMainStore();
 const {auth} = useAuthenticationStore();
-const {getTests} = useTestServiceStore();
-const tests: Ref<Test[]> = ref([]);
+const {tests, loadTests} = useTestServiceStore();
 
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     console.log('Testsview onAuthStateChanged', user)
-    tests.value = await getTests(user!.uid);
+    startLoading();
+    await loadTests(user!.uid);
+    endLoading();
 });
 
 onUnmounted(() => {

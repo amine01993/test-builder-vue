@@ -2,6 +2,8 @@
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { RouterView } from 'vue-router';
 import { useAuthenticationStore } from './stores/auth';
+import Loader from './components/Loader.vue';
+import ToastMessage from './components/ToastMessage.vue';
 
 const {auth, setUser} = useAuthenticationStore();
 
@@ -23,6 +25,8 @@ onAuthStateChanged(auth, (user) => {
 
 <template>
     <RouterView />
+    <Loader />
+    <ToastMessage />
 </template>
 
 <style scoped>
