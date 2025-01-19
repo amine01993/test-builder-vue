@@ -9,15 +9,23 @@ import TestItem from '@/components/items/TestItem.vue';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 
-const {startLoading, endLoading} = useMainStore();
+const {startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {tests, loadTests} = useTestServiceStore();
 
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     console.log('Testsview onAuthStateChanged', user)
     startLoading();
-    await loadTests(user!.uid);
-    endLoading();
+    try {
+        await loadTests(user!.uid);
+    }
+    catch(error) {
+        console.log('error loading tests', error);
+        showMessage('failure', 'Error loading tests.');
+    }
+    finally {
+        endLoading();
+    }
 });
 
 onUnmounted(() => {
@@ -50,10 +58,6 @@ onUnmounted(() => {
         margin-right: 2vh;
         display: flex;
         justify-content: flex-end;
-
-        // .create-test {
-            
-        // }
     }
 
     .test-list {

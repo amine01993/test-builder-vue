@@ -25,7 +25,7 @@ const description = computed(() => {
     }
 });
 const updatedAt = computed(() => {
-    const updated_at = test.updated_at.toDate();
+    const updated_at = test.updated_at!.toDate();
         return new Intl.DateTimeFormat('en-US', {
         day: 'numeric',
         month: 'short',
@@ -117,7 +117,7 @@ function copyTestLink() {
             </div>
             <hr class="test-item-divider">
             <div class="test-item-actions">
-                <RouterLink :to="{name: 'view-test', params: {test_id: test.id}}" class="btn btn-primary"><i class="bi bi-eye-fill"></i></RouterLink>
+                <RouterLink :to="{name: 'preview-test', params: {test_id: test.id}}" class="btn btn-primary"><i class="bi bi-eye-fill"></i></RouterLink>
                 <RouterLink :to="{name: 'edit-test', params: {test_id: test.id}}" class="btn btn-success"><i class="bi bi-pencil-fill"></i></RouterLink>
                 <button type="button" class="btn btn-danger" @click="confirmTestdeletion"><i class="bi bi-trash3-fill"></i></button>
                 <button type="button" class="btn btn-warning" @click="copyTestLink"><i class="bi bi-copy"></i></button>

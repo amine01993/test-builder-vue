@@ -1,22 +1,24 @@
 <script setup lang="ts">
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { useTestServiceStore } from '@/stores/testService';
-import { Timestamp } from 'firebase/firestore';
 import { useAuthenticationStore } from '@/stores/auth';
-import { useRouter } from 'vue-router';
+import { useMainStore } from '@/stores/main';
 
-const {test_id} = defineProps<{test_id: string}>();
+const route = useRoute();
 const router = useRouter();
-const {user} = useAuthenticationStore();
-const {addTest} = useTestServiceStore();
+const {startLoading, endLoading, showMessage} = useMainStore();
+const {auth} = useAuthenticationStore();
+const {getTest, updateTest} = useTestServiceStore();
 const name = ref('');
 const description = ref('');
 const maxScore: Ref<number|string> = ref(0);
 const timeLimit: Ref<number|string> = ref(0);
-
+let test_id: string|null = null;
 const submitted = ref(false);
 const submitting = ref(false);
 const serverErrors: Ref<any[]> = ref([]);
@@ -35,6 +37,30 @@ const errors = computed(() => {
     return _errors;
 });
 
+const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
+    console.log('edittestview onAuthStateChanged', user);
+    startLoading();
+    try {
+        test_id = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
+        const test = await getTest(test_id);
+        if(test === null) {
+            showMessage('failure', 'Test Not Found.');
+            return;
+        }
+        name.value = test.name;
+        description.value = test.description;
+        maxScore.value = test.max_points;
+        timeLimit.value = test.time_limit;
+    }
+    catch(error) {
+        console.log('error loading test', error);
+        showMessage('failure', 'Error loading test data.');
+    }
+    finally {
+        endLoading();
+    }
+});
+
 const popOvers: Popover[] = [];
 onMounted(() => {
     const popOverEls = document.querySelectorAll('.app-main .label-info');
@@ -50,10 +76,11 @@ onMounted(() => {
 
 onUnmounted(() => {
     popOvers.forEach(popOver => popOver.dispose());
+    onAuthEventDispose();
 });
 
-async function createTest() {
-    if(submitting.value) return;
+async function editTest() {
+    if(submitting.value || !test_id) return;
 
     submitting.value = true;
     submitted.value = true;
@@ -64,24 +91,20 @@ async function createTest() {
         return;
     }
 
-    // createfirebase test
+    // editfirebase test
     try {
-        const currentDate = new Date();
-        const testRef = await addTest({
+        await updateTest({
+            id: test_id,
             name: name.value,
             description: description.value,
             max_points: Number(maxScore.value),
             time_limit: Number(timeLimit.value),
-            user_id: user.value!.uid,
-            created_at: Timestamp.fromDate(currentDate),
-            updated_at: Timestamp.fromDate(currentDate),
         });
-        console.log('createTest.testRef', testRef);
         serverErrors.value = [];
         router.push({name: 'tests'});
     }
     catch(error: any) {
-        console.log('login.error', error);
+        console.log('editTest.error', error);
         serverErrors.value = ['Server Error: ' + error.code]
     }
     finally {
@@ -96,7 +119,7 @@ async function createTest() {
 
     <div class="app-main">
         <div class="test-form">
-            <div class="test-form-title mb-4">Create New Test</div>
+            <div class="test-form-title mb-4">Edit Test</div>
 
             <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
                 <ul>
@@ -130,9 +153,9 @@ async function createTest() {
                 <div class="invalid-feedback is-invalid" v-if="errors.timeLimit">{{ errors.timeLimit }}</div>
             </div>
 
-            <button type="button" class="btn btn-primary" @click="createTest" :disabled="submitting">
-                <template v-if="!submitting">Create</template>
-                <template v-else>Creating ...</template>
+            <button type="button" class="btn btn-primary" @click="editTest" :disabled="submitting">
+                <template v-if="!submitting">Edit</template>
+                <template v-else>Editing ...</template>
             </button>
         </div>
     </div>

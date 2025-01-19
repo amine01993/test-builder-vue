@@ -4,7 +4,6 @@ import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { useTestServiceStore } from '@/stores/testService';
-import { Timestamp } from 'firebase/firestore';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 
@@ -65,22 +64,19 @@ async function createTest() {
 
     // createfirebase test
     try {
-        const currentDate = new Date();
         const testRef = await addTest({
             name: name.value,
             description: description.value,
             max_points: Number(maxScore.value),
             time_limit: Number(timeLimit.value),
             user_id: user.value!.uid,
-            created_at: Timestamp.fromDate(currentDate),
-            updated_at: Timestamp.fromDate(currentDate),
         });
         console.log('createTest.testRef', testRef);
         serverErrors.value = [];
         router.push({name: 'tests'});
     }
     catch(error: any) {
-        console.log('login.error', error);
+        console.log('createTest.error', error);
         serverErrors.value = ['Server Error: ' + error.code]
     }
     finally {

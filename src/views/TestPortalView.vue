@@ -1,7 +1,5 @@
 <script setup lang="ts">
 
-const {test_id} = defineProps<{test_id: string}>();
-
 </script>
 
 <template>

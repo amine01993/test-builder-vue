@@ -31,22 +31,22 @@ const router = createRouter({
         {
             path: '/create/test',
             name: 'create-test',
-            component: () => import('../views/CreateTest.vue'),
+            component: () => import('../views/CreateTestView.vue'),
         },
         {
             path: '/edit/test/:test_id',
             name: 'edit-test',
-            component: () => import('../views/EditTest.vue'),
+            component: () => import('../views/EditTestView.vue'),
         },
         {
-            path: '/view/test/:test_id',
-            name: 'view-test',
-            component: () => import('../views/ViewTest.vue'),
+            path: '/preview/test/:test_id',
+            name: 'preview-test',
+            component: () => import('../views/PreviewTestView.vue'),
         },
         {
             path: '/test/:test_id',
             name: 'test-portal',
-            component: () => import('../views/TestPortal.vue'),
+            component: () => import('../views/TestPortalView.vue'),
         },
     ],
 })
