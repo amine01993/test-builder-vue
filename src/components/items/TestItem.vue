@@ -7,7 +7,7 @@ import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
 
 
-const { test } = defineProps<{test: Test}>();
+const { test } = defineProps<{test?: Test}>();
 const router = useRouter();
 const {showMessage} = useMainStore();
 const {deleteTest} = useTestServiceStore();
@@ -18,14 +18,14 @@ const currentDate = new Date();
 let testConfirmDeletionModal: Modal|null = null;
 const description = computed(() => {
     if(showMore.value) {
-        return test.description.replace(/\n/g, "<br />");
+        return test!.description.replace(/\n/g, "<br />");
     }
     else {
-        return test.description.replace(/\n/g, "");
+        return test!.description.replace(/\n/g, "");
     }
 });
 const updatedAt = computed(() => {
-    const updated_at = test.updated_at!.toDate();
+    const updated_at = test!.updated_at!.toDate();
         return new Intl.DateTimeFormat('en-US', {
         day: 'numeric',
         month: 'short',
@@ -69,9 +69,9 @@ async function deleteDTest() {
         testConfirmDeletionModal.hide();
     }
 
-    if(test.id) {
+    if(test!.id) {
         try {
-            await deleteTest(test.id);
+            await deleteTest(test!.id);
             console.log('test deleted with success');
             showMessage('success', 'Test deleted with success.');
         }
@@ -86,7 +86,7 @@ async function deleteDTest() {
 }
 
 function copyTestLink() {
-    const routeLocation = router.resolve({name: 'test-portal', params: {test_id: test.id}});
+    const routeLocation = router.resolve({name: 'test-portal', params: {test_id: test!.id}});
     const testLink = location.origin + routeLocation.fullPath;
     console.log('testLink', testLink)
     navigator.clipboard.writeText(testLink)
@@ -102,7 +102,7 @@ function copyTestLink() {
 </script>
 
 <template>
-    <div class="test-item-container">
+    <div class="test-item-container" v-if="test">
         <!-- <div class="test-item-sort-handler">
             <i class="bi bi-arrow-down-up"></i>
         </div> -->
@@ -124,8 +124,20 @@ function copyTestLink() {
             </div>
         </div>
     </div>
+    <div class="test-item-container placeholder-wave" v-else>
+        <div class="test-item-content">
+            <div class="test-item-title placeholder col-6 offset-3 placeholder-lg bg-secondary"></div>
+            <hr class="test-item-divider">
+            <div class="test-item-info">
+                <div class="placeholder col-12 bg-secondary" style="min-height: 4em;"></div>
+                <div class="placeholder col-8 offset-4 placeholder-sm bg-secondary"></div>
+            </div>
+            <hr class="test-item-divider">
+            <div class="test-item-actions placeholder col-9 offset-3 placeholder-lg bg-secondary"></div>
+        </div>
+    </div>
 
-    <div class="modal" tabindex="-1" ref="confirm-deletion-modal">
+    <div class="modal" tabindex="-1" ref="confirm-deletion-modal" v-if="test">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -141,4 +153,6 @@ function copyTestLink() {
             </div>
         </div>
     </div>
+
+
 </template>

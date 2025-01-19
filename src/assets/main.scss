@@ -3,6 +3,7 @@
 
 @use '~bootstrap/scss/bootstrap' with (
 	$primary: vars.$app-blue,
+	$secondary: vars.$app-grey2,
 	$warning: vars.$app-orange,
 	$btn-border-radius: 1.5rem,
 	$btn-padding-y: .6rem,

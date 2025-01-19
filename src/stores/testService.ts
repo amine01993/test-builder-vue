@@ -7,7 +7,7 @@ import type { Test } from "@/models/Test";
 export const useTestServiceStore = defineStore('testService', () => {
 
     const {db} = useFirestoreStore();
-    const tests: Ref<Test[]> = ref([]);
+    const tests: Ref<Test[]|null> = ref(null);
 
     async function getTest(test_id: string): Promise<Test|null> {
         const testRef = doc(db, 'tests', test_id);
@@ -52,8 +52,10 @@ export const useTestServiceStore = defineStore('testService', () => {
     async function deleteTest(test_id: string) {
         const testRef = doc(db, 'tests', test_id);
         await deleteDoc(testRef);
-        const index = tests.value.findIndex(test => test.id === test_id);
-        if(index > -1) tests.value.splice(index, 1);
+        if(tests.value) {
+            const index = tests.value.findIndex(test => test.id === test_id);
+            if(index > -1) tests.value.splice(index, 1);
+        }
     }
 
     return {

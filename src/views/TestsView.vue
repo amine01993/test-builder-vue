@@ -9,14 +9,15 @@ import TestItem from '@/components/items/TestItem.vue';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 
-const {startLoading, endLoading, showMessage} = useMainStore();
+const {showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {tests, loadTests} = useTestServiceStore();
 
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     console.log('Testsview onAuthStateChanged', user)
-    startLoading();
     try {
+        console.log('tests', tests.value);
+        tests.value = null;
         await loadTests(user!.uid);
     }
     catch(error) {
@@ -24,7 +25,6 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
         showMessage('failure', 'Error loading tests.');
     }
     finally {
-        endLoading();
     }
 });
 
@@ -43,7 +43,12 @@ onUnmounted(() => {
             <RouterLink :to="{name: 'create-test'}" class="btn btn-warning create-test">Create New Test</RouterLink>
         </div>
         <div class="test-list">
-            <TestItem v-for="test in tests" :test="test" :key="test.id"></TestItem>
+            <template v-if="tests">
+                <TestItem v-for="test in tests" :test="test" :key="test.id" />
+            </template>
+            <template v-else>
+                <TestItem v-for="index in [0, 1, 2]" :key="'test-placeholder-' + index" />
+            </template>
         </div>
     </div>
 </template>
@@ -127,6 +132,11 @@ onUnmounted(() => {
                         padding: 0.5em 1em;
                     }
                 }
+            }
+
+            &.placeholder-wave {
+                mask-image: linear-gradient(110deg, #000 65%, rgba(0, 0, 0, 0.8) 80%, #000 100%);
+                animation-duration: 1s;
             }
         }
     }
