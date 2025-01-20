@@ -3,6 +3,7 @@ import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { onAuthStateChanged, type User } from 'firebase/auth';
+import draggable from 'vuedraggable';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { useTestServiceStore } from '@/stores/testService';
@@ -16,7 +17,7 @@ const router = useRouter();
 const {startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {getTest, updateTest} = useTestServiceStore();
-const {questions, loadQuestions} = useQuestionServiceStore();
+const {questions, loadQuestions, updateQuestionsPositions} = useQuestionServiceStore();
 
 const showForm = ref((route.query.sF != '0'));
 
@@ -46,7 +47,7 @@ const errors = computed(() => {
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     console.log('edittestview onAuthStateChanged', user);
     test_id.value = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
-    startLoading();
+    if(showForm.value) startLoading();
     try {
         const test = await getTest(test_id.value);
         if(test === null) {
@@ -63,7 +64,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
         showMessage('failure', 'Error loading test data.');
     }
     finally {
-        endLoading();
+        if(showForm.value) endLoading();
     }
 
     try {
@@ -132,6 +133,15 @@ function toggleShowForm() {
     showForm.value = !showForm.value;
     router.push({query: {sF: (showForm.value ? 1 : 0)}});
 }
+
+function onDragEnd() {
+    console.log('onDragEnd', questions.value);
+    updateQuestionsPositions()
+    .then(() => {})
+    .catch(error => {
+        console.log('drag error', error)
+    });
+}
 </script>
 
 <template>
@@ -187,14 +197,19 @@ function toggleShowForm() {
     <div class="question-actions">
         <RouterLink :to="{name: 'create-question', params: {test_id}}" class="btn btn-warning create-question">Create New Question</RouterLink>
     </div>
-    <div class="question-list">
-        <template v-if="questions">
-            <QuestionItem v-for="question in questions" :question="question" :key="question.id" />
-        </template>
-        <template v-else>
+    
+    <template v-if="questions">
+        <draggable v-model="questions" item-key="id" tag="div" :component-data="{'class': 'question-list'}" handle=".question-item-sort-handler" @end="onDragEnd">
+            <template #item="{element}">
+                <QuestionItem :question="element" />
+            </template>
+        </draggable>
+    </template>
+    <template v-else>
+        <div class="question-list">
             <QuestionItem v-for="index in [0, 1, 2]" :key="'question-placeholder-' + index" />
-        </template>
-    </div>
+        </div>
+    </template>
 </template>
 
 <style scoped lang="scss">

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Timestamp } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc } from "firebase/firestore";
 import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
 import type { Question } from "@/models/Question";
@@ -29,6 +29,32 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         return questionRef;
     }
 
+    async function updateQuestionsPositions() {
+        console.log('service questions', questions.value);
+        if(questions.value) {
+            const positions = questions.value.map(q => q.position);
+            let i = 0;
+            while(i + 1 < positions.length) {
+                if(positions[i] > positions[i + 1]) {
+                    const tmp = positions[i];
+                    positions[i] = positions[i + 1];
+                    positions[i + 1] = tmp;
+                }
+                i++;
+            }
+
+            for(const [index, question] of questions.value.entries()) {
+                if(question.position !== positions[index] && question.id) {
+                    const questionRef = doc(db, 'tests', question.test_id, 'questions', question.id);
+                    await updateDoc(questionRef, {
+                        position: positions[index],
+                    });
+                    question.position = positions[index];
+                }
+            }
+        }
+    }
+
     async function deleteQuestion(question: Question) {
         if(question.id) {
             const questionRef = doc(db, 'tests', question.test_id, 'questions', question.id);
@@ -44,6 +70,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         questions: computed(() => questions),
         loadQuestions,
         addQuestion,
-        deleteQuestion
+        updateQuestionsPositions,
+        deleteQuestion,
     }
 });

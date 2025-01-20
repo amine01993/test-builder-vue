@@ -3,7 +3,7 @@ import { QuestionType, type Question } from '@/models/Question';
 import { useMainStore } from '@/stores/main';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import { Modal } from 'bootstrap';
-import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue';
 
 
 const { question } = defineProps<{question?: Question}>();
@@ -98,6 +98,23 @@ async function deleteDQuestion() {
                 <button type="button" class="btn btn-danger" @click="confirmQuestiondeletion"><i class="bi bi-trash3-fill"></i></button>
             </div>
         </div>
+
+        <div class="modal" tabindex="-1" ref="confirm-deletion-modal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this question: "{{ question.text }}"?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" @click="deleteDQuestion">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="question-item-container placeholder-wave" v-else>
         <div class="question-item-content">
@@ -109,23 +126,6 @@ async function deleteDQuestion() {
             </div>
             <hr class="question-item-divider">
             <div class="question-item-actions placeholder col-9 offset-3 placeholder-lg bg-secondary"></div>
-        </div>
-    </div>
-
-    <div class="modal" tabindex="-1" ref="confirm-deletion-modal" v-if="question">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete this question: "{{ question.text }}"?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" @click="deleteDQuestion">Delete</button>
-                </div>
-            </div>
         </div>
     </div>
 </template>
