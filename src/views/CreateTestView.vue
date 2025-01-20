@@ -4,11 +4,9 @@ import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { useTestServiceStore } from '@/stores/testService';
-import { useAuthenticationStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const {user} = useAuthenticationStore();
 const {addTest} = useTestServiceStore();
 const name = ref('');
 const description = ref('');
@@ -69,7 +67,6 @@ async function createTest() {
             description: description.value,
             max_points: Number(maxScore.value),
             time_limit: Number(timeLimit.value),
-            user_id: user.value!.uid,
         });
         console.log('createTest.testRef', testRef);
         serverErrors.value = [];

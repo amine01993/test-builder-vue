@@ -8,17 +8,23 @@ import AppMenu from '@/components/AppMenu.vue';
 import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
+import { useQuestionServiceStore } from '@/stores/questionService';
+import QuestionItem from '@/components/items/QuestionItem.vue';
 
 const route = useRoute();
 const router = useRouter();
 const {startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {getTest, updateTest} = useTestServiceStore();
+const {questions, loadQuestions} = useQuestionServiceStore();
+
+const showForm = ref((route.query.sF != '0'));
+
 const name = ref('');
 const description = ref('');
 const maxScore: Ref<number|string> = ref(0);
 const timeLimit: Ref<number|string> = ref(0);
-let test_id: string|null = null;
+const test_id: Ref<string|null> = ref(null);
 const submitted = ref(false);
 const submitting = ref(false);
 const serverErrors: Ref<any[]> = ref([]);
@@ -39,10 +45,10 @@ const errors = computed(() => {
 
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     console.log('edittestview onAuthStateChanged', user);
+    test_id.value = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
     startLoading();
     try {
-        test_id = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
-        const test = await getTest(test_id);
+        const test = await getTest(test_id.value);
         if(test === null) {
             showMessage('failure', 'Test Not Found.');
             return;
@@ -58,6 +64,16 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     }
     finally {
         endLoading();
+    }
+
+    try {
+        console.log('questions', questions.value);
+        questions.value = null;
+        await loadQuestions(test_id.value);
+    }
+    catch(error) {
+        console.log('error loading tests', error);
+        showMessage('failure', 'Error loading questions.');
     }
 });
 
@@ -80,7 +96,7 @@ onUnmounted(() => {
 });
 
 async function editTest() {
-    if(submitting.value || !test_id) return;
+    if(submitting.value || !test_id.value) return;
 
     submitting.value = true;
     submitted.value = true;
@@ -94,7 +110,7 @@ async function editTest() {
     // editfirebase test
     try {
         await updateTest({
-            id: test_id,
+            id: test_id.value,
             name: name.value,
             description: description.value,
             max_points: Number(maxScore.value),
@@ -111,6 +127,11 @@ async function editTest() {
         submitting.value = false;
     }
 }
+
+function toggleShowForm() {
+    showForm.value = !showForm.value;
+    router.push({query: {sF: (showForm.value ? 1 : 0)}});
+}
 </script>
 
 <template>
@@ -118,8 +139,11 @@ async function editTest() {
     <AppMenu />
 
     <div class="app-main">
-        <div class="test-form">
+        <div class="test-form" :class="{'hide-form': !showForm}">
             <div class="test-form-title mb-4">Edit Test</div>
+            <button class="btn toggle-form-btn" @click="toggleShowForm">
+                <i class="bi" :class="{'bi-chevron-down': !showForm, 'bi-chevron-up': showForm}"></i>
+            </button>
 
             <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
                 <ul>
@@ -159,9 +183,22 @@ async function editTest() {
             </button>
         </div>
     </div>
+
+    <div class="question-actions">
+        <RouterLink :to="{name: 'create-question', params: {test_id}}" class="btn btn-warning create-question">Create New Question</RouterLink>
+    </div>
+    <div class="question-list">
+        <template v-if="questions">
+            <QuestionItem v-for="question in questions" :question="question" :key="question.id" />
+        </template>
+        <template v-else>
+            <QuestionItem v-for="index in [0, 1, 2]" :key="'question-placeholder-' + index" />
+        </template>
+    </div>
 </template>
 
 <style scoped lang="scss">
+@use 'sass:string';
 @use '@/assets/variables' as vars;
 
 .app-main {
@@ -171,10 +208,40 @@ async function editTest() {
     box-shadow: 5px 5px 25px vars.$app-grey;
 
     .test-form {
+        position: relative;
+        transition: max-height 200ms;
+        max-height: 100vh;
+
+        &.hide-form {
+            max-height: 31px;
+            overflow: hidden;
+
+            .test-form-title {
+                font-size: 1.3em;
+                text-align: left;
+                transform: translateX(0);
+                margin-left: 0;
+            }
+        }
+
+        .toggle-form-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin-right: -2vh;
+            margin-top: -2vh;
+            font-size: 1.3em;
+            padding: 1.2rem;
+            border: none;
+        }
+
         .test-form-title {
             font-size: 2em;
             font-weight: 600;
-            text-align: center;
+            transform: translateX(-50%);
+            margin-left: 50%;
+            display: inline-block;
+            transition: all 200ms;
         }
 
         [type=button] {
@@ -189,6 +256,79 @@ async function editTest() {
         .label-info {
             padding-left: 1.5vh;
             color: vars.$app-blue;
+        }
+    }
+}
+
+.question-actions {
+    margin-top: 2vh;
+    margin-right: 2vh;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.question-list {
+    margin: 2vh;
+    display: flex;
+    flex-direction: column;
+    gap: 3vh;
+
+    :deep(.question-item-container) {
+        display: flex;
+        background-color: vars.$app-white;
+        box-shadow: 5px 5px 25px vars.$app-grey;
+
+        .question-item-sort-handler {
+            min-width: 6vh;
+            position: relative;
+            background-color: string.unquote(vars.$app-grey + '75');
+
+            i {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .question-item-content {
+            flex-grow: 1;
+            min-width: calc(100% - 3vh - 4vh);
+            padding: 1vh;
+
+            .question-item-title {
+                text-align: center;
+                font-weight: 600;
+            }
+
+            .question-last-update {
+                text-align: right;
+                color: vars.$app-grey2;
+                font-size: .9em;
+            }
+
+            .question-item-divider {
+                width: 60%;
+                margin: 1vh auto;
+                color: vars.$app-grey;
+                opacity: 1;
+            }
+
+            .question-item-actions {
+                display: flex;
+                gap: 1.5vh;
+                justify-content: flex-end;
+
+                .btn {
+                    border-radius: .5em;
+                    padding: 0.5em 1em;
+                }
+            }
+        }
+
+        &.placeholder-wave {
+            mask-image: linear-gradient(110deg, #000 65%, rgba(0, 0, 0, 0.8) 80%, #000 100%);
+            animation-duration: 1s;
         }
     }
 }

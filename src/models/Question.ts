@@ -1,3 +1,4 @@
+import type { Timestamp } from "firebase/firestore";
 
 export interface Question {
     id?: string;
@@ -6,6 +7,9 @@ export interface Question {
     max_points: number;
     type: QuestionType;
     position: number;
+    user_id?: string;
+    created_at?: Timestamp;
+    updated_at?: Timestamp;
 }
 
 export enum QuestionType {

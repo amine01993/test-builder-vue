@@ -9,7 +9,7 @@ import { useRouter } from 'vue-router';
 
 const { test } = defineProps<{test?: Test}>();
 const router = useRouter();
-const {showMessage} = useMainStore();
+const {showMessage, startLoading, endLoading} = useMainStore();
 const {deleteTest} = useTestServiceStore();
 const testDescriptionEl = useTemplateRef('test-description');
 const testConfirmDeletionModalEl = useTemplateRef('confirm-deletion-modal');
@@ -71,6 +71,7 @@ async function deleteDTest() {
 
     if(test!.id) {
         try {
+            startLoading();
             await deleteTest(test!.id);
             console.log('test deleted with success');
             showMessage('success', 'Test deleted with success.');
@@ -80,7 +81,7 @@ async function deleteDTest() {
             showMessage('failure', 'Test can not be deleted.');
         }
         finally {
-
+            endLoading();
         }
     }
 }
@@ -103,9 +104,6 @@ function copyTestLink() {
 
 <template>
     <div class="test-item-container" v-if="test">
-        <!-- <div class="test-item-sort-handler">
-            <i class="bi bi-arrow-down-up"></i>
-        </div> -->
         <div class="test-item-content">
             <div class="test-item-title">{{ test.name }}</div>
             <hr class="test-item-divider">

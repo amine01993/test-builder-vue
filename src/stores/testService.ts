@@ -3,6 +3,7 @@ import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Ti
 import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
 import type { Test } from "@/models/Test";
+import { useAuthenticationStore } from "./auth";
 
 export const useTestServiceStore = defineStore('testService', () => {
 
@@ -32,7 +33,9 @@ export const useTestServiceStore = defineStore('testService', () => {
     }
 
     async function addTest(test: Test) {
+        const {user} = useAuthenticationStore();
         test.updated_at = test.created_at = Timestamp.fromDate(new Date);
+        test.user_id = user.value?.uid;
         const testRef = await addDoc(collection(db, 'tests'), test);
         return testRef;
     }

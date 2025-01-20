@@ -29,17 +29,17 @@ const router = createRouter({
             component: () => import('../views/SettingsView.vue'),
         },
         {
-            path: '/create/test',
+            path: '/test/create',
             name: 'create-test',
             component: () => import('../views/CreateTestView.vue'),
         },
         {
-            path: '/edit/test/:test_id',
+            path: '/test/:test_id/edit',
             name: 'edit-test',
             component: () => import('../views/EditTestView.vue'),
         },
         {
-            path: '/preview/test/:test_id',
+            path: '/test/:test_id/preview',
             name: 'preview-test',
             component: () => import('../views/PreviewTestView.vue'),
         },
@@ -47,6 +47,21 @@ const router = createRouter({
             path: '/test/:test_id',
             name: 'test-portal',
             component: () => import('../views/TestPortalView.vue'),
+        },
+        {
+            path: '/test/:test_id/question/create',
+            name: 'create-question',
+            component: () => import('../views/CreateQuestionView.vue'),
+        },
+        {
+            path: '/test/:test_id/question/:question_id/preview',
+            name: 'preview-question',
+            component: () => import('../views/PreviewQuestionView.vue'),
+        },
+        {
+            path: '/test/:test_id/question/:question_id/edit',
+            name: 'edit-question',
+            component: () => import('../views/EditQuestionView.vue'),
         },
     ],
 })

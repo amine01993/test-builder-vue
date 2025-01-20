@@ -72,26 +72,10 @@ onUnmounted(() => {
         gap: 3vh;
 
         :deep(.test-item-container) {
-            // display: flex;
             background-color: vars.$app-white;
             box-shadow: 5px 5px 25px vars.$app-grey;
 
-            // .test-item-sort-handler {
-            //     min-width: 6vh;
-            //     position: relative;
-            //     background-color: string.unquote(vars.$app-grey + '75');
-
-            //     i {
-            //         position: absolute;
-            //         top: 50%;
-            //         left: 50%;
-            //         transform: translate(-50%, -50%);
-            //     }
-            // }
-
             .test-item-content {
-                // flex-grow: 1;
-                // min-width: calc(100% - 3vh - 4vh);
                 padding: 1vh;
 
                 .test-item-title {
