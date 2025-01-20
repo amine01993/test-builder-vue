@@ -43,7 +43,7 @@ watch(toastOpt, () => {
 @use '@/assets/variables' as vars;
 
 .toast-message.toast {
-    position: absolute;
+    position: fixed;
     bottom: 5vh;
     left: 50%;
     transform: translateX(-50%);
