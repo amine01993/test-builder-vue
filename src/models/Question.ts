@@ -3,7 +3,6 @@ import type { Timestamp } from "firebase/firestore";
 export interface Question {
     id?: string;
     text: string;
-    test_id: string;
     max_points: number;
     type: QuestionType;
     position: number;

@@ -6,7 +6,7 @@ import { Modal } from 'bootstrap';
 import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue';
 
 
-const { question } = defineProps<{question?: Question}>();
+const { test_id, question } = defineProps<{test_id?: string, question?: Question}>();
 const {showMessage, startLoading, endLoading} = useMainStore();
 const {deleteQuestion} = useQuestionServiceStore();
 const questionConfirmDeletionModalEl = useTemplateRef('confirm-deletion-modal');
@@ -59,10 +59,10 @@ async function deleteDQuestion() {
         questionConfirmDeletionModal.hide();
     }
 
-    if(question) {
+    if(test_id && question) {
         try {
             startLoading();
-            await deleteQuestion(question);
+            await deleteQuestion(test_id, question);
             console.log('question deleted with success');
             showMessage('success', 'Question deleted with success.');
         }
@@ -93,8 +93,8 @@ async function deleteDQuestion() {
             </div>
             <hr class="question-item-divider">
             <div class="question-item-actions">
-                <RouterLink :to="{name: 'preview-question', params: {test_id: question.test_id, question_id: question.id}}" class="btn btn-primary"><i class="bi bi-eye-fill"></i></RouterLink>
-                <RouterLink :to="{name: 'edit-question', params: {test_id: question.test_id, question_id: question.id}}" class="btn btn-success"><i class="bi bi-pencil-fill"></i></RouterLink>
+                <RouterLink :to="{name: 'preview-question', params: {test_id, question_id: question.id}}" class="btn btn-primary"><i class="bi bi-eye-fill"></i></RouterLink>
+                <RouterLink :to="{name: 'edit-question', params: {test_id, question_id: question.id}}" class="btn btn-success"><i class="bi bi-pencil-fill"></i></RouterLink>
                 <button type="button" class="btn btn-danger" @click="confirmQuestiondeletion"><i class="bi bi-trash3-fill"></i></button>
             </div>
         </div>

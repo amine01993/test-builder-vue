@@ -63,6 +63,16 @@ const router = createRouter({
             name: 'edit-question',
             component: () => import('../views/EditQuestionView.vue'),
         },
+        {
+            path: '/test/:test_id/question/:question_id/choice/create',
+            name: 'create-choice',
+            component: () => import('../views/CreateChoiceView.vue'),
+        },
+        {
+            path: '/test/:test_id/question/:question_id/choice/:choice_id/edit',
+            name: 'edit-choice',
+            component: () => import('../views/EditChoiceView.vue'),
+        },
     ],
 })
 

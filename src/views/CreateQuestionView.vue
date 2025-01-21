@@ -62,12 +62,11 @@ async function createQuestion() {
 
     try {
         const test_id = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
-        const questionRef = await addQuestion({
+        const questionRef = await addQuestion(test_id, {
             text: text.value,
             max_points: Number(maxPoints.value),
             type: type.value,
             position: Number(position.value),
-            test_id
         });
         console.log('createQuestion.success', questionRef);
         serverErrors.value = [];

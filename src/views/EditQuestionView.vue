@@ -2,19 +2,32 @@
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import draggable from 'vuedraggable';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { QuestionType } from '@/models/Question';
 import { useQuestionServiceStore } from '@/stores/questionService';
+import { useAuthenticationStore } from '@/stores/auth';
+import { useMainStore } from '@/stores/main';
+import { useChoiceServiceStore } from '@/stores/choiceService';
+import ChoiceItem from '@/components/items/ChoiceItem.vue';
 
 const route = useRoute();
 const router = useRouter();
-const {addQuestion} = useQuestionServiceStore();
+const {startLoading, endLoading, showMessage} = useMainStore();
+const {auth} = useAuthenticationStore();
+const {getQuestion, updateQuestion} = useQuestionServiceStore();
+const {choices, loadChoices, updateChoicesPositions} = useChoiceServiceStore();
+
 const text = ref('');
 const maxPoints: Ref<number|string> = ref(0);
 const type: Ref<QuestionType> = ref(QuestionType.Text);
 const position: Ref<number|string> = ref(0);
 
+const showForm = ref((route.query.sF != '0'));
+const test_id: Ref<string|undefined> = ref();
+const question_id: Ref<string|undefined> = ref();
 const submitted = ref(false);
 const submitting = ref(false);
 const serverErrors: Ref<any[]> = ref([]);
@@ -32,6 +45,40 @@ const errors = computed(() => {
     return _errors;
 });
 
+const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
+    console.log('editquestionview onAuthStateChanged', user);
+    test_id.value = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
+    question_id.value = Array.isArray(route.params.question_id) ? route.params.question_id[0] : route.params.question_id;
+    if(showForm.value) startLoading();
+    try {
+        const question = await getQuestion(test_id.value, question_id.value);
+        if(question === null) {
+            showMessage('failure', 'Question Not Found.');
+            return;
+        }
+        text.value = question.text;
+        type.value = question.type;
+        position.value = question.position;
+        maxPoints.value = question.max_points;
+    }
+    catch(error) {
+        console.log('error loading test', error);
+        showMessage('failure', 'Error loading question data.');
+    }
+    finally {
+        if(showForm.value) endLoading();
+    }
+
+    try {
+        choices.value = null;
+        await loadChoices(test_id.value, question_id.value);
+    }
+    catch(error) {
+        console.log('error loading choices', error);
+        showMessage('failure', 'Error loading choices.');
+    }
+});
+
 const popOvers: Popover[] = [];
 onMounted(() => {
     const popOverEls = document.querySelectorAll('.app-main .label-info');
@@ -47,10 +94,11 @@ onMounted(() => {
 
 onUnmounted(() => {
     popOvers.forEach(popOver => popOver.dispose());
+    onAuthEventDispose();
 });
 
-async function createQuestion() {
-    if(submitting.value) return;
+async function editQuestion() {
+    if(submitting.value || !test_id.value || !question_id.value) return;
 
     submitting.value = true;
     submitted.value = true;
@@ -61,17 +109,16 @@ async function createQuestion() {
     }
 
     try {
-        const test_id = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
-        const questionRef = await addQuestion({
+        await updateQuestion(test_id.value, {
+            id: question_id.value,
             text: text.value,
-            max_points: Number(maxPoints.value),
             type: type.value,
+            max_points: Number(maxPoints.value),
             position: Number(position.value),
-            test_id
         });
-        console.log('createQuestion.success', questionRef);
+        console.log('editQuestion.success');
         serverErrors.value = [];
-        router.push({name: 'edit-test', params: {test_id}});
+        showMessage('success', 'Question edited with success.')
     }
     catch(error: any) {
         console.log('createQuestion.error', error);
@@ -81,6 +128,24 @@ async function createQuestion() {
         submitting.value = false;
     }
 }
+
+function toggleShowForm() {
+    showForm.value = !showForm.value;
+    router.push({query: {sF: (showForm.value ? 1 : 0)}});
+}
+
+function onDragEnd() {
+    if(test_id.value && question_id.value) {
+        updateChoicesPositions(test_id.value, question_id.value)
+        .then(() => {
+            showMessage('success', 'Positions updated with success.');
+        })
+        .catch(error => {
+            console.log('drag error', error);
+            showMessage('failure', 'Sorry! Positions can not be updated.');
+        });
+    }
+}
 </script>
 
 <template>
@@ -88,8 +153,11 @@ async function createQuestion() {
     <AppMenu />
 
     <div class="app-main">
-        <div class="question-form">
-            <div class="question-form-title mb-4">Create Question</div>
+        <div class="question-form" :class="{'hide-form': !showForm}">
+            <div class="question-form-title mb-4">Edit Question</div>
+            <button class="btn toggle-form-btn" @click="toggleShowForm">
+                <i class="bi" :class="{'bi-chevron-down': !showForm, 'bi-chevron-up': showForm}"></i>
+            </button>
 
             <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
                 <ul>
@@ -116,7 +184,7 @@ async function createQuestion() {
                     <option :value="QuestionType.MultipleChoice">Multiple Choice</option>
                     <option :value="QuestionType.Number">Number</option>
                     <option :value="QuestionType.SingleChoice">Single Choice</option>
-\                </select>
+                </select>
                 <div class="invalid-feedback is-invalid" v-if="errors.type">{{ errors.type }}</div>
             </div>
 
@@ -127,15 +195,33 @@ async function createQuestion() {
                 <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
             </div>
 
-            <button type="button" class="btn btn-primary" @click="createQuestion" :disabled="submitting">
-                <template v-if="!submitting">Create</template>
-                <template v-else>Creating ...</template>
+            <button type="button" class="btn btn-primary" @click="editQuestion" :disabled="submitting">
+                <template v-if="!submitting">Edit</template>
+                <template v-else>Editing ...</template>
             </button>
         </div>
     </div>
+
+    <div class="choice-actions">
+        <RouterLink :to="{name: 'create-choice', params: {test_id, question_id}}" class="btn btn-warning">Create New Choice</RouterLink>
+    </div>
+    
+    <template v-if="choices">
+        <draggable v-model="choices" item-key="id" tag="div" :component-data="{'class': 'choice-list'}" handle=".choice-item-sort-handler" @end="onDragEnd">
+            <template #item="{element}">
+                <ChoiceItem :test_id="test_id" :question_id="question_id" :choice="element" />
+            </template>
+        </draggable>
+    </template>
+    <template v-else>
+        <div class="choice-list">
+            <ChoiceItem v-for="index in [0, 1, 2]" :key="'choice-placeholder-' + index" />
+        </div>
+    </template>
 </template>
 
 <style scoped lang="scss">
+@use 'sass:string';
 @use '@/assets/variables' as vars;
 
 .app-main {
@@ -145,10 +231,41 @@ async function createQuestion() {
     box-shadow: 5px 5px 25px vars.$app-grey;
 
     .question-form {
+        position: relative;
+        transition: max-height 200ms;
+        max-height: 100vh;
+
+        &.hide-form {
+            max-height: 31px;
+            overflow: hidden;
+
+            .question-form-title {
+                font-size: 1.3em;
+                text-align: left;
+                transform: translateX(0);
+                margin-left: 0;
+            }
+        }
+
+        .toggle-form-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin-right: -2vh;
+            margin-top: -2vh;
+            font-size: 1.3em;
+            padding: 1.2rem;
+            border: none;
+        }
+
         .question-form-title {
             font-size: 2em;
             font-weight: 600;
-            text-align: center;
+            transform: translateX(-50%);
+            margin-left: 50%;
+            display: inline-block;
+            transition: all 200ms;
+            white-space: nowrap;
         }
 
         [type=button] {
@@ -163,6 +280,79 @@ async function createQuestion() {
         .label-info {
             padding-left: 1.5vh;
             color: vars.$app-blue;
+        }
+    }
+}
+
+.choice-actions {
+    margin-top: 2vh;
+    margin-right: 2vh;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.choice-list {
+    margin: 2vh;
+    display: flex;
+    flex-direction: column;
+    gap: 3vh;
+
+    :deep(.choice-item-container) {
+        display: flex;
+        background-color: vars.$app-white;
+        box-shadow: 5px 5px 25px vars.$app-grey;
+
+        .choice-item-sort-handler {
+            min-width: 6vh;
+            position: relative;
+            background-color: string.unquote(vars.$app-grey + '75');
+
+            i {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .choice-item-content {
+            flex-grow: 1;
+            min-width: calc(100% - 3vh - 4vh);
+            padding: 1vh;
+
+            .choice-item-title {
+                text-align: center;
+                font-weight: 600;
+            }
+
+            .choice-last-update {
+                text-align: right;
+                color: vars.$app-grey2;
+                font-size: .9em;
+            }
+
+            .choice-item-divider {
+                width: 60%;
+                margin: 1vh auto;
+                color: vars.$app-grey;
+                opacity: 1;
+            }
+
+            .choice-item-actions {
+                display: flex;
+                gap: 1.5vh;
+                justify-content: flex-end;
+
+                .btn {
+                    border-radius: .5em;
+                    padding: 0.5em 1em;
+                }
+            }
+        }
+
+        &.placeholder-wave {
+            mask-image: linear-gradient(110deg, #000 65%, rgba(0, 0, 0, 0.8) 80%, #000 100%);
+            animation-duration: 1s;
         }
     }
 }

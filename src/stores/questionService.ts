@@ -10,9 +10,20 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     const {db} = useFirestoreStore();
     const questions: Ref<Question[]|null> = ref(null);
 
+    async function getQuestion(test_id: string, question_id: string): Promise<Question | null> {
+        const questionRef = doc(db, 'tests', test_id, 'questions', question_id);
+        const snap = await getDoc(questionRef);
+        if(snap.exists()) {
+            const question = <Question>snap.data();
+            question.id = snap.id;
+            return question;
+        }
+        return null;
+    }
+
     async function loadQuestions(test_id: string) {
-        const testsRef = collection(db, 'tests', test_id, 'questions');
-        const q = query(testsRef, orderBy('position'));
+        const questionsRef = collection(db, 'tests', test_id, 'questions');
+        const q = query(questionsRef, orderBy('position'));
         const snaps = await getDocs(q);
         questions.value = snaps.docs.map(snap => {
             const question = <Question>snap.data();
@@ -21,15 +32,27 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         });
     }
 
-    async function addQuestion(question: Question) {
+    async function addQuestion(test_id: string, question: Question) {
         const {user} = useAuthenticationStore();
         question.updated_at = question.created_at = Timestamp.fromDate(new Date);
         question.user_id = user.value?.uid;
-        const questionRef = await addDoc(collection(db, 'tests', question.test_id, 'questions'), question);
+        const questionRef = await addDoc(collection(db, 'tests', test_id, 'questions'), question);
         return questionRef;
     }
 
-    async function updateQuestionsPositions() {
+    async function updateQuestion(test_id: string, question: Question) {
+        if(question.id) {
+            await updateDoc(doc(db, 'tests', test_id, 'questions', question.id), {
+                text: question.text,
+                type: question.type,
+                max_points: question.max_points,
+                position: question.position,
+                updated_at: Timestamp.fromDate(new Date),
+            });
+        }
+    }
+
+    async function updateQuestionsPositions(test_id: string) {
         console.log('service questions', questions.value);
         if(questions.value) {
             const positions = questions.value.map(q => q.position);
@@ -45,7 +68,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
 
             for(const [index, question] of questions.value.entries()) {
                 if(question.position !== positions[index] && question.id) {
-                    const questionRef = doc(db, 'tests', question.test_id, 'questions', question.id);
+                    const questionRef = doc(db, 'tests', test_id, 'questions', question.id);
                     await updateDoc(questionRef, {
                         position: positions[index],
                     });
@@ -55,9 +78,9 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         }
     }
 
-    async function deleteQuestion(question: Question) {
+    async function deleteQuestion(test_id: string, question: Question) {
         if(question.id) {
-            const questionRef = doc(db, 'tests', question.test_id, 'questions', question.id);
+            const questionRef = doc(db, 'tests', test_id, 'questions', question.id);
             await deleteDoc(questionRef);
             if(questions.value) {
                 const index = questions.value.findIndex(q => question.id === q.id);
@@ -68,8 +91,10 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
 
     return {
         questions: computed(() => questions),
+        getQuestion,
         loadQuestions,
         addQuestion,
+        updateQuestion,
         updateQuestionsPositions,
         deleteQuestion,
     }

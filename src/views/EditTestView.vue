@@ -19,13 +19,13 @@ const {auth} = useAuthenticationStore();
 const {getTest, updateTest} = useTestServiceStore();
 const {questions, loadQuestions, updateQuestionsPositions} = useQuestionServiceStore();
 
-const showForm = ref((route.query.sF != '0'));
-
 const name = ref('');
 const description = ref('');
 const maxScore: Ref<number|string> = ref(0);
 const timeLimit: Ref<number|string> = ref(0);
-const test_id: Ref<string|null> = ref(null);
+
+const showForm = ref((route.query.sF != '0'));
+const test_id: Ref<string|undefined> = ref(undefined);
 const submitted = ref(false);
 const submitting = ref(false);
 const serverErrors: Ref<any[]> = ref([]);
@@ -73,7 +73,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
         await loadQuestions(test_id.value);
     }
     catch(error) {
-        console.log('error loading tests', error);
+        console.log('error loading questions', error);
         showMessage('failure', 'Error loading questions.');
     }
 });
@@ -135,12 +135,16 @@ function toggleShowForm() {
 }
 
 function onDragEnd() {
-    console.log('onDragEnd', questions.value);
-    updateQuestionsPositions()
-    .then(() => {})
-    .catch(error => {
-        console.log('drag error', error)
-    });
+    if(test_id.value) {
+        updateQuestionsPositions(test_id.value)
+        .then(() => {
+            showMessage('success', 'Positions updated with success.');
+        })
+        .catch(error => {
+            console.log('drag error', error);
+            showMessage('failure', 'Sorry! Positions can not be updated.');
+        });
+    }
 }
 </script>
 
@@ -201,7 +205,7 @@ function onDragEnd() {
     <template v-if="questions">
         <draggable v-model="questions" item-key="id" tag="div" :component-data="{'class': 'question-list'}" handle=".question-item-sort-handler" @end="onDragEnd">
             <template #item="{element}">
-                <QuestionItem :question="element" />
+                <QuestionItem :test_id="test_id" :question="element" />
             </template>
         </draggable>
     </template>
@@ -257,6 +261,7 @@ function onDragEnd() {
             margin-left: 50%;
             display: inline-block;
             transition: all 200ms;
+            white-space: nowrap;
         }
 
         [type=button] {
