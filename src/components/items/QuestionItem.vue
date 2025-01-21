@@ -59,10 +59,10 @@ async function deleteDQuestion() {
         questionConfirmDeletionModal.hide();
     }
 
-    if(test_id && question) {
+    if(test_id && question?.id) {
         try {
             startLoading();
-            await deleteQuestion(test_id, question);
+            await deleteQuestion(test_id, question.id);
             console.log('question deleted with success');
             showMessage('success', 'Question deleted with success.');
         }

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc, writeBatch } from "firebase/firestore";
 import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
 import type { Question } from "@/models/Question";
@@ -78,15 +78,22 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         }
     }
 
-    async function deleteQuestion(test_id: string, question: Question) {
-        if(question.id) {
-            const questionRef = doc(db, 'tests', test_id, 'questions', question.id);
-            await deleteDoc(questionRef);
-            if(questions.value) {
-                const index = questions.value.findIndex(q => question.id === q.id);
-                if(index > -1) questions.value.splice(index, 1);
-            }
+    async function deleteQuestion(test_id: string, question_id: string) {
+        const questionRef = doc(db, 'tests', test_id, 'questions', question_id);
+        await deleteDoc(questionRef);
+        if(questions.value) {
+            const index = questions.value.findIndex(q => question_id === q.id);
+            if(index > -1) questions.value.splice(index, 1);
         }
+
+        // delete choices
+        const batch = writeBatch(db);
+        const choicesRef = collection(db, 'tests', test_id, 'questions', question_id, 'choices');
+        const snaps = await getDocs(choicesRef);
+        snaps.forEach(snap => {
+            batch.delete(snap.ref);
+        });
+        await batch.commit();
     }
 
     return {

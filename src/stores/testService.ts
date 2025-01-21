@@ -4,11 +4,13 @@ import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
 import type { Test } from "@/models/Test";
 import { useAuthenticationStore } from "./auth";
+import { useQuestionServiceStore } from "./questionService";
 
 export const useTestServiceStore = defineStore('testService', () => {
 
     const {db} = useFirestoreStore();
     const tests: Ref<Test[]|null> = ref(null);
+    const {deleteQuestion} = useQuestionServiceStore();
 
     async function getTest(test_id: string): Promise<Test|null> {
         const testRef = doc(db, 'tests', test_id);
@@ -59,6 +61,17 @@ export const useTestServiceStore = defineStore('testService', () => {
             const index = tests.value.findIndex(test => test.id === test_id);
             if(index > -1) tests.value.splice(index, 1);
         }
+
+        // delete questions and choices
+        const questionsRef = collection(db, 'tests', test_id, 'questions');
+        await getDocs(questionsRef)
+        .then(snaps => {
+            const promises: Promise<void>[] = [];
+            snaps.forEach(snap => {
+                promises.push(deleteQuestion(test_id, snap.id));
+            });
+            return Promise.all(promises);
+        });
     }
 
     return {
