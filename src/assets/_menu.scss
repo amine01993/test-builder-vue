@@ -23,12 +23,11 @@
         background-color: vars.$app-black;
         position: fixed;
         top: 0;
+        display: none;
         opacity: .4;
-        transform: translateX(-100%);
-        transition: transform 100ms;
 
         &.open {
-            transform: translateX(0);
+            display: block;
         }
     }
 
