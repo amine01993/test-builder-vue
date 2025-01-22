@@ -33,33 +33,33 @@ export const useBreadcrumbStore = defineStore('breadcrumb', () => {
             case 'create-question':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Test', path: {name: 'edit-test', params: {test_id}} }, 
+                    { name: 'Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
                     { name: 'Create a question', path: null },
                 ];
             case 'preview-question':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Test', path: {name: 'edit-test', params: {test_id}} }, 
+                    { name: 'Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
                     { name: 'Preview a question', path: null },
                 ];
             case 'edit-question':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Test', path: {name: 'edit-test', params: {test_id}} }, 
+                    { name: 'Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
                     { name: 'Edit a question', path: null },
                 ];
             case 'create-choice':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Test', path: {name: 'edit-test', params: {test_id}} }, 
-                    { name: 'Question', path: {name: 'edit-question', params: {test_id, question_id}} }, 
+                    { name: 'Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
+                    { name: 'Question', path: {name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}} }, 
                     { name: 'Create a choice', path: null },
                 ];
             case 'edit-choice':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Test', path: {name: 'edit-test', params: {test_id}} }, 
-                    { name: 'Question', path: {name: 'edit-question', params: {test_id, question_id}} }, 
+                    { name: 'Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
+                    { name: 'Question', path: {name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}} }, 
                     { name: 'Edit a choice', path: null },
                 ];
             default:

@@ -47,7 +47,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     startLoading();
     try {
         const question = await getQuestion(test_id, question_id);
-        if(question === null) {
+        if(!question) {
             showMessage('failure', 'Question Not Found.');
             return;
         }
@@ -55,7 +55,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         questionType.value = question.type;
 
         const choice = await getChoice(test_id, question_id, choice_id);
-        if(choice === null) {
+        if(!choice) {
             showMessage('failure', 'Choice Not Found.');
             return;
         }
@@ -109,7 +109,7 @@ async function editChoice() {
             position: Number(position.value),
         });
         showMessage('success', 'Choice edited with success.');
-        router.push({name: 'edit-question', params: {test_id, question_id}});
+        router.push({name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}});
     }
     catch(error: any) {
         serverErrors.value = ['Server Error: ' + error.code];

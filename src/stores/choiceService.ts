@@ -8,9 +8,9 @@ import type { Choice } from "@/models/Choice";
 export const useChoiceServiceStore = defineStore('choiceService', () => {
 
     const {db} = useFirestoreStore();
-    const choices: Ref<Choice[]|null> = ref(null);
+    const choices: Ref<Choice[]|undefined> = ref();
 
-    async function getChoice(test_id: string, question_id: string, choice_id: string): Promise<Choice | null> {
+    async function getChoice(test_id: string, question_id: string, choice_id: string): Promise<Choice | undefined> {
         const choiceRef = doc(db, 'tests', test_id, 'questions', question_id, 'choices', choice_id);
         const snap = await getDoc(choiceRef);
         if(snap.exists()) {
@@ -18,7 +18,7 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
             choice.id = snap.id;
             return choice;
         }
-        return null;
+        return;
     }
 
     async function loadChoices(test_id: string, question_id: string) {

@@ -46,7 +46,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
 
     try {
         const question = await getQuestion(test_id, question_id);
-        if(question === null) {
+        if(!question) {
             showMessage('failure', 'Question Not Found.');
             return;
         }

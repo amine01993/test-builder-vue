@@ -50,7 +50,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     if(showForm.value) startLoading();
     try {
         const test = await getTest(test_id);
-        if(test === null) {
+        if(!test) {
             showMessage('failure', 'Test Not Found.');
             return;
         }
@@ -67,7 +67,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     }
 
     try {
-        questions.value = null;
+        questions.value = undefined;
         await loadQuestions(test_id);
     }
     catch(error) {

@@ -8,9 +8,9 @@ import { useAuthenticationStore } from "./auth";
 export const useQuestionServiceStore = defineStore('questionService', () => {
 
     const {db} = useFirestoreStore();
-    const questions: Ref<Question[]|null> = ref(null);
+    const questions: Ref<Question[]|undefined> = ref();
 
-    async function getQuestion(test_id: string, question_id: string): Promise<Question | null> {
+    async function getQuestion(test_id: string, question_id: string): Promise<Question | undefined> {
         const questionRef = doc(db, 'tests', test_id, 'questions', question_id);
         const snap = await getDoc(questionRef);
         if(snap.exists()) {
@@ -18,7 +18,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
             question.id = snap.id;
             return question;
         }
-        return null;
+        return;
     }
 
     async function loadQuestions(test_id: string) {

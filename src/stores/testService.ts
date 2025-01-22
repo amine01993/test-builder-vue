@@ -12,11 +12,11 @@ export const useTestServiceStore = defineStore('testService', () => {
     const tests: Ref<Test[]|null> = ref(null);
     const {deleteQuestion} = useQuestionServiceStore();
 
-    async function getTest(test_id: string): Promise<Test|null> {
+    async function getTest(test_id: string): Promise<Test|undefined> {
         const testRef = doc(db, 'tests', test_id);
         const snap = await getDoc(testRef);
         if(!snap.exists()) {
-            return null;
+            return;
         }
         const test = <Test>snap.data();
         test.id = snap.id;
