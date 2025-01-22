@@ -69,15 +69,13 @@ async function deleteDTest() {
         testConfirmDeletionModal.hide();
     }
 
-    if(test!.id) {
+    if(test?.id) {
         try {
             startLoading();
-            await deleteTest(test!.id);
-            console.log('test deleted with success');
+            await deleteTest(test.id);
             showMessage('success', 'Test deleted with success.');
         }
         catch(error) {
-            console.log('test deletion error', error);
             showMessage('failure', 'Test can not be deleted.');
         }
         finally {
@@ -89,14 +87,11 @@ async function deleteDTest() {
 function copyTestLink() {
     const routeLocation = router.resolve({name: 'test-portal', params: {test_id: test!.id}});
     const testLink = location.origin + routeLocation.fullPath;
-    console.log('testLink', testLink)
     navigator.clipboard.writeText(testLink)
     .then(() => {
-        console.log('copyTestLink.then');
         showMessage('success', 'Test link copied!');
     })
     .catch(() => {
-        console.log('copyTestLink.catch');
         showMessage('failure', 'Sorry, Test link couldn\'t be copied!');
     });
 }

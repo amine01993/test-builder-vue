@@ -51,11 +51,9 @@ async function deleteDChoice() {
         try {
             startLoading();
             await deleteChoice(test_id, question_id, choice.id);
-            console.log('choice deleted with success');
             showMessage('success', 'Choice deleted with success.');
         }
         catch(error) {
-            console.log('choice deletion error', error);
             showMessage('failure', 'Choice can not be deleted.');
         }
         finally {

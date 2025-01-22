@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { useRouter } from 'vue-router';
+import { onAuthStateChanged } from 'firebase/auth';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { useChoiceServiceStore } from '@/stores/choiceService';
@@ -10,8 +10,9 @@ import { useQuestionServiceStore } from '@/stores/questionService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { QuestionType } from '@/models/Question';
+import Breadcrumb from '@/components/items/Breadcrumb.vue';
 
-const route = useRoute();
+const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
 const router = useRouter();
 const {showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
@@ -44,8 +45,6 @@ const errors = computed(() => {
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
 
     try {
-        const test_id = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
-        const question_id = Array.isArray(route.params.question_id) ? route.params.question_id[0] : route.params.question_id;
         const question = await getQuestion(test_id, question_id);
         if(question === null) {
             showMessage('failure', 'Question Not Found.');
@@ -55,7 +54,6 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         questionType.value = question.type;
     }
     catch(error) {
-        console.log('error loading question', error);
         showMessage('failure', 'Error loading question.');
     }
     finally {}
@@ -91,20 +89,16 @@ async function createChoice() {
     }
 
     try {
-        const test_id = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
-        const question_id = Array.isArray(route.params.question_id) ? route.params.question_id[0] : route.params.question_id;
-        const choiceRef = await addChoice(test_id, question_id, {
+        await addChoice(test_id, question_id, {
             text: text.value,
             points: Number(points.value),
             is_correct: correctness.value,
             position: Number(position.value),
         });
-        console.log('createChoice.success', choiceRef);
         serverErrors.value = [];
         router.push({name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}});
     }
     catch(error: any) {
-        console.log('createChoice.error', error);
         serverErrors.value = ['Server Error: ' + error.code]
     }
     finally {
@@ -115,6 +109,7 @@ async function createChoice() {
 
 <template>
     <AppHeader />
+    <Breadcrumb :test_id="test_id" :question_id="question_id" />
     <AppMenu />
 
     <div class="app-main">

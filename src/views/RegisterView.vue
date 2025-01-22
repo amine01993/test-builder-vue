@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import { useAuthenticationStore } from '@/stores/auth';
-import { useMainStore } from '@/stores/main';
 import { EmailAuthProvider, linkWithCredential, onAuthStateChanged, validatePassword, type PasswordValidationStatus, type User } from 'firebase/auth';
 import { computed, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
+import AppHeader from '@/components/AppHeader.vue';
+import AppMenu from '@/components/AppMenu.vue';
+import Breadcrumb from '@/components/items/Breadcrumb.vue';
+import { useAuthenticationStore } from '@/stores/auth';
+import { useMainStore } from '@/stores/main';
 
 const router = useRouter();
 const {auth, user, isAnonymous, signUpWithGoogle} = useAuthenticationStore();
@@ -27,7 +28,6 @@ const errors = computed(() => {
 
     if(password.value === '') _errors.password = ['Password required'];
     else if (validationStatus.value && !validationStatus.value.isValid) {
-        console.log('validationStatus', validationStatus)
         const list = [];
         if(validationStatus.value.containsLowercaseLetter !== true) list.push('Require lowercase character');
         if(validationStatus.value.containsNonAlphanumericCharacter !== true) list.push('Require special character');
@@ -41,7 +41,6 @@ const errors = computed(() => {
 });
 
 const onAuthEventDispose = onAuthStateChanged(auth, (user: User|null) => {
-    console.log('Registerview onAuthStateChanged', user)
     if(!isAnonymous(user)) {
         router.push({name: 'home'});
     }
@@ -69,13 +68,11 @@ async function register() {
     // createfirebase user
     try {
         const credential = EmailAuthProvider.credential(email.value, password.value);
-        const userCredential = await linkWithCredential(user.value!, credential);
+        await linkWithCredential(user.value!, credential);
 
-        console.log('register.userCredential', userCredential);
         router.push({name: 'home'});
     }
     catch(error: any) {
-        console.log('register.error');
         serverErrors.value = ['Server Error: ' + error.code];
     }
     finally {
@@ -90,7 +87,6 @@ async function signUpWithG() {
         router.push({name: 'home'});
     }
     catch(error: any) {
-        console.log('register.error');
         serverErrors.value = ['Server Error: ' + error.code];
     }
 }
@@ -98,6 +94,7 @@ async function signUpWithG() {
 
 <template>
     <AppHeader />
+    <Breadcrumb />
     <AppMenu />
 
     <div class="app-main">

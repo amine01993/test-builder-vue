@@ -18,7 +18,6 @@ onUnmounted(() => {
 });
 
 watch(loading, () => {
-    console.log('watching.loading', loading.value);
     if(modalEl.value && modal) {
         if(loading.value) modal.show();
         else modal.hide();

@@ -40,20 +40,17 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         return questionRef;
     }
 
-    async function updateQuestion(test_id: string, question: Question) {
-        if(question.id) {
-            await updateDoc(doc(db, 'tests', test_id, 'questions', question.id), {
-                text: question.text,
-                type: question.type,
-                max_points: question.max_points,
-                position: question.position,
-                updated_at: Timestamp.fromDate(new Date),
-            });
-        }
+    async function updateQuestion(test_id: string, question_id: string, question: Question) {
+        await updateDoc(doc(db, 'tests', test_id, 'questions', question_id), {
+            text: question.text,
+            type: question.type,
+            max_points: question.max_points,
+            position: question.position,
+            updated_at: Timestamp.fromDate(new Date),
+        });
     }
 
     async function updateQuestionsPositions(test_id: string) {
-        console.log('service questions', questions.value);
         if(questions.value) {
             const positions = questions.value.map(q => q.position);
             let i = 0;

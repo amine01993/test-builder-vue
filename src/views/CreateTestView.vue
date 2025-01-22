@@ -5,6 +5,7 @@ import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { useTestServiceStore } from '@/stores/testService';
 import { useRouter } from 'vue-router';
+import Breadcrumb from '@/components/items/Breadcrumb.vue';
 
 const router = useRouter();
 const {addTest} = useTestServiceStore();
@@ -62,18 +63,16 @@ async function createTest() {
 
     // createfirebase test
     try {
-        const testRef = await addTest({
+        await addTest({
             name: name.value,
             description: description.value,
             max_points: Number(maxScore.value),
             time_limit: Number(timeLimit.value),
         });
-        console.log('createTest.testRef', testRef);
         serverErrors.value = [];
         router.push({name: 'tests'});
     }
     catch(error: any) {
-        console.log('createTest.error', error);
         serverErrors.value = ['Server Error: ' + error.code]
     }
     finally {
@@ -84,6 +83,7 @@ async function createTest() {
 
 <template>
     <AppHeader />
+    <Breadcrumb />
     <AppMenu />
 
     <div class="app-main">

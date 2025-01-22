@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { QuestionType } from '@/models/Question';
 import { useQuestionServiceStore } from '@/stores/questionService';
+import Breadcrumb from '@/components/items/Breadcrumb.vue';
 
-const route = useRoute();
+const { test_id } = defineProps<{test_id: string}>();
 const router = useRouter();
 const {addQuestion} = useQuestionServiceStore();
 const text = ref('');
@@ -61,19 +62,16 @@ async function createQuestion() {
     }
 
     try {
-        const test_id = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
-        const questionRef = await addQuestion(test_id, {
+        await addQuestion(test_id, {
             text: text.value,
             max_points: Number(maxPoints.value),
             type: type.value,
             position: Number(position.value),
         });
-        console.log('createQuestion.success', questionRef);
         serverErrors.value = [];
         router.push({name: 'edit-test', params: {test_id}, query: {sF: 0}});
     }
     catch(error: any) {
-        console.log('createQuestion.error', error);
         serverErrors.value = ['Server Error: ' + error.code]
     }
     finally {
@@ -84,6 +82,7 @@ async function createQuestion() {
 
 <template>
     <AppHeader />
+    <Breadcrumb :test_id="test_id" />
     <AppMenu />
 
     <div class="app-main">

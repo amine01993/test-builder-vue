@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import { useAuthenticationStore } from '@/stores/auth';
-import { useMainStore } from '@/stores/main';
 import { onAuthStateChanged, signInWithEmailAndPassword, type User } from 'firebase/auth';
 import { computed, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
+import AppHeader from '@/components/AppHeader.vue';
+import AppMenu from '@/components/AppMenu.vue';
+import Breadcrumb from '@/components/items/Breadcrumb.vue';
+import { useAuthenticationStore } from '@/stores/auth';
+import { useMainStore } from '@/stores/main';
 
 const router = useRouter();
 const {auth, isAnonymous, signUpWithGoogle} = useAuthenticationStore();
@@ -29,7 +30,6 @@ const errors = computed(() => {
 });
 
 const onAuthEventDispose = onAuthStateChanged(auth, (user: User|null) => {
-    console.log('Loginview onAuthStateChanged', user)
     if(!isAnonymous(user)) {
         router.push({name: 'home'});
     }
@@ -53,12 +53,10 @@ async function login() {
 
     // createfirebase user
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
-        console.log('login.userCredential', userCredential);
+        await signInWithEmailAndPassword(auth, email.value, password.value);
         serverErrors.value = [];
     }
     catch(error: any) {
-        console.log('login.error', error);
         serverErrors.value = ['Server Error: ' + error.code]
     }
     finally {
@@ -72,7 +70,6 @@ async function signUpWithG() {
         router.push({name: 'home'});
     }
     catch(error: any) {
-        console.log('register.error');
         serverErrors.value = ['Server Error: ' + error.code];
     }
 }
@@ -80,6 +77,7 @@ async function signUpWithG() {
 
 <template>
     <AppHeader />
+    <Breadcrumb />
     <AppMenu />
 
     <div class="app-main">

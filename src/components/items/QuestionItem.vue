@@ -63,11 +63,9 @@ async function deleteDQuestion() {
         try {
             startLoading();
             await deleteQuestion(test_id, question.id);
-            console.log('question deleted with success');
             showMessage('success', 'Question deleted with success.');
         }
         catch(error) {
-            console.log('question deletion error', error);
             showMessage('failure', 'Question can not be deleted.');
         }
         finally {

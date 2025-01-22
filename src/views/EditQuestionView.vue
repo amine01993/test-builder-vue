@@ -3,7 +3,7 @@ import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import draggable from 'vuedraggable';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { QuestionType } from '@/models/Question';
@@ -12,7 +12,9 @@ import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useChoiceServiceStore } from '@/stores/choiceService';
 import ChoiceItem from '@/components/items/ChoiceItem.vue';
+import Breadcrumb from '@/components/items/Breadcrumb.vue';
 
+const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
 const route = useRoute();
 const router = useRouter();
 const {startLoading, endLoading, showMessage} = useMainStore();
@@ -26,8 +28,6 @@ const type: Ref<QuestionType> = ref(QuestionType.Text);
 const position: Ref<number|string> = ref(0);
 
 const showForm = ref((route.query.sF != '0'));
-const test_id: Ref<string|undefined> = ref();
-const question_id: Ref<string|undefined> = ref();
 const submitted = ref(false);
 const submitting = ref(false);
 const serverErrors: Ref<any[]> = ref([]);
@@ -45,13 +45,11 @@ const errors = computed(() => {
     return _errors;
 });
 
-const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
-    console.log('editquestionview onAuthStateChanged', user);
-    test_id.value = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
-    question_id.value = Array.isArray(route.params.question_id) ? route.params.question_id[0] : route.params.question_id;
+const onAuthEventDispose = onAuthStateChanged(auth, async () => {
+
     if(showForm.value) startLoading();
     try {
-        const question = await getQuestion(test_id.value, question_id.value);
+        const question = await getQuestion(test_id, question_id);
         if(question === null) {
             showMessage('failure', 'Question Not Found.');
             return;
@@ -62,7 +60,6 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
         maxPoints.value = question.max_points;
     }
     catch(error) {
-        console.log('error loading test', error);
         showMessage('failure', 'Error loading question data.');
     }
     finally {
@@ -71,10 +68,9 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
 
     try {
         choices.value = null;
-        await loadChoices(test_id.value, question_id.value);
+        await loadChoices(test_id, question_id);
     }
     catch(error) {
-        console.log('error loading choices', error);
         showMessage('failure', 'Error loading choices.');
     }
 });
@@ -98,7 +94,7 @@ onUnmounted(() => {
 });
 
 async function editQuestion() {
-    if(submitting.value || !test_id.value || !question_id.value) return;
+    if(submitting.value) return;
 
     submitting.value = true;
     submitted.value = true;
@@ -109,19 +105,16 @@ async function editQuestion() {
     }
 
     try {
-        await updateQuestion(test_id.value, {
-            id: question_id.value,
+        await updateQuestion(test_id, question_id, {
             text: text.value,
             type: type.value,
             max_points: Number(maxPoints.value),
             position: Number(position.value),
         });
-        console.log('editQuestion.success');
         serverErrors.value = [];
         showMessage('success', 'Question edited with success.')
     }
     catch(error: any) {
-        console.log('createQuestion.error', error);
         serverErrors.value = ['Server Error: ' + error.code]
     }
     finally {
@@ -135,21 +128,19 @@ function toggleShowForm() {
 }
 
 function onDragEnd() {
-    if(test_id.value && question_id.value) {
-        updateChoicesPositions(test_id.value, question_id.value)
-        .then(() => {
-            showMessage('success', 'Positions updated with success.');
-        })
-        .catch(error => {
-            console.log('drag error', error);
-            showMessage('failure', 'Sorry! Positions can not be updated.');
-        });
-    }
+    updateChoicesPositions(test_id, question_id)
+    .then(() => {
+        showMessage('success', 'Positions updated with success.');
+    })
+    .catch(error => {
+        showMessage('failure', 'Sorry! Positions can not be updated.');
+    });
 }
 </script>
 
 <template>
     <AppHeader />
+    <Breadcrumb :test_id="test_id" />
     <AppMenu />
 
     <div class="app-main">

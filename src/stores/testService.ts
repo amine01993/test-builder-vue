@@ -42,16 +42,14 @@ export const useTestServiceStore = defineStore('testService', () => {
         return testRef;
     }
 
-    async function updateTest(test: Test) {
-        if(test.id) {
-            await updateDoc(doc(db, 'tests', test.id), {
-                name: test.name,
-                description: test.description,
-                max_points: test.max_points,
-                time_limit: test.time_limit,
-                updated_at: Timestamp.fromDate(new Date),
-            });
-        }
+    async function updateTest(test_id: string, test: Test) {
+        await updateDoc(doc(db, 'tests', test_id), {
+            name: test.name,
+            description: test.description,
+            max_points: test.max_points,
+            time_limit: test.time_limit,
+            updated_at: Timestamp.fromDate(new Date),
+        });
     }
 
     async function deleteTest(test_id: string) {

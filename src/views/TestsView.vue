@@ -8,23 +8,19 @@ import { useTestServiceStore } from '@/stores/testService';
 import TestItem from '@/components/items/TestItem.vue';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
+import Breadcrumb from '@/components/items/Breadcrumb.vue';
 
 const {showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {tests, loadTests} = useTestServiceStore();
 
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
-    console.log('Testsview onAuthStateChanged', user)
     try {
-        console.log('tests', tests.value);
         tests.value = null;
         await loadTests(user!.uid);
     }
     catch(error) {
-        console.log('error loading tests', error);
         showMessage('failure', 'Error loading tests.');
-    }
-    finally {
     }
 });
 
@@ -36,6 +32,7 @@ onUnmounted(() => {
 
 <template>
     <AppHeader />
+    <Breadcrumb />
     <AppMenu />
 
     <div class="app-main">

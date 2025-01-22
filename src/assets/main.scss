@@ -13,12 +13,15 @@
 	$alert-border-radius: 0,
 	$btn-close-color: vars.$app-blue,
 	$modal-content-border-radius: 0,
+	$breadcrumb-divider-color: vars.$app-orange,
+	$breadcrumb-active-color: vars.$app-grey2,
 );
 @use '~bootstrap-icons/font/bootstrap-icons' with (
 	$bootstrap-icons-font-dir: "~bootstrap-icons/font/fonts"
 );
 
 @use '@/assets/header';
+@use '@/assets/breadcrumb';
 @use '@/assets/menu';
 
 body {

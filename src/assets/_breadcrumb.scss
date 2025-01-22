@@ -1,0 +1,7 @@
+@use 'sass:string';
+@use '@/assets/variables' as vars;
+
+.app-breadcrumb {
+    margin-top: 2vh;
+    margin-left: 2vh;
+}

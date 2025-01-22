@@ -2,7 +2,7 @@
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import draggable from 'vuedraggable';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
@@ -11,7 +11,9 @@ import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import QuestionItem from '@/components/items/QuestionItem.vue';
+import Breadcrumb from '@/components/items/Breadcrumb.vue';
 
+const { test_id } = defineProps<{test_id: string}>();
 const route = useRoute();
 const router = useRouter();
 const {startLoading, endLoading, showMessage} = useMainStore();
@@ -25,7 +27,6 @@ const maxScore: Ref<number|string> = ref(0);
 const timeLimit: Ref<number|string> = ref(0);
 
 const showForm = ref((route.query.sF != '0'));
-const test_id: Ref<string|undefined> = ref(undefined);
 const submitted = ref(false);
 const submitting = ref(false);
 const serverErrors: Ref<any[]> = ref([]);
@@ -44,12 +45,11 @@ const errors = computed(() => {
     return _errors;
 });
 
-const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
-    console.log('edittestview onAuthStateChanged', user);
-    test_id.value = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
+const onAuthEventDispose = onAuthStateChanged(auth, async () => {
+
     if(showForm.value) startLoading();
     try {
-        const test = await getTest(test_id.value);
+        const test = await getTest(test_id);
         if(test === null) {
             showMessage('failure', 'Test Not Found.');
             return;
@@ -60,7 +60,6 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
         timeLimit.value = test.time_limit;
     }
     catch(error) {
-        console.log('error loading test', error);
         showMessage('failure', 'Error loading test data.');
     }
     finally {
@@ -68,12 +67,10 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     }
 
     try {
-        console.log('questions', questions.value);
         questions.value = null;
-        await loadQuestions(test_id.value);
+        await loadQuestions(test_id);
     }
     catch(error) {
-        console.log('error loading questions', error);
         showMessage('failure', 'Error loading questions.');
     }
 });
@@ -97,7 +94,7 @@ onUnmounted(() => {
 });
 
 async function editTest() {
-    if(submitting.value || !test_id.value) return;
+    if(submitting.value) return;
 
     submitting.value = true;
     submitted.value = true;
@@ -110,8 +107,7 @@ async function editTest() {
 
     // editfirebase test
     try {
-        await updateTest({
-            id: test_id.value,
+        await updateTest(test_id, {
             name: name.value,
             description: description.value,
             max_points: Number(maxScore.value),
@@ -121,7 +117,6 @@ async function editTest() {
         router.push({name: 'tests'});
     }
     catch(error: any) {
-        console.log('editTest.error', error);
         serverErrors.value = ['Server Error: ' + error.code]
     }
     finally {
@@ -135,13 +130,12 @@ function toggleShowForm() {
 }
 
 function onDragEnd() {
-    if(test_id.value) {
-        updateQuestionsPositions(test_id.value)
+    if(test_id) {
+        updateQuestionsPositions(test_id)
         .then(() => {
             showMessage('success', 'Positions updated with success.');
         })
         .catch(error => {
-            console.log('drag error', error);
             showMessage('failure', 'Sorry! Positions can not be updated.');
         });
     }
@@ -150,6 +144,7 @@ function onDragEnd() {
 
 <template>
     <AppHeader />
+    <Breadcrumb />
     <AppMenu />
 
     <div class="app-main">

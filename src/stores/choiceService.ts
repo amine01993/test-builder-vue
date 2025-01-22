@@ -40,16 +40,14 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
         return questionRef;
     }
 
-    async function updateChoice(test_id: string, question_id: string, choice: Choice) {
-        if(choice.id) {
-            await updateDoc(doc(db, 'tests', test_id, 'questions', question_id, 'choices', choice.id), {
-                text: choice.text,
-                is_correct: choice.is_correct,
-                points: choice.points,
-                position: choice.position,
-                updated_at: Timestamp.fromDate(new Date),
-            });
-        }
+    async function updateChoice(test_id: string, question_id: string, choice_id: string, choice: Choice) {
+        await updateDoc(doc(db, 'tests', test_id, 'questions', question_id, 'choices', choice_id), {
+            text: choice.text,
+            is_correct: choice.is_correct,
+            points: choice.points,
+            position: choice.position,
+            updated_at: Timestamp.fromDate(new Date),
+        });   
     }
 
     async function updateChoicesPositions(test_id: string, question_id: string) {

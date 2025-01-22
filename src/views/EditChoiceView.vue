@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { useRouter } from 'vue-router';
+import { onAuthStateChanged } from 'firebase/auth';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { useQuestionServiceStore } from '@/stores/questionService';
@@ -10,8 +10,9 @@ import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useChoiceServiceStore } from '@/stores/choiceService';
 import { QuestionType } from '@/models/Question';
+import Breadcrumb from '@/components/items/Breadcrumb.vue';
 
-const route = useRoute();
+const { test_id, question_id, choice_id } = defineProps<{test_id: string, question_id: string, choice_id: string}>();
 const router = useRouter();
 const {startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
@@ -25,9 +26,6 @@ const points: Ref<number|string> = ref(0);
 const correctness: Ref<boolean> = ref(false);
 const position: Ref<number|string> = ref(0);
 
-const test_id: Ref<string|null> = ref(null);
-const question_id: Ref<string|null> = ref(null);
-const choice_id: Ref<string|null> = ref(null);
 const submitted = ref(false);
 const submitting = ref(false);
 const serverErrors: Ref<any[]> = ref([]);
@@ -44,15 +42,11 @@ const errors = computed(() => {
     return _errors;
 });
 
-const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
-
-    test_id.value = Array.isArray(route.params.test_id) ? route.params.test_id[0] : route.params.test_id;
-    question_id.value = Array.isArray(route.params.question_id) ? route.params.question_id[0] : route.params.question_id;
-    choice_id.value = Array.isArray(route.params.choice_id) ? route.params.choice_id[0] : route.params.choice_id;
+const onAuthEventDispose = onAuthStateChanged(auth, async () => {
 
     startLoading();
     try {
-        const question = await getQuestion(test_id.value, question_id.value);
+        const question = await getQuestion(test_id, question_id);
         if(question === null) {
             showMessage('failure', 'Question Not Found.');
             return;
@@ -60,7 +54,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
         questionText.value = question.text;
         questionType.value = question.type;
 
-        const choice = await getChoice(test_id.value, question_id.value, choice_id.value);
+        const choice = await getChoice(test_id, question_id, choice_id);
         if(choice === null) {
             showMessage('failure', 'Choice Not Found.');
             return;
@@ -97,7 +91,7 @@ onUnmounted(() => {
 });
 
 async function editChoice() {
-    if(submitting.value || !test_id.value || !question_id.value || !choice_id.value) return;
+    if(submitting.value) return;
 
     submitting.value = true;
     submitted.value = true;
@@ -108,18 +102,16 @@ async function editChoice() {
     }
 
     try {
-        await updateChoice(test_id.value, question_id.value, {
-            id: choice_id.value,
+        await updateChoice(test_id, question_id, choice_id, {
             text: text.value,
             is_correct: correctness.value,
             points: Number(points.value),
             position: Number(position.value),
         });
         showMessage('success', 'Choice edited with success.');
-        router.push({name: 'edit-question', params: {test_id: test_id.value, question_id: question_id.value}});
+        router.push({name: 'edit-question', params: {test_id, question_id}});
     }
     catch(error: any) {
-        console.log('editChoice.error', error);
         serverErrors.value = ['Server Error: ' + error.code];
     }
     finally {
@@ -130,6 +122,7 @@ async function editChoice() {
 
 <template>
     <AppHeader />
+    <Breadcrumb :test_id="test_id" :question_id="question_id" />
     <AppMenu />
 
     <div class="app-main">

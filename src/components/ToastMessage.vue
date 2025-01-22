@@ -3,7 +3,7 @@ import { Toast } from 'bootstrap';
 import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue';
 import { useMainStore } from '@/stores/main';
 
-const {toastOpt, showMessage} = useMainStore();
+const {toastOpt} = useMainStore();
 const toastEl = useTemplateRef('toast-message');
 let toast: Toast|null = null;
 
@@ -18,11 +18,8 @@ onUnmounted(() => {
 });
 
 watch(toastOpt, () => {
-    console.log('watching.taostOpt', toastOpt.value);
-    console.log(toastEl.value, toast);
     if(toastEl.value && toast) {
         toast.show();
-        console.log('toast show');
     }
 });
 </script>

@@ -26,8 +26,7 @@ export const useAuthenticationStore = defineStore('auth', () => {
     async function signUpWithGoogle() {
         const provider = new GoogleAuthProvider();
     
-        const userCredential = await linkWithPopup(user.value!, provider);
-        console.log('signUpWithGoogle.userCredential', userCredential);
+        await linkWithPopup(user.value!, provider);
     }
 
     return {

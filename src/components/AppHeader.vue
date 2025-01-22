@@ -7,22 +7,19 @@ import { onMounted, onUnmounted, useTemplateRef } from 'vue';
 import { Dropdown } from 'bootstrap';
 
 const router = useRouter();
-const { toggleMenu } = useMainStore();
+const { toggleMenu, showMessage } = useMainStore();
 const { user, auth, isAnonymous } = useAuthenticationStore();
 const userDropdown = useTemplateRef('user-dropdown');
 let dropdown: null|Dropdown = null;
 
 onMounted(() => {
-    // const dropdownEl = document.querySelector('.app-header .user.dropdown');
     if(userDropdown.value) {
-        console.log('new Dropdown', userDropdown.value);
         dropdown = new Dropdown(userDropdown.value);
     }
 });
 
 onUnmounted(() => {
     if(dropdown) {
-        console.log('dropdown dispose')
         dropdown.dispose();
         dropdown = null;
     }
@@ -31,12 +28,11 @@ onUnmounted(() => {
 async function signOutUser() {
     try {
         await signOut(auth);
-        console.log('signOut successful');
         // redirect to home page
         router.push({name: 'home'});
     }
     catch(error) {
-        console.log('error', error);
+        showMessage('failure', 'Failed to Sign out.')
     }
 }
 </script>
