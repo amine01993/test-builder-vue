@@ -10,9 +10,9 @@ export const useTestServiceStore = defineStore('testService', () => {
 
     const {db} = useFirestoreStore();
     const tests: Ref<Test[]|null> = ref(null);
-    const {deleteQuestion} = useQuestionServiceStore();
+    const {deleteQuestion, getQuestions} = useQuestionServiceStore();
 
-    async function getTest(test_id: string): Promise<Test|undefined> {
+    async function getTest(test_id: string, loadQuestions: boolean = false): Promise<Test|undefined> {
         const testRef = doc(db, 'tests', test_id);
         const snap = await getDoc(testRef);
         if(!snap.exists()) {
@@ -20,6 +20,11 @@ export const useTestServiceStore = defineStore('testService', () => {
         }
         const test = <Test>snap.data();
         test.id = snap.id;
+
+        if(loadQuestions) {
+            test.questions = await getQuestions(snap.id);
+        }
+
         return test;
     }
 

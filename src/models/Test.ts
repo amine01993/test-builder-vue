@@ -1,4 +1,5 @@
 import type { Timestamp } from "firebase/firestore";
+import type { Question } from "./Question";
 
 export interface Test {
     id?: string;
@@ -6,6 +7,7 @@ export interface Test {
     description: string;
     max_points: number;
     time_limit: number;
+    questions?: Question[];
     user_id?: string;
     created_at?: Timestamp;
     updated_at?: Timestamp;

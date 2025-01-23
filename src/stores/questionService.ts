@@ -4,10 +4,13 @@ import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
 import type { Question } from "@/models/Question";
 import { useAuthenticationStore } from "./auth";
+import type { Choice } from "@/models/Choice";
+import { useChoiceServiceStore } from "./choiceService";
 
 export const useQuestionServiceStore = defineStore('questionService', () => {
 
     const {db} = useFirestoreStore();
+    const {getChoices} = useChoiceServiceStore();
     const questions: Ref<Question[]|undefined> = ref();
 
     async function getQuestion(test_id: string, question_id: string): Promise<Question | undefined> {
@@ -19,6 +22,33 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
             return question;
         }
         return;
+    }
+
+    async function getQuestions(test_id: string): Promise<Question[]> {
+        const questionsRef = collection(db, 'tests', test_id, 'questions');
+        const q = query(questionsRef, orderBy('position'));
+        const questions: Question[] = [];
+        
+        const choicesList = await getDocs(q)
+        .then(snaps => {
+            const promises: Promise<Choice[]>[] = [];
+            snaps.forEach(snap => {
+                if(snap.exists()) {
+                    const question = <Question>snap.data();
+                    question.id = snap.id;
+                    questions.push(question);
+
+                    promises.push(getChoices(test_id, snap.id));
+                }
+            });
+            return Promise.all(promises);
+        });
+        
+        choicesList.forEach((choices, index) => {
+            questions[index].choices = choices;
+        });
+
+        return questions;
     }
 
     async function loadQuestions(test_id: string) {
@@ -96,6 +126,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     return {
         questions: computed(() => questions),
         getQuestion,
+        getQuestions,
         loadQuestions,
         addQuestion,
         updateQuestion,

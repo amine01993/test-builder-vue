@@ -20,7 +20,6 @@ const {choices, loadChoices} = useChoiceServiceStore();
 const question: Ref<Question|undefined> = ref();
 
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
-
     startLoading();
     try {
         question.value = await getQuestion(test_id, question_id);
@@ -28,20 +27,15 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
             showMessage('failure', 'Question Not Found.');
             return;
         }
+
+        choices.value = undefined;
+        await loadChoices(test_id, question_id);
     }
     catch(error) {
         showMessage('failure', 'Error loading question data.');
     }
     finally {
         endLoading();
-    }
-
-    try {
-        choices.value = undefined;
-        await loadChoices(test_id, question_id);
-    }
-    catch(error) {
-        showMessage('failure', 'Error loading choices.');
     }
 });
 

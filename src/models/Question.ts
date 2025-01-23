@@ -1,4 +1,5 @@
 import type { Timestamp } from "firebase/firestore";
+import type { Choice } from "./Choice";
 
 export interface Question {
     id?: string;
@@ -6,6 +7,7 @@ export interface Question {
     max_points: number;
     type: QuestionType;
     position: number;
+    choices?: Choice[];
     user_id?: string;
     created_at?: Timestamp;
     updated_at?: Timestamp;

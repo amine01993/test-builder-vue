@@ -2,7 +2,7 @@
 import type { Choice } from '@/models/Choice';
 import { QuestionType, type Question } from '@/models/Question';
 
-const { question, choices } = defineProps<{question?: Question, choices?: Choice[]}>();
+const { question, choices } = defineProps<{question?: Question, choices?: Choice[], nbr?: number}>();
 
 </script>
 
@@ -12,7 +12,7 @@ const { question, choices } = defineProps<{question?: Question, choices?: Choice
             'question-type-text': [QuestionType.Text, QuestionType.Number].includes(question.type), 
             'question-type-choices': [QuestionType.SingleChoice, QuestionType.MultipleChoice].includes(question.type),
         }">
-        <div class="question-text">1. {{ question.text }}</div>
+        <div class="question-text">{{ nbr ?? 1 }}. {{ question.text }}</div>
         <div class="question-pts">({{ question.max_points }} pts)</div>
 
         <template v-if="choices">

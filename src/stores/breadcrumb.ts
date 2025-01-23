@@ -18,39 +18,46 @@ export const useBreadcrumbStore = defineStore('breadcrumb', () => {
             case 'create-test':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
+                    { name: 'Tests', path: {name: 'tests'} }, 
                     { name: 'Create a test', path: null },
                 ];
             case 'edit-test':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
+                    { name: 'Tests', path: {name: 'tests'} }, 
                     { name: 'Edit a test', path: null },
                 ];
             case 'preview-test':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
+                    { name: 'Tests', path: {name: 'tests'} }, 
                     { name: 'Preview a test', path: null },
                 ];
             case 'create-question':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
+                    { name: 'Tests', path: {name: 'tests'} }, 
                     { name: 'Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
                     { name: 'Create a question', path: null },
                 ];
             case 'preview-question':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
+                    { name: 'Tests', path: {name: 'tests'} }, 
                     { name: 'Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
                     { name: 'Preview a question', path: null },
                 ];
             case 'edit-question':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
+                    { name: 'Tests', path: {name: 'tests'} }, 
                     { name: 'Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
                     { name: 'Edit a question', path: null },
                 ];
             case 'create-choice':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
+                    { name: 'Tests', path: {name: 'tests'} }, 
                     { name: 'Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
                     { name: 'Question', path: {name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}} }, 
                     { name: 'Create a choice', path: null },
@@ -58,6 +65,7 @@ export const useBreadcrumbStore = defineStore('breadcrumb', () => {
             case 'edit-choice':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 
+                    { name: 'Tests', path: {name: 'tests'} }, 
                     { name: 'Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
                     { name: 'Question', path: {name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}} }, 
                     { name: 'Edit a choice', path: null },

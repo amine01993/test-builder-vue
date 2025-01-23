@@ -21,6 +21,17 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
         return;
     }
 
+    async function getChoices(test_id: string, question_id: string) {
+        const choicesRef = collection(db, 'tests', test_id, 'questions', question_id, 'choices');
+        const q = query(choicesRef, orderBy('position'));
+        const snaps = await getDocs(q);
+        return snaps.docs.map(snap => {
+            const choice = <Choice>snap.data();
+            choice.id = snap.id;
+            return choice;
+        });
+    }
+
     async function loadChoices(test_id: string, question_id: string) {
         const choicesRef = collection(db, 'tests', test_id, 'questions', question_id, 'choices');
         const q = query(choicesRef, orderBy('position'));
@@ -88,6 +99,7 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
     return {
         choices: computed(() => choices),
         getChoice,
+        getChoices,
         loadChoices,
         addChoice,
         updateChoice,
