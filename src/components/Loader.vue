@@ -3,7 +3,7 @@ import { Modal } from 'bootstrap';
 import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue';
 import { useMainStore } from '@/stores/main';
 
-const {loading} = useMainStore();
+const {loading, loadStatus, LoadingStatus} = useMainStore();
 const modalEl = useTemplateRef('confirm-deletion-modal');
 let modal: Modal|null = null;
 
@@ -30,7 +30,9 @@ watch(loading, () => {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-body">
-                    Loading ...
+                    <div class="spinner-border text-light" role="status"></div>
+                    <template v-if="loadStatus === LoadingStatus.CONNECTING">Connecting ...</template>
+                    <template v-else>Loading ...</template>
                 </div>
             </div>
         </div>
@@ -42,7 +44,7 @@ watch(loading, () => {
 
 .loader.modal {
     .modal-dialog {
-        width: 160px;
+        width: 200px;
         text-align: center;
         margin: auto;
 
@@ -50,6 +52,13 @@ watch(loading, () => {
             background-color: vars.$app-blue;
             color: vars.$app-white;
             font-style: italic;
+
+            .modal-body {
+                display: flex;
+                justify-content: center;
+                gap: 2vh;
+                align-items: center;
+            }
         }
     }
 }
