@@ -67,7 +67,6 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     }
 
     try {
-        questions.value = undefined;
         await loadQuestions(test_id);
     }
     catch(error) {

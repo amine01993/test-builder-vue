@@ -67,7 +67,6 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     }
 
     try {
-        choices.value = undefined;
         await loadChoices(test_id, question_id);
     }
     catch(error) {

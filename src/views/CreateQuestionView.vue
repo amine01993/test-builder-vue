@@ -2,15 +2,24 @@
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { onAuthStateChanged } from 'firebase/auth';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
 import { QuestionType } from '@/models/Question';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import Breadcrumb from '@/components/items/Breadcrumb.vue';
+import { useTestServiceStore } from '@/stores/testService';
+import { useMainStore } from '@/stores/main';
+import { useAuthenticationStore } from '@/stores/auth';
 
 const { test_id } = defineProps<{test_id: string}>();
 const router = useRouter();
+const {showMessage} = useMainStore();
+const {auth} = useAuthenticationStore();
+const {getTest} = useTestServiceStore();
 const {addQuestion} = useQuestionServiceStore();
+const testName = ref('');
+
 const text = ref('');
 const maxPoints: Ref<number|string> = ref(0);
 const type: Ref<QuestionType> = ref(QuestionType.Text);
@@ -33,6 +42,22 @@ const errors = computed(() => {
     return _errors;
 });
 
+const onAuthEventDispose = onAuthStateChanged(auth, async () => {
+
+    try {
+        const test = await getTest(test_id);
+        if(!test) {
+            showMessage('failure', 'Test Not Found.');
+            return;
+        }
+        testName.value = test.name;
+    }
+    catch(error) {
+        showMessage('failure', 'Error loading test.');
+    }
+    finally {}
+});
+
 const popOvers: Popover[] = [];
 onMounted(() => {
     const popOverEls = document.querySelectorAll('.app-main .label-info');
@@ -48,6 +73,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     popOvers.forEach(popOver => popOver.dispose());
+    onAuthEventDispose();
 });
 
 async function createQuestion() {
@@ -93,6 +119,10 @@ async function createQuestion() {
                 <ul>
                     <li v-for="error in serverErrors" :key="error">{{ error }}</li>
                 </ul>
+            </div>
+
+            <div class="mb-3 test-name">
+                {{ testName }}
             </div>
 
             <div class="mb-3">
@@ -143,6 +173,11 @@ async function createQuestion() {
     box-shadow: 5px 5px 25px vars.$app-grey;
 
     .question-form {
+        .test-name {
+            text-align: center;
+            font-weight: 600;
+        }
+
         .question-form-title {
             font-size: 2em;
             font-weight: 600;

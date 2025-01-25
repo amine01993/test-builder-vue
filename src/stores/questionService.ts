@@ -11,6 +11,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
 
     const {db} = useFirestoreStore();
     const {getChoices} = useChoiceServiceStore();
+    const testId: Ref<string|undefined> = ref();
     const questions: Ref<Question[]|undefined> = ref();
 
     async function getQuestion(test_id: string, question_id: string): Promise<Question | undefined> {
@@ -52,6 +53,9 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     }
 
     async function loadQuestions(test_id: string) {
+        if(testId.value === test_id) return;
+
+        testId.value = test_id;
         const questionsRef = collection(db, 'tests', test_id, 'questions');
         const q = query(questionsRef, orderBy('position'));
         const snaps = await getDocs(q);
@@ -64,9 +68,29 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
 
     async function addQuestion(test_id: string, question: Question) {
         const {user} = useAuthenticationStore();
-        question.updated_at = question.created_at = Timestamp.fromDate(new Date);
         question.user_id = user.value?.uid;
         const questionRef = await addDoc(collection(db, 'tests', test_id, 'questions'), question);
+
+        question.id = questionRef.id;
+        question.updated_at = Timestamp.fromDate(new Date);
+
+        if(questions.value) {
+            questions.value.unshift(question);
+            // sort by position
+            let i = 0;
+            while(i + 1 < questions.value.length) {
+                if(questions.value[i].position > questions.value[i + 1].position) {
+                    const tmp = questions.value[i];
+                    questions.value[i] = questions.value[i + 1];
+                    questions.value[i + 1] = tmp;
+                }
+                i++;
+            }
+        }
+        else {
+            questions.value = [question];
+        }
+        
         return questionRef;
     }
 
@@ -76,8 +100,43 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
             type: question.type,
             max_points: question.max_points,
             position: question.position,
-            updated_at: Timestamp.fromDate(new Date),
         });
+
+        if(questions.value) {
+            const index = questions.value.findIndex(q => q.id === question_id);
+            if(index > -1) {
+                const _question = questions.value[index];
+                _question.text = question.text;
+                _question.type = question.type;
+                _question.max_points = question.max_points;
+                _question.updated_at = Timestamp.fromDate(new Date);
+
+                // sort by position
+                if(question.position > _question.position) {
+                    let i = index;
+                    while(i + 1 < questions.value.length) {
+                        if(question.position > questions.value[i + 1].position) {
+                            const tmp = questions.value[i];
+                            questions.value[i] = questions.value[i + 1];
+                            questions.value[i + 1] = tmp;
+                        }
+                        i++;
+                    }
+                }
+                else if (question.position < _question.position) {
+                    let i = index;
+                    while(i - 1 >= 0) {
+                        if(question.position < questions.value[i - 1].position) {
+                            const tmp = questions.value[i];
+                            questions.value[i] = questions.value[i - 1];
+                            questions.value[i - 1] = tmp;
+                        }
+                        i--;
+                    }
+                }
+                _question.position = question.position;
+            }
+        }
     }
 
     async function updateQuestionsPositions(test_id: string) {

@@ -16,7 +16,6 @@ const {tests, loadTests} = useTestServiceStore();
 
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     try {
-        tests.value = null;
         await loadTests(user!.uid);
     }
     catch(error) {

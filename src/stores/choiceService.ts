@@ -8,6 +8,8 @@ import type { Choice } from "@/models/Choice";
 export const useChoiceServiceStore = defineStore('choiceService', () => {
 
     const {db} = useFirestoreStore();
+    const testId: Ref<string|undefined> = ref();
+    const questionId: Ref<string|undefined> = ref();
     const choices: Ref<Choice[]|undefined> = ref();
 
     async function getChoice(test_id: string, question_id: string, choice_id: string): Promise<Choice | undefined> {
@@ -33,6 +35,11 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
     }
 
     async function loadChoices(test_id: string, question_id: string) {
+        if(testId.value === test_id && questionId.value === question_id) return;
+
+        testId.value = test_id;
+        questionId.value = question_id;
+
         const choicesRef = collection(db, 'tests', test_id, 'questions', question_id, 'choices');
         const q = query(choicesRef, orderBy('position'));
         const snaps = await getDocs(q);
@@ -45,10 +52,30 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
 
     async function addChoice(test_id: string, question_id: string, choice: Choice) {
         const {user} = useAuthenticationStore();
-        choice.updated_at = choice.created_at = Timestamp.fromDate(new Date);
         choice.user_id = user.value?.uid;
-        const questionRef = await addDoc(collection(db, 'tests', test_id, 'questions', question_id, 'choices'), choice);
-        return questionRef;
+        const choiceRef = await addDoc(collection(db, 'tests', test_id, 'questions', question_id, 'choices'), choice);
+
+        choice.id = choiceRef.id;
+        choice.updated_at = Timestamp.fromDate(new Date);
+
+        if(choices.value) {
+            choices.value.unshift(choice);
+            // sort by position
+            let i = 0;
+            while(i + 1 < choices.value.length) {
+                if(choices.value[i].position > choices.value[i + 1].position) {
+                    const tmp = choices.value[i];
+                    choices.value[i] = choices.value[i + 1];
+                    choices.value[i + 1] = tmp;
+                }
+                i++;
+            }
+        }
+        else {
+            choices.value = [choice];
+        }
+        
+        return choiceRef;
     }
 
     async function updateChoice(test_id: string, question_id: string, choice_id: string, choice: Choice) {
@@ -57,8 +84,44 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
             is_correct: choice.is_correct,
             points: choice.points,
             position: choice.position,
-            updated_at: Timestamp.fromDate(new Date),
-        });   
+        });
+
+        if(choices.value) {
+            const index = choices.value.findIndex(c => c.id === choice_id);
+            if(index > -1) {
+                const _choice = choices.value[index];
+                _choice.text = choice.text;
+                _choice.is_correct = choice.is_correct;
+                _choice.points = choice.points;
+                _choice.updated_at = Timestamp.fromDate(new Date);
+
+                // sort by position
+                if(choice.position > _choice.position) {
+                    let i = index;
+                    while(i + 1 < choices.value.length) {
+                        if(choice.position > choices.value[i + 1].position) {
+                            const tmp = choices.value[i];
+                            choices.value[i] = choices.value[i + 1];
+                            choices.value[i + 1] = tmp;
+                        }
+                        i++;
+                    }
+                }
+                else if (choice.position < _choice.position) {
+                    let i = index;
+                    while(i - 1 >= 0) {
+                        if(choice.position < choices.value[i - 1].position) {
+                            const tmp = choices.value[i];
+                            choices.value[i] = choices.value[i - 1];
+                            choices.value[i - 1] = tmp;
+                        }
+                        i--;
+                    }
+                }
+                _choice.position = choice.position;
+            }
+            console.log('after update', choices.value);
+        }
     }
 
     async function updateChoicesPositions(test_id: string, question_id: string) {

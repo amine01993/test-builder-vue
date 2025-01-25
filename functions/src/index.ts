@@ -7,9 +7,10 @@
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-import {onCall, onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+import {onRequest} from "firebase-functions/v2/https";
+// import * as logger from "firebase-functions/logger";
 import {db} from './init';
+import {_choiceCreate, _choiceUpdate, _questionCreate, _questionUpdate, _testCreate, _testUpdate} from './triggers';
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
@@ -18,18 +19,6 @@ import {db} from './init';
 //     // console.log(request.);
 //     logger.info("Hello logs!", {structuredData: true});
 //     response.send("Hello from Firebase!");
-// });
-
-// export const testCall = onCall(
-//     {
-//         // { cors: [/firebase\.com$/, "https://flutter.com"] },
-//         cors: true
-//     }, 
-//     (request, response) => {
-//     console.log('request', request.auth);
-//     return {
-//         message: 'Whatsapp!',
-//     };
 // });
 
 export const getTest = onRequest(async (request, response) => {
@@ -84,3 +73,10 @@ async function getChoices(test_id: string, question_id: string) {
         return choice;
     });
 }
+
+export const testCreate = _testCreate;
+export const testUpdate = _testUpdate;
+export const questionCreate = _questionCreate;
+export const questionUpdate = _questionUpdate;
+export const choiceCreate = _choiceCreate;
+export const choiceUpdate = _choiceUpdate;
