@@ -126,7 +126,7 @@ function submitTest() {
 
     <div class="app-main" v-if="test">
         <DisplayQuestion v-for="(question, index) in test?.questions" :key="question.id"
-            :question="question" :choices="question.choices" :nbr="index + 1" />
+            :question="question" :choices="question.choices" :nbr="index + 1" :preview="true" />
 
         <div class="app-test-actions">
             <button type="button" class="btn btn-outline-primary to-the-top" @click="moveToTheTop">
@@ -191,41 +191,43 @@ function submitTest() {
         :deep(.display-question) {
 
             &.question-type-choices {
-                display: grid;
-                grid-template-columns: 1fr 10vh;
-                row-gap: 1vh;
-
-                .choice-pts {
-                    text-align: right;
+                .question-wrapper {
+                    display: grid;
+                    grid-template-columns: 1fr 10vh;
+                    row-gap: 1vh;
                 }
+
+                .choices-wrapper {
+                    display: grid;
+                    grid-template-columns: 1fr 10vh;
+                    row-gap: 1vh;
+                    
+                    .choice-pts {
+                        text-align: right;
+                    }
+                }   
             }
 
             &.question-type-text {
-                display: grid;
-                grid-template-areas: "qt qp" "ci ." "cp .";
-                row-gap: 1vh;
-
-                .question-text {
-                    grid-area: qt;
+                .question-wrapper {
+                    display: grid;
+                    grid-template-columns: 1fr 10vh;
+                    row-gap: 1vh;
                 }
 
-                .question-pts {
-                    grid-area: qp;
-                }
-
-                .choice-input {
-                    grid-area: ci;
-                }
-
-                .choice-pts-wrapper {
-                    grid-area: cp;
+                .choices-wrapper {
                     display: flex;
                     flex-direction: column;
                     gap: 1vh;
-                    padding-top: 1vh;
 
-                    .choice-pts {
-                        text-align: left;
+                    .choice-pts-wrapper {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1vh;
+    
+                        .choice-pts {
+                            text-align: left;
+                        }
                     }
                 }
             }
