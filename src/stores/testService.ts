@@ -33,7 +33,7 @@ export const useTestServiceStore = defineStore('testService', () => {
         if(userId.value === user_id) return;
 
         userId.value = user_id;
-        
+
         const testsRef = collection(db, 'tests');
         const q = query(testsRef, where('user_id', '==', user_id), orderBy('updated_at', 'desc'));
         const snaps = await getDocs(q);

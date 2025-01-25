@@ -1,10 +1,43 @@
 rules_version = '2';
 
 service cloud.firestore {
-  match /databases/{database}/documents {
+    match /databases/{database}/documents {
 
-    match /{document=**} {
-      allow read, write: if true;
+        function isAuthenticated() {
+            return request.auth.uid != null;
+        }
+
+        function belongToUser() {
+            return resource.data.user_id == request.auth.uid;
+        }
+
+        function createdByUser() {
+            return request.resource.data.user_id == request.auth.uid;
+        }
+
+        function updatedByUser() {
+            return request.resource.data.user_id == request.auth.uid || !('user_id' in request.resource.data);
+        }
+
+        match /tests/{testId} {
+            allow read: if isAuthenticated() && belongToUser();
+            allow create: if isAuthenticated() && createdByUser();
+            allow update: if isAuthenticated() && updatedByUser();
+            allow delete: if isAuthenticated() && belongToUser();
+            
+            match /questions/{questionId} {
+                allow read: if isAuthenticated();
+                allow create: if isAuthenticated() && createdByUser();
+                allow update: if isAuthenticated() && updatedByUser();
+                allow delete: if isAuthenticated() && belongToUser();
+
+                match /choices/{choiceId} {
+                    allow read: if isAuthenticated();
+                    allow create: if isAuthenticated() && createdByUser();
+                    allow update: if isAuthenticated() && updatedByUser();
+                    allow delete: if isAuthenticated() && belongToUser();
+                }
+            }
+        }
     }
-  }
 }
