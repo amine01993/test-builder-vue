@@ -19,22 +19,47 @@ service cloud.firestore {
             return request.resource.data.user_id == request.auth.uid || !('user_id' in request.resource.data);
         }
 
+        function validTest() {
+            return isNonEmptyString(request.resource.data['name'])
+                && request.resource.data['max_points'] is number
+                && request.resource.data['max_points'] >= 0
+                && request.resource.data['time_limit'] is number
+                && request.resource.data['time_limit'] >= 0;
+        }
+
+        function validQuestion() {
+            return isNonEmptyString(request.resource.data['text'])
+                && request.resource.data['max_points'] is number
+                && request.resource.data['max_points'] >= 0
+                && request.resource.data['position'] is number;
+        }
+
+        function validChoice() {
+            return isNonEmptyString(request.resource.data['text'])
+                && request.resource.data['points'] is number
+                && request.resource.data['position'] is number;
+        }
+
+        function isNonEmptyString(field) {
+            return field is string && field.size() > 0;
+        }
+
         match /tests/{testId} {
             allow read: if isAuthenticated() && belongToUser();
-            allow create: if isAuthenticated() && createdByUser();
-            allow update: if isAuthenticated() && updatedByUser();
+            allow create: if isAuthenticated() && createdByUser() && validTest();
+            allow update: if isAuthenticated() && updatedByUser() && validTest();
             allow delete: if isAuthenticated() && belongToUser();
-            
+
             match /questions/{questionId} {
                 allow read: if isAuthenticated();
-                allow create: if isAuthenticated() && createdByUser();
-                allow update: if isAuthenticated() && updatedByUser();
+                allow create: if isAuthenticated() && createdByUser() && validQuestion();
+                allow update: if isAuthenticated() && updatedByUser() && validQuestion();
                 allow delete: if isAuthenticated() && belongToUser();
 
                 match /choices/{choiceId} {
                     allow read: if isAuthenticated();
-                    allow create: if isAuthenticated() && createdByUser();
-                    allow update: if isAuthenticated() && updatedByUser();
+                    allow create: if isAuthenticated() && createdByUser() && validChoice();
+                    allow update: if isAuthenticated() && updatedByUser() && validChoice();
                     allow delete: if isAuthenticated() && belongToUser();
                 }
             }
