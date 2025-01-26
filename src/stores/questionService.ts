@@ -7,6 +7,7 @@ import { useAuthenticationStore } from "./auth";
 import type { Choice } from "@/models/Choice";
 import { useChoiceServiceStore } from "./choiceService";
 import type { Test } from "@/models/Test";
+import { useTestServiceStore } from "./testService";
 
 export const useQuestionServiceStore = defineStore('questionService', () => {
 
@@ -16,7 +17,19 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     const questionCount: Ref<number|undefined> = ref();
     const questions: Ref<Question[]|undefined> = ref();
 
+    function updateChoiceCount(question_id: string, count: number) {
+        const question = questions.value?.find(q => q.id === question_id);
+        if(question) {
+            question.choiceCount = count;
+        }
+    }
+
     async function getQuestion(test_id: string, question_id: string): Promise<Question | undefined> {
+        if(testId.value === test_id) {
+            const question = questions.value?.find(q => q.id === question_id);
+            if(question) return question;
+        }
+
         const questionRef = doc(db, 'tests', test_id, 'questions', question_id);
         const snap = await getDoc(questionRef);
         if(snap.exists()) {
@@ -72,6 +85,8 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
 
     async function addQuestion(test_id: string, question: Question) {
         const {user} = useAuthenticationStore();
+        const {updateQuestionCount} = useTestServiceStore();
+
         question.user_id = user.value?.uid;
         const questionRef = await addDoc(collection(db, 'tests', test_id, 'questions'), question);
 
@@ -97,6 +112,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
 
         if(questionCount.value) questionCount.value++;
         else questionCount.value = 1;
+        updateQuestionCount(test_id, questionCount.value);
         
         return questionRef;
     }
@@ -172,6 +188,8 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     }
 
     async function deleteQuestion(test_id: string, question_id: string) {
+        const {updateQuestionCount} = useTestServiceStore();
+
         const questionRef = doc(db, 'tests', test_id, 'questions', question_id);
         await deleteDoc(questionRef);
 
@@ -182,6 +200,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
 
         if(questionCount.value) questionCount.value--;
         else questionCount.value = 0;
+        updateQuestionCount(test_id, questionCount.value);
 
         // delete choices
         const batch = writeBatch(db);
@@ -202,6 +221,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         addQuestion,
         updateQuestion,
         updateQuestionsPositions,
+        updateChoiceCount,
         deleteQuestion,
     }
 });

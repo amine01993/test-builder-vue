@@ -5,6 +5,7 @@ import { useFirestoreStore } from "./firestore";
 import { useAuthenticationStore } from "./auth";
 import type { Choice } from "@/models/Choice";
 import type { Question } from "@/models/Question";
+import { useQuestionServiceStore } from "./questionService";
 
 export const useChoiceServiceStore = defineStore('choiceService', () => {
 
@@ -15,6 +16,11 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
     const choices: Ref<Choice[]|undefined> = ref();
 
     async function getChoice(test_id: string, question_id: string, choice_id: string): Promise<Choice | undefined> {
+        if(testId.value === test_id && questionId.value === question_id) {
+            const choice = choices.value?.find(c => c.id === choice_id);
+            if(choice) return choice;
+        }
+
         const choiceRef = doc(db, 'tests', test_id, 'questions', question_id, 'choices', choice_id);
         const snap = await getDoc(choiceRef);
         if(snap.exists()) {
@@ -55,6 +61,8 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
 
     async function addChoice(test_id: string, question_id: string, choice: Choice) {
         const {user} = useAuthenticationStore();
+        const {updateChoiceCount} = useQuestionServiceStore();
+
         choice.user_id = user.value?.uid;
         const choiceRef = await addDoc(collection(db, 'tests', test_id, 'questions', question_id, 'choices'), choice);
 
@@ -80,6 +88,7 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
 
         if(choiceCount.value) choiceCount.value++;
         else choiceCount.value = 1;
+        updateChoiceCount(question_id, choiceCount.value);
         
         return choiceRef;
     }
@@ -156,6 +165,8 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
     }
 
     async function deleteChoice(test_id: string, question_id: string, choice_id: string) {
+        const {updateChoiceCount} = useQuestionServiceStore();
+
         const choiceRef = doc(db, 'tests', test_id, 'questions', question_id, 'choices', choice_id);
         await deleteDoc(choiceRef);
 
@@ -166,6 +177,7 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
 
         if(choiceCount.value) choiceCount.value--;
         else choiceCount.value = 0;
+        updateChoiceCount(question_id, choiceCount.value);
     }
 
     return {

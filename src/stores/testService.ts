@@ -14,7 +14,20 @@ export const useTestServiceStore = defineStore('testService', () => {
     const tests: Ref<Test[]|null> = ref(null);
     const {deleteQuestion, getQuestions} = useQuestionServiceStore();
 
+    function updateQuestionCount(test_id: string, count: number) {
+        const test = tests.value?.find(t => t.id === test_id);
+        if(test) {
+            test.questionCount = count;
+        }
+    }
+
     async function getTest(test_id: string, loadQuestions: boolean = false): Promise<Test|undefined> {
+        const {user} = useAuthenticationStore();
+        if(!userId.value && user.value?.uid === userId.value) {
+            const test = tests.value?.find(t => t.id === test_id);
+            if(test) return test;
+        }
+
         const testRef = doc(db, 'tests', test_id);
         const snap = await getDoc(testRef);
         if(!snap.exists()) {
@@ -127,6 +140,7 @@ export const useTestServiceStore = defineStore('testService', () => {
         loadTests,
         addTest,
         updateTest,
+        updateQuestionCount,
         deleteTest,
     }
 });
