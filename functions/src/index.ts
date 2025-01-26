@@ -10,7 +10,7 @@
 import {onRequest} from "firebase-functions/v2/https";
 // import * as logger from "firebase-functions/logger";
 import {db} from './init';
-import {_choiceCreate, _choiceUpdate, _questionCreate, _questionUpdate, _testCreate, _testUpdate} from './triggers';
+import {_choiceCreate, _choiceDelete, _choiceUpdate, _questionCreate, _questionDelete, _questionUpdate, _testCreate, _testUpdate} from './triggers';
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
@@ -78,5 +78,7 @@ export const testCreate = _testCreate;
 export const testUpdate = _testUpdate;
 export const questionCreate = _questionCreate;
 export const questionUpdate = _questionUpdate;
+export const questionDelete = _questionDelete;
 export const choiceCreate = _choiceCreate;
 export const choiceUpdate = _choiceUpdate;
+export const choiceDelete = _choiceDelete;
