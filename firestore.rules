@@ -45,7 +45,7 @@ service cloud.firestore {
         }
 
         match /tests/{testId} {
-            allow read: if isAuthenticated() && belongToUser();
+            allow read: if isAuthenticated();
             allow create: if isAuthenticated() && createdByUser() && validTest();
             allow update: if isAuthenticated() && updatedByUser() && validTest();
             allow delete: if isAuthenticated() && belongToUser();

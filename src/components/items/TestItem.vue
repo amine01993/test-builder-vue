@@ -106,6 +106,7 @@ function copyTestLink() {
                 <div class="test-description" :class="{'full-text': showMore}" ref="test-description" v-html="description"></div>
                 <div class="test-property">Max Score: {{ test.max_points }}</div>
                 <div class="test-property">Time Limit: {{ test.time_limit }}</div> 
+                <div class="test-property" v-if="test.questionCount">Total number of questions: {{ test.questionCount }}</div> 
                 <div class="test-last-update">Last updated at: {{ updatedAt }}</div>
             </div>
             <hr class="test-item-divider">

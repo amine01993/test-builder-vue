@@ -4,12 +4,14 @@ import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
 import { useAuthenticationStore } from "./auth";
 import type { Choice } from "@/models/Choice";
+import type { Question } from "@/models/Question";
 
 export const useChoiceServiceStore = defineStore('choiceService', () => {
 
     const {db} = useFirestoreStore();
     const testId: Ref<string|undefined> = ref();
     const questionId: Ref<string|undefined> = ref();
+    const choiceCount: Ref<number|undefined> = ref();
     const choices: Ref<Choice[]|undefined> = ref();
 
     async function getChoice(test_id: string, question_id: string, choice_id: string): Promise<Choice | undefined> {
@@ -34,13 +36,14 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
         });
     }
 
-    async function loadChoices(test_id: string, question_id: string) {
-        if(testId.value === test_id && questionId.value === question_id) return;
+    async function loadChoices(test_id: string, question: Question) {
+        if(!question.id || testId.value === test_id && questionId.value === question.id) return;
 
         testId.value = test_id;
-        questionId.value = question_id;
+        questionId.value = question.id;
+        choiceCount.value = question.choiceCount;
 
-        const choicesRef = collection(db, 'tests', test_id, 'questions', question_id, 'choices');
+        const choicesRef = collection(db, 'tests', test_id, 'questions', question.id, 'choices');
         const q = query(choicesRef, orderBy('position'));
         const snaps = await getDocs(q);
         choices.value = snaps.docs.map(snap => {
@@ -74,6 +77,9 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
         else {
             choices.value = [choice];
         }
+
+        if(choiceCount.value) choiceCount.value++;
+        else choiceCount.value = 1;
         
         return choiceRef;
     }
@@ -157,9 +163,13 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
             const index = choices.value.findIndex(c => choice_id === c.id);
             if(index > -1) choices.value.splice(index, 1);
         }
+
+        if(choiceCount.value) choiceCount.value--;
+        else choiceCount.value = 0;
     }
 
     return {
+        choiceCount: computed(() => choiceCount),
         choices: computed(() => choices),
         getChoice,
         getChoices,

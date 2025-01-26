@@ -7,6 +7,7 @@ export interface Question {
     max_points: number;
     type: QuestionType;
     position: number;
+    choiceCount?: number;
     choices?: Choice[];
     user_id?: string;
     created_at?: Timestamp;

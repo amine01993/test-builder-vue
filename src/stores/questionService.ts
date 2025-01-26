@@ -6,12 +6,14 @@ import type { Question } from "@/models/Question";
 import { useAuthenticationStore } from "./auth";
 import type { Choice } from "@/models/Choice";
 import { useChoiceServiceStore } from "./choiceService";
+import type { Test } from "@/models/Test";
 
 export const useQuestionServiceStore = defineStore('questionService', () => {
 
     const {db} = useFirestoreStore();
     const {getChoices} = useChoiceServiceStore();
     const testId: Ref<string|undefined> = ref();
+    const questionCount: Ref<number|undefined> = ref();
     const questions: Ref<Question[]|undefined> = ref();
 
     async function getQuestion(test_id: string, question_id: string): Promise<Question | undefined> {
@@ -52,11 +54,13 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         return questions;
     }
 
-    async function loadQuestions(test_id: string) {
-        if(testId.value === test_id) return;
+    async function loadQuestions(test: Test) {
+        if(!test.id || testId.value === test.id) return;
 
-        testId.value = test_id;
-        const questionsRef = collection(db, 'tests', test_id, 'questions');
+        testId.value = test.id;
+        questionCount.value = test.questionCount;
+
+        const questionsRef = collection(db, 'tests', test.id, 'questions');
         const q = query(questionsRef, orderBy('position'));
         const snaps = await getDocs(q);
         questions.value = snaps.docs.map(snap => {
@@ -90,6 +94,9 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         else {
             questions.value = [question];
         }
+
+        if(questionCount.value) questionCount.value++;
+        else questionCount.value = 1;
         
         return questionRef;
     }
@@ -167,10 +174,14 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     async function deleteQuestion(test_id: string, question_id: string) {
         const questionRef = doc(db, 'tests', test_id, 'questions', question_id);
         await deleteDoc(questionRef);
+
         if(questions.value) {
             const index = questions.value.findIndex(q => question_id === q.id);
             if(index > -1) questions.value.splice(index, 1);
         }
+
+        if(questionCount.value) questionCount.value--;
+        else questionCount.value = 0;
 
         // delete choices
         const batch = writeBatch(db);
@@ -183,6 +194,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     }
 
     return {
+        questionCount: computed(() => questionCount),
         questions: computed(() => questions),
         getQuestion,
         getQuestions,

@@ -6,7 +6,7 @@ import draggable from 'vuedraggable';
 import { onAuthStateChanged } from 'firebase/auth';
 import AppHeader from '@/components/AppHeader.vue';
 import AppMenu from '@/components/AppMenu.vue';
-import { QuestionType } from '@/models/Question';
+import { QuestionType, type Question } from '@/models/Question';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
@@ -20,7 +20,7 @@ const router = useRouter();
 const {startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {getQuestion, updateQuestion} = useQuestionServiceStore();
-const {choices, loadChoices, updateChoicesPositions} = useChoiceServiceStore();
+const {choiceCount, choices, loadChoices, updateChoicesPositions} = useChoiceServiceStore();
 
 const text = ref('');
 const maxPoints: Ref<number|string> = ref(0);
@@ -48,8 +48,10 @@ const errors = computed(() => {
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
 
     if(showForm.value) startLoading();
+
+    let question: Question|undefined;
     try {
-        const question = await getQuestion(test_id, question_id);
+        question = await getQuestion(test_id, question_id);
         if(!question) {
             showMessage('failure', 'Question Not Found.');
             return;
@@ -67,7 +69,9 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     }
 
     try {
-        await loadChoices(test_id, question_id);
+        if(question) {
+            await loadChoices(test_id, question);
+        }
     }
     catch(error) {
         showMessage('failure', 'Error loading choices.');
@@ -195,6 +199,17 @@ function onDragEnd() {
     <div class="choice-actions">
         <RouterLink :to="{name: 'create-choice', params: {test_id, question_id}}" class="btn btn-warning">Create New Choice</RouterLink>
     </div>
+
+    <div class="choice-info">
+        <template v-if="choiceCount">
+            <span class="choice-info-label">Total number of choices:</span> {{ choiceCount }}
+        </template>
+        <template v-else>
+            <div class="placeholder-wave">
+                <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
+            </div>
+        </template>
+    </div>
     
     <template v-if="choices">
         <draggable v-model="choices" item-key="id" tag="div" :component-data="{'class': 'choice-list'}" handle=".choice-item-sort-handler" @end="onDragEnd">
@@ -279,6 +294,12 @@ function onDragEnd() {
     margin-right: 2vh;
     display: flex;
     justify-content: flex-end;
+}
+
+.choice-info {
+    margin-top: 2vh;
+    margin-left: 2vh;
+    font-weight: 300;
 }
 
 .choice-list {

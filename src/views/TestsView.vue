@@ -12,7 +12,7 @@ import Breadcrumb from '@/components/items/Breadcrumb.vue';
 
 const {showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
-const {tests, loadTests} = useTestServiceStore();
+const {testCount, tests, loadTests} = useTestServiceStore();
 
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     try {
@@ -38,6 +38,18 @@ onUnmounted(() => {
         <div class="test-actions">
             <RouterLink :to="{name: 'create-test'}" class="btn btn-warning create-test">Create New Test</RouterLink>
         </div>
+
+        <div class="test-info">
+            <template v-if="testCount">
+                <span class="test-info-label">Total number of tests:</span> {{ testCount }}
+            </template>
+            <template v-else>
+                <div class="placeholder-wave">
+                    <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
+                </div>
+            </template>
+        </div>
+        
         <div class="test-list">
             <template v-if="tests">
                 <TestItem v-for="test in tests" :test="test" :key="test.id" />
@@ -59,6 +71,12 @@ onUnmounted(() => {
         margin-right: 2vh;
         display: flex;
         justify-content: flex-end;
+    }
+
+    .test-info {
+        margin-top: 2vh;
+        margin-left: 2vh;
+        font-weight: 300;
     }
 
     .test-list {

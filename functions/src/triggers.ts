@@ -1,5 +1,5 @@
-import { onDocumentCreated, onDocumentUpdated } from "firebase-functions/firestore";
-import { Timestamp } from "firebase-admin/firestore";
+import { onDocumentCreated, onDocumentDeleted, onDocumentUpdated } from "firebase-functions/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 
 import {db} from './init';
 
@@ -7,6 +7,7 @@ export const _testCreate = onDocumentCreated('tests/{testId}', async event => {
     return db.doc('tests/' + event.params.testId).update({
         created_at: Timestamp.now(),
         updated_at: Timestamp.now(),
+        questionCount: 0,
     });
 });
 
@@ -33,10 +34,21 @@ export const _testUpdate = onDocumentUpdated('tests/{testId}', async event => {
 });
 
 export const _questionCreate = onDocumentCreated('tests/{testId}/questions/{questionId}', async event => {
-    return db.doc('tests/' + event.params.testId + '/questions/' + event.params.questionId).update({
+    const promises = [];
+
+    const questionUpdate = db.doc('tests/' + event.params.testId + '/questions/' + event.params.questionId).update({
         created_at: Timestamp.now(),
         updated_at: Timestamp.now(),
+        choiceCount: 0,
     });
+    promises.push(questionUpdate);
+
+    const testUpdate = db.doc('tests/' + event.params.testId).update({
+        questionCount: FieldValue.increment(1),
+    });
+    promises.push(testUpdate);
+
+    return Promise.all(promises);
 });
 
 export const _questionUpdate = onDocumentUpdated('tests/{testId}/questions/{questionId}', async event => {
@@ -60,11 +72,27 @@ export const _questionUpdate = onDocumentUpdated('tests/{testId}/questions/{ques
     });
 });
 
+export const _questionDelete = onDocumentDeleted('tests/{testId}/questions/{questionId}', async event => {
+    return db.doc('tests/' + event.params.testId).update({
+        questionCount: FieldValue.increment(-1),
+    });
+});
+
 export const _choiceCreate = onDocumentCreated('tests/{testId}/questions/{questionId}/choices/{choiceId}', async event => {
-    return db.doc('tests/' + event.params.testId + '/questions/' + event.params.questionId + '/choices/' + event.params.choiceId).update({
+    const promises = [];
+
+    const choiceUpdate = db.doc('tests/' + event.params.testId + '/questions/' + event.params.questionId + '/choices/' + event.params.choiceId).update({
         created_at: Timestamp.now(),
         updated_at: Timestamp.now(),
     });
+    promises.push(choiceUpdate);
+
+    const questionUpdate = db.doc('tests/' + event.params.testId + '/questions/' + event.params.questionId).update({
+        choiceCount: FieldValue.increment(1),
+    });
+    promises.push(questionUpdate);
+
+    return Promise.all(promises);
 });
 
 export const _choiceUpdate = onDocumentUpdated('tests/{testId}/questions/{questionId}/choices/{choiceId}', async event => {
@@ -85,6 +113,12 @@ export const _choiceUpdate = onDocumentUpdated('tests/{testId}/questions/{questi
 
     return db.doc('tests/' + event.params.testId + '/questions/' + event.params.questionId + '/choices/' + event.params.choiceId).update({
         updated_at: Timestamp.now(),
+    });
+});
+
+export const _choiceDelete = onDocumentDeleted('tests/{testId}/questions/{questionId}/choices/{choiceId}', async event => {
+    return db.doc('tests/' + event.params.testId + '/questions/' + event.params.questionId).update({
+        choiceCount: FieldValue.increment(-1),
     });
 });
 

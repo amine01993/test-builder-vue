@@ -12,6 +12,7 @@ import { useMainStore } from '@/stores/main';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import QuestionItem from '@/components/items/QuestionItem.vue';
 import Breadcrumb from '@/components/items/Breadcrumb.vue';
+import type { Test } from '@/models/Test';
 
 const { test_id } = defineProps<{test_id: string}>();
 const route = useRoute();
@@ -19,7 +20,7 @@ const router = useRouter();
 const {startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {getTest, updateTest} = useTestServiceStore();
-const {questions, loadQuestions, updateQuestionsPositions} = useQuestionServiceStore();
+const {questionCount, questions, loadQuestions, updateQuestionsPositions} = useQuestionServiceStore();
 
 const name = ref('');
 const description = ref('');
@@ -48,8 +49,10 @@ const errors = computed(() => {
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
 
     if(showForm.value) startLoading();
+
+    let test: Test|undefined;
     try {
-        const test = await getTest(test_id);
+        test = await getTest(test_id);
         if(!test) {
             showMessage('failure', 'Test Not Found.');
             return;
@@ -67,7 +70,9 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     }
 
     try {
-        await loadQuestions(test_id);
+        if(test) {
+            await loadQuestions(test);
+        }
     }
     catch(error) {
         showMessage('failure', 'Error loading questions.');
@@ -195,6 +200,17 @@ function onDragEnd() {
     <div class="question-actions">
         <RouterLink :to="{name: 'create-question', params: {test_id}}" class="btn btn-warning create-question">Create New Question</RouterLink>
     </div>
+
+    <div class="question-info">
+        <template v-if="questionCount">
+            <span class="question-info-label">Total number of questions:</span> {{ questionCount }}
+        </template>
+        <template v-else>
+            <div class="placeholder-wave">
+                <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
+            </div>
+        </template>
+    </div>
     
     <template v-if="questions">
         <draggable v-model="questions" item-key="id" tag="div" :component-data="{'class': 'question-list'}" handle=".question-item-sort-handler" @end="onDragEnd">
@@ -279,6 +295,12 @@ function onDragEnd() {
     margin-right: 2vh;
     display: flex;
     justify-content: flex-end;
+}
+
+.question-info {
+    margin-top: 2vh;
+    margin-left: 2vh;
+    font-weight: 300;
 }
 
 .question-list {

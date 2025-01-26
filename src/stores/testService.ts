@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getCountFromServer, getDoc, getDocs, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore";
 import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
 import type { Test } from "@/models/Test";
@@ -10,6 +10,7 @@ export const useTestServiceStore = defineStore('testService', () => {
 
     const {db} = useFirestoreStore();
     const userId: Ref<string|undefined> = ref();
+    const testCount: Ref<number|undefined> = ref();
     const tests: Ref<Test[]|null> = ref(null);
     const {deleteQuestion, getQuestions} = useQuestionServiceStore();
 
@@ -35,6 +36,10 @@ export const useTestServiceStore = defineStore('testService', () => {
         userId.value = user_id;
 
         const testsRef = collection(db, 'tests');
+
+        const countSnap = await getCountFromServer(testsRef);
+        testCount.value = countSnap.data().count;
+
         const q = query(testsRef, where('user_id', '==', user_id), orderBy('updated_at', 'desc'));
         const snaps = await getDocs(q);
         tests.value = snaps.docs.map(snap => {
@@ -58,6 +63,10 @@ export const useTestServiceStore = defineStore('testService', () => {
         else {
             tests.value = [test];
         }
+
+        if(testCount.value) testCount.value++;
+        else testCount.value = 1;
+
         return testRef;
     }
 
@@ -90,10 +99,14 @@ export const useTestServiceStore = defineStore('testService', () => {
     async function deleteTest(test_id: string) {
         const testRef = doc(db, 'tests', test_id);
         await deleteDoc(testRef);
+
         if(tests.value) {
             const index = tests.value.findIndex(test => test.id === test_id);
             if(index > -1) tests.value.splice(index, 1);
         }
+
+        if(testCount.value) testCount.value--;
+        else testCount.value = 0;
 
         // delete questions and choices
         const questionsRef = collection(db, 'tests', test_id, 'questions');
@@ -109,6 +122,7 @@ export const useTestServiceStore = defineStore('testService', () => {
 
     return {
         getTest,
+        testCount: computed(() => testCount),
         tests: computed(() => tests),
         loadTests,
         addTest,

@@ -87,6 +87,7 @@ async function deleteDQuestion() {
                 <div class="question-property">Max Points: {{ question.max_points }}</div>
                 <div class="question-property">Type: {{ questionType }}</div> 
                 <div class="question-property">Position: {{ question.position }}</div> 
+                <div class="question-property" v-if="question.choiceCount">Total number of choices: {{ question.choiceCount }}</div> 
                 <div class="question-last-update">Last updated at: {{ updatedAt }}</div>
             </div>
             <hr class="question-item-divider">
