@@ -23,7 +23,7 @@ const { question, choices, nbr, preview } = defineProps<{question?: Question, ch
                     <template v-for="choice in choices" :key="choice.id">
                         <div class="choice-input">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" :id="'choice-' + choice.id" />
+                                <input class="form-check-input" type="checkbox" :name="question.id" :id="'choice-' + choice.id" :value="choice.text" />
                                 <label class="form-check-label" :for="'choice-' + choice.id">{{ choice.text }}</label>
                             </div>
                         </div>
@@ -39,7 +39,7 @@ const { question, choices, nbr, preview } = defineProps<{question?: Question, ch
                     <template v-for="choice in choices" :key="choice.id">
                         <div class="choice-input">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" :name="question.id" :id="'choice-' + choice.id" />
+                                <input class="form-check-input" type="radio" :name="question.id" :id="'choice-' + choice.id" :value="choice.text" />
                                 <label class="form-check-label" :for="'choice-' + choice.id">{{ choice.text }}</label>
                             </div>
                         </div>
@@ -53,7 +53,7 @@ const { question, choices, nbr, preview } = defineProps<{question?: Question, ch
                 
                 <template v-else-if="question.type === QuestionType.Text">
                     <div class="choice-input">
-                        <input class="form-control" type="text" />
+                        <input class="form-control" type="text" :name="question.id" />
                     </div>
                     <div class="choice-pts-wrapper" v-if="preview">
                         <template v-for="choice in choices" :key="choice.id">
@@ -68,7 +68,7 @@ const { question, choices, nbr, preview } = defineProps<{question?: Question, ch
         
                 <template v-else-if="question.type === QuestionType.Number">
                     <div class="choice-input">
-                        <input class="form-control" type="number" />
+                        <input class="form-control" type="number" :name="question.id" />
                     </div>
                     <div class="choice-pts-wrapper" v-if="preview">
                         <template v-for="choice in choices" :key="choice.id">

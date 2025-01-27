@@ -3,21 +3,21 @@ import { computed, onMounted, onUnmounted, ref, useTemplateRef, type Ref } from 
 import { onAuthStateChanged } from 'firebase/auth';
 import { Modal } from 'bootstrap';
 import { useRouter } from 'vue-router';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
 import type { Test } from '@/models/Test';
-import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
+import { useFetchStore } from '@/stores/fetch';
+import { useUserTestServiceStore } from '@/stores/userTestService';
 
 const router = useRouter();
 const { test_id } = defineProps<{test_id: string}>();
 const {startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
-const {getTest} = useTestServiceStore();
+const {setUserTestId, sendReport} = useUserTestServiceStore();
+const {get} = useFetchStore();
 const testSubmissionEl = useTemplateRef('test-submission-modal');
+const testFormEl = useTemplateRef('test-form');
 const test: Ref<Test|undefined> = ref();
 const time_limit: Ref<number> = ref(180);
 let interval: number|undefined = undefined;
@@ -48,21 +48,25 @@ const description = computed(() => {
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     startLoading();
     try {
-        const url = import.meta.env.VITE_FUNCTIONS_BASE_URL + 'getTest?testId=' + test_id;
-        const response = await fetch(url);
-        test.value = <Test>(await response.json());
+        const testData = await get('/test?testId=' + test_id);
+        test.value = <Test>testData.test;
+        setUserTestId(testData.userTestId, test_id);
+
         if(!test.value) {
             showMessage('failure', 'Test Not Found.');
             return;
         }
         time_limit.value = test.value.time_limit;
-        interval = setInterval(() => {
-            time_limit.value--;
-            if(time_limit.value === 0) {
-                clearInterval(interval);
-                interval = undefined;
-            }
-        }, 1000);
+
+        if(time_limit.value > 0) {
+            interval = setInterval(() => {
+                time_limit.value--;
+                if(time_limit.value === 0) {
+                    clearInterval(interval);
+                    interval = undefined;
+                }
+            }, 1000);
+        }
     }
     catch(error) {
         showMessage('failure', 'Error loading test data.');
@@ -76,6 +80,16 @@ onMounted(() => {
     if(testSubmissionEl.value) {
         testSubmissionModal = new Modal(testSubmissionEl.value, {backdrop: 'static', keyboard: false});
     }
+
+    if(testFormEl.value) {
+        testFormEl.value.addEventListener('submit', preventTestSubmit);
+    }
+
+    window.onbeforeunload = function(){
+        return true;
+        // return `Are you sure?
+        // You will not be able to continue the test once you leave.`
+    };
 });
 
 onUnmounted(() => {
@@ -89,6 +103,12 @@ onUnmounted(() => {
     if(testSubmissionModal) {
         testSubmissionModal.dispose();
     }
+
+    if(testFormEl.value) {
+        testFormEl.value.removeEventListener('submit', preventTestSubmit);
+    }
+
+    window.onbeforeunload = null;
 });
 
 function moveToTheTop() {
@@ -99,13 +119,25 @@ function finishTest() {
     if(testSubmissionModal) {
         testSubmissionModal.show();
     }
+
 }
 
-function submitTest() {
+async function submitTest() {
     if(testSubmissionModal) {
         testSubmissionModal.hide();
-        // router.push({name: 'tests'});
     }
+
+    if(testFormEl.value) {
+        const formData = new FormData(testFormEl.value);
+        const result = await sendReport(formData);
+        console.log('submitTest.result', result);
+        // return to test report view
+    }
+}
+
+function preventTestSubmit(event: SubmitEvent) {
+    event.preventDefault();
+    console.log('submit');
 }
 </script>
 
@@ -114,7 +146,7 @@ function submitTest() {
         <div class="test-name">
             {{ test.name }}
         </div>
-        <div class="test-limit">
+        <div class="test-limit" v-if="time_limit > 0">
             <i class="bi bi-alarm"></i>
             {{ timeLimit }}
         </div>
@@ -123,8 +155,10 @@ function submitTest() {
     <div class="app-test-description" v-if="test" v-html="description"></div>
 
     <div class="app-main" v-if="test">
-        <DisplayQuestion v-for="(question, index) in test?.questions" :key="question.id"
-            :question="question" :choices="question.choices" :nbr="index + 1" :preview="false" />
+        <form ref="test-form">
+            <DisplayQuestion v-for="(question, index) in test?.questions" :key="question.id"
+                :question="question" :choices="question.choices" :nbr="index + 1" :preview="false" />
+        </form>
 
         <div class="app-test-actions">
             <button type="button" class="btn btn-outline-primary to-the-top" @click="moveToTheTop">
@@ -187,6 +221,7 @@ function submitTest() {
         gap: 4vh;
 
         :deep(.display-question) {
+            padding-bottom: 2vh;
 
             &.question-type-choices {
                 .question-wrapper {
