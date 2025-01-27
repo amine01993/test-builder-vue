@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { Modal } from 'bootstrap';
+import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue';
 import { QuestionType, type Question } from '@/models/Question';
 import { useMainStore } from '@/stores/main';
 import { useQuestionServiceStore } from '@/stores/questionService';
-import { Modal } from 'bootstrap';
-import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue';
 
 
 const { test_id, question } = defineProps<{test_id?: string, question?: Question}>();
@@ -27,7 +27,7 @@ const questionType = computed(() => {
 });
 const updatedAt = computed(() => {
     const updated_at = question!.updated_at!.toDate();
-        return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('en-US', {
         day: 'numeric',
         month: 'short',
         year: (currentDate.getFullYear() === updated_at.getFullYear() ? undefined : 'numeric'),

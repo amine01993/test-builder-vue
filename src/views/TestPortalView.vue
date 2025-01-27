@@ -1,26 +1,37 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, type Ref } from 'vue';
-import { onAuthStateChanged } from 'firebase/auth';
+import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, type Ref } from 'vue';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import { Modal } from 'bootstrap';
 import { useRouter } from 'vue-router';
-import type { Test } from '@/models/Test';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
-import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
-import { useFetchStore } from '@/stores/fetch';
 import { useUserTestServiceStore } from '@/stores/userTestService';
+import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
 
 const router = useRouter();
 const { test_id } = defineProps<{test_id: string}>();
-const {startLoading, endLoading, showMessage} = useMainStore();
+const {startLoading, endLoading, showMessage, validateEmail} = useMainStore();
 const {auth} = useAuthenticationStore();
-const {setUserTestId, sendReport} = useUserTestServiceStore();
-const {get} = useFetchStore();
+const {test, displayName, email, requestUserInfo, updateUserInfo, initTest, sendReport, setTestReport} = useUserTestServiceStore();
 const testSubmissionEl = useTemplateRef('test-submission-modal');
 const testFormEl = useTemplateRef('test-form');
-const test: Ref<Test|undefined> = ref();
 const time_limit: Ref<number> = ref(180);
-let interval: number|undefined = undefined;
+
+const submitted = ref(false);
+const submitting = ref(false);
+const errors = computed(() => {
+    const _errors: {[key: string]: string} = {};
+    if(!submitted.value) return _errors;
+
+    if(displayName.value === '') _errors.displayName = 'Full name required';
+
+    if(email.value === '') _errors.email = 'Email required';
+    else if(!validateEmail(email.value)) _errors.email = 'Invalid email';
+
+    return _errors;
+});
+
+let timeoutInterval: number|undefined = undefined;
 let testSubmissionModal: Modal|null = null;
 
 const timeLimit = computed(() => {
@@ -45,59 +56,30 @@ const description = computed(() => {
     return '';
 });
 
-const onAuthEventDispose = onAuthStateChanged(auth, async () => {
-    startLoading();
-    try {
-        const testData = await get('/test?testId=' + test_id);
-        test.value = <Test>testData.test;
-        setUserTestId(testData.userTestId, test_id);
+const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
 
-        if(!test.value) {
-            showMessage('failure', 'Test Not Found.');
-            return;
-        }
-        time_limit.value = test.value.time_limit;
+    if(user) {
+        if(user.displayName) displayName.value = user.displayName;
+        if(user.email) email.value = user.email;
 
-        if(time_limit.value > 0) {
-            interval = setInterval(() => {
-                time_limit.value--;
-                if(time_limit.value === 0) {
-                    clearInterval(interval);
-                    interval = undefined;
-                }
-            }, 1000);
+        if(displayName.value && email.value || !requestUserInfo.value) {
+            await initializingDTest();
         }
-    }
-    catch(error) {
-        showMessage('failure', 'Error loading test data.');
-    }
-    finally {
-        endLoading();
-    }
+    }    
 });
 
 onMounted(() => {
     if(testSubmissionEl.value) {
         testSubmissionModal = new Modal(testSubmissionEl.value, {backdrop: 'static', keyboard: false});
     }
-
-    if(testFormEl.value) {
-        testFormEl.value.addEventListener('submit', preventTestSubmit);
-    }
-
-    window.onbeforeunload = function(){
-        return true;
-        // return `Are you sure?
-        // You will not be able to continue the test once you leave.`
-    };
 });
 
 onUnmounted(() => {
     onAuthEventDispose();
 
-    if(interval !== undefined) {
-        clearInterval(interval);
-        interval = undefined;
+    if(timeoutInterval !== undefined) {
+        clearInterval(timeoutInterval);
+        timeoutInterval = undefined;
     }
 
     if(testSubmissionModal) {
@@ -110,6 +92,56 @@ onUnmounted(() => {
 
     window.onbeforeunload = null;
 });
+
+async function startTest() {
+    submitted.value = true;
+
+    if(submitting.value) return;
+    submitting.value = true;
+
+    if(Object.keys(errors.value).length > 0) {
+        submitting.value = false;
+        return;
+    }
+
+    await updateUserInfo();
+
+    submitted.value = false;
+    submitting.value = false;
+
+    await initializingDTest();
+}
+
+async function initializingDTest() {
+
+    startLoading();
+    try {
+        timeoutInterval = await initTest(test_id);
+
+        if(!test.value) {
+            showMessage('failure', 'Test Not Found.');
+            return;
+        }
+        time_limit.value = test.value.time_limit;
+
+        window.onbeforeunload = function() {
+            return true;
+            // return `Are you sure?
+            // You will not be able to continue the test once you leave.`
+        };
+
+        nextTick();
+        if(testFormEl.value) {
+            testFormEl.value.addEventListener('submit', preventTestSubmit);
+        }
+    }
+    catch(error) {
+        showMessage('failure', 'Error loading test data.');
+    }
+    finally {
+        endLoading();
+    }
+}
 
 function moveToTheTop() {
     window.scrollTo(0, 0);
@@ -129,19 +161,39 @@ async function submitTest() {
 
     if(testFormEl.value) {
         const formData = new FormData(testFormEl.value);
-        const result = await sendReport(formData);
-        console.log('submitTest.result', result);
-        // return to test report view
+        const testReport = await sendReport(formData);
+        setTestReport(testReport);
+        
+        window.onbeforeunload = null;
+        router.push({name: 'test-report', params: {'user_test_id': testReport.id}});
     }
 }
 
 function preventTestSubmit(event: SubmitEvent) {
     event.preventDefault();
-    console.log('submit');
 }
 </script>
 
 <template>
+    <div class="user-info-form" v-if="!test && requestUserInfo">
+        <div class="mb-3">
+            <label for="full-name-input" class="form-label">Full Name</label>
+            <input type="text" :class="{'is-invalid': errors.displayName}" id="full-name-input" class="form-control" v-model="displayName" :disabled="submitting" />
+            <div class="invalid-feedback is-invalid" v-if="errors.displayName">{{ errors.displayName }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="email-input" class="form-label">Email</label>
+            <input type="email" :class="{'is-invalid': errors.email}" id="email-input" class="form-control" v-model="email" :disabled="submitting" />
+            <div class="invalid-feedback is-invalid" v-if="errors.email">{{ errors.email }}</div>
+        </div>
+
+        <button type="button" @click="startTest" class="btn btn-primary" :disabled="submitting">
+            <template v-if="submitting">Starting ...</template>
+            <template v-else>Start Test</template>
+        </button>
+    </div>
+
     <div class="app-test-header" v-if="test">
         <div class="test-name">
             {{ test.name }}
@@ -192,11 +244,25 @@ function preventTestSubmit(event: SubmitEvent) {
 <style scoped lang="scss">
     @use '@/assets/variables' as vars;
 
-    .app-test-header, .app-test-description, .app-main {
+    .user-info-form, .app-test-header, .app-test-description, .app-main {
         margin: 2vh;
         padding: 2vh;
         background-color: vars.$app-white;
         box-shadow: 5px 5px 25px vars.$app-grey;
+    }
+
+    .user-info-form {
+        position: fixed;
+        width: calc(100% - 4vh);
+        top: 50%;
+        transform: translateY(-50%);
+
+        [type=button] {
+            position: relative;
+            right: 0;
+            left: 100%;
+            transform: translateX(-100%);
+        }
     }
 
     .app-test-header {

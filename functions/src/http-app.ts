@@ -22,9 +22,9 @@ httpApp.post('/finish-test', async (req: any, res: any) => {
             return;
         }
 
-        const result = await finishTest(req.body);
+        const testReport = await finishTest(req.body);
 
-        res.status(200).json(result);
+        res.status(200).json(testReport);
     }
     catch(error) {
         logger.error('Error /finish-test', error);
@@ -33,7 +33,7 @@ httpApp.post('/finish-test', async (req: any, res: any) => {
 });
 
 httpApp.get('/test', async (req: any, res: any) => {
-    logger.debug('retreiving the test', req.query.testId);
+    logger.debug('retreiving the test', req.query);
 
     try {
         if(!req['uid']) {
@@ -43,8 +43,7 @@ httpApp.get('/test', async (req: any, res: any) => {
 
         const test = await getTest(req.query.testId);
 
-        //start the test
-        const userTestId = await startTest(req['uid'], req.query.testId);
+        const userTestId = await startTest(req['uid'], req.query, test);
 
         res.status(200).json({
             test, userTestId

@@ -52,6 +52,12 @@ const router = createRouter({
             component: () => import('../views/TestPortalView.vue'),
         },
         {
+            path: '/report/:user_test_id',
+            name: 'test-report',
+            props: true,
+            component: () => import('../views/TestReportView.vue'),
+        },
+        {
             path: '/test/:test_id/question/create',
             name: 'create-question',
             props: true,

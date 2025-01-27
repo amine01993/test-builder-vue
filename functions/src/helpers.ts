@@ -58,10 +58,19 @@ async function getChoices(test_id: string, question_id: string, forTest: boolean
     });
 }
 
-export async function startTest(user_id: string, test_id: string) {
+export async function startTest(user_id: string, query: any, test: any) {
     const testRef = await db.collection('user_tests').add({
         user_id,
-        test_id,
+        user: {
+            displayName: query.displayName,
+            email: query.email,
+        },
+        test_id: test.id,
+        test: {
+            name: test.name,
+            max_points: test.max_points,
+            questionCount: test.questionCount,
+        },    
         started_at: Timestamp.now(),
     });
     return testRef.id;
@@ -75,9 +84,14 @@ export async function finishTest(params: any) {
 
     const questionIds = Object.keys(params);
     const promises = [];
+    const report = [];
 
     for(const qId of questionIds) {
         promises.push(getChoices(test_id, qId, false));
+        report.push({
+            question_id: qId,
+            answers: params[qId],
+        });
     }
 
     const choicesList = await Promise.all(promises);
@@ -87,17 +101,23 @@ export async function finishTest(params: any) {
         totalScore += getScore(params[qId], choicesList[Number(index)]);
     }
 
-    const result = {
-        score: totalScore,
-    };
-
     await db.doc('user_tests/' + user_test_id).set({
-        report: params,
-        result,
+        report,
+        result: {
+            score: totalScore,
+        },
         ended_in: Timestamp.now(),
     }, {merge: true});
 
-    return result;
+    const snap = await db.doc('user_tests/' + user_test_id).get();
+
+    if(snap.exists) {
+        const testReport: any = snap.data();
+        testReport.id = snap.id;
+        return testReport;
+    }
+
+    return null;
 }
 
 function getScore(answers: string[], choices: any) {

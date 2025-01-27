@@ -64,5 +64,12 @@ service cloud.firestore {
                 }
             }
         }
+
+        match /user_tests/{userTestId} {
+            allow read: if isAuthenticated();
+            allow create: if isAuthenticated() && createdByUser();
+            allow update: if isAuthenticated() && updatedByUser();
+            allow delete: if isAuthenticated() && belongToUser();
+        }
     }
 }
