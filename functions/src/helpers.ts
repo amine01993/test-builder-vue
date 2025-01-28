@@ -10,7 +10,6 @@ export async function getTest(test_id: string) {
     if(snap.exists) {
         test = snap.data();
         test.id = snap.id;
-        test.user_id = undefined;
         test.created_at = undefined;
         test.updated_at = undefined;
         test.questions = [];
@@ -70,7 +69,11 @@ export async function startTest(user_id: string, query: any, test: any) {
             name: test.name,
             max_points: test.max_points,
             questionCount: test.questionCount,
-        },    
+            user_id: test.user_id
+        },
+        result: {
+            score: 0,
+        },
         started_at: Timestamp.now(),
     });
     return testRef.id;

@@ -292,7 +292,7 @@ function preventTestSubmit(event: SubmitEvent) {
             &.question-type-choices {
                 .question-wrapper {
                     display: grid;
-                    grid-template-columns: 1fr 10vh;
+                    grid-template-columns: 1fr 10.5vh;
                     row-gap: 1vh;
                 }
 
@@ -306,7 +306,7 @@ function preventTestSubmit(event: SubmitEvent) {
             &.question-type-text {
                 .question-wrapper {
                     display: grid;
-                    grid-template-columns: 1fr 10vh;
+                    grid-template-columns: 1fr 10.5vh;
                     row-gap: 1vh;
                 }
             }

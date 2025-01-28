@@ -122,3 +122,25 @@ export const _choiceDelete = onDocumentDeleted('tests/{testId}/questions/{questi
     });
 });
 
+export const _userTestCreate = onDocumentCreated('user_tests/{userTestId}', async event => {
+    return db.doc('user_tests/' + event.params.userTestId).update({
+        created_at: Timestamp.now(),
+        updated_at: Timestamp.now(),
+    });
+});
+
+export const _userTestUpdate = onDocumentUpdated('user_tests/{userTestId}', async event => {
+    if(!event.data?.after.exists || !event.data?.before.exists) {
+        return;
+    }
+
+    const userTestBefore = event.data?.before.data();
+    const userTestAfter = event.data?.after.data();
+
+    // To avoid an infinite loop
+    if(userTestBefore.result.score === userTestAfter.result.score) return;
+
+    return db.doc('user_tests/' + event.params.userTestId).update({
+        updated_at: Timestamp.now(),
+    });
+});

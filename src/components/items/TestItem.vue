@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Test } from '@/models/Test';
-import { useMainStore } from '@/stores/main';
-import { useTestServiceStore } from '@/stores/testService';
 import { Modal } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
+import { useMainStore } from '@/stores/main';
+import { useTestServiceStore } from '@/stores/testService';
+import type { Test } from '@/models/Test';
 
 const { test } = defineProps<{test?: Test}>();
 const router = useRouter();

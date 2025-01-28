@@ -62,9 +62,8 @@ export const useTestServiceStore = defineStore('testService', () => {
             test.id = snap.id;
             return test;
         });
-        if(snaps.docs.length > 0) {
-            lastDoc = snaps.docs[snaps.docs.length - 1];
-        }
+
+        lastDoc = snaps.docs.length === 0 ? null : snaps.docs[snaps.docs.length - 1];
     }
 
     async function loadMoreTests() {
@@ -80,9 +79,8 @@ export const useTestServiceStore = defineStore('testService', () => {
             test.id = snap.id;
             return test;
         });
-        if(snaps.docs.length > 0) {
-            lastDoc = snaps.docs[snaps.docs.length - 1];
-        }
+
+        lastDoc = snaps.docs.length === 0 ? null : snaps.docs[snaps.docs.length - 1];
 
         tests.value = tests.value.concat(newTests);
     }

@@ -8,7 +8,7 @@
  */
 
 import {onRequest} from "firebase-functions/v2/https";
-import {_choiceCreate, _choiceDelete, _choiceUpdate, _questionCreate, _questionDelete, _questionUpdate, _testCreate, _testUpdate} from './triggers';
+import {_choiceCreate, _choiceDelete, _choiceUpdate, _questionCreate, _questionDelete, _questionUpdate, _testCreate, _testUpdate, _userTestCreate, _userTestUpdate} from './triggers';
 import { httpApp } from "./http-app";
 
 
@@ -22,3 +22,5 @@ export const questionDelete = _questionDelete;
 export const choiceCreate = _choiceCreate;
 export const choiceUpdate = _choiceUpdate;
 export const choiceDelete = _choiceDelete;
+export const userTestCreate = _userTestCreate;
+export const userTestUpdate = _userTestUpdate;

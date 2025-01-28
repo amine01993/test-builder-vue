@@ -12,11 +12,14 @@ export interface UserTest {
         name: string;
         max_points: number;
         questionCount: number;
+        user_id: string;
     }
     started_at: Timestamp;
     ended_in?: Timestamp;
     report?: Report[];
     result?: {score: number};
+    created_at?: Timestamp;
+    updated_at?: Timestamp;
 }
 
 export interface Report {

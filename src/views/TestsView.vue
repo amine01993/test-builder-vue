@@ -74,7 +74,7 @@ async function checkLoaderVisiblity() {
             <RouterLink :to="{name: 'create-test'}" class="btn btn-warning create-test">Create New Test</RouterLink>
         </div>
 
-        <div class="test-info">
+        <div class="test-info" v-if="testCount !== 0">
             <template v-if="testCount">
                 <span class="test-info-label">Total number of tests:</span> {{ testCount }}
             </template>

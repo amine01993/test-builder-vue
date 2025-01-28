@@ -201,7 +201,7 @@ function onDragEnd() {
         <RouterLink :to="{name: 'create-question', params: {test_id}}" class="btn btn-warning create-question">Create New Question</RouterLink>
     </div>
 
-    <div class="question-info"  v-if="questionCount !== 0">
+    <div class="question-info" v-if="questionCount !== 0">
         <template v-if="questionCount">
             <span class="question-info-label">Total number of questions:</span> {{ questionCount }}
         </template>

@@ -45,6 +45,8 @@ httpApp.get('/test', async (req: any, res: any) => {
 
         const userTestId = await startTest(req['uid'], req.query, test);
 
+        test.user_id = undefined;
+
         res.status(200).json({
             test, userTestId
         });
