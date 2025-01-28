@@ -22,3 +22,12 @@ const list = route.name ? getList(route.name.toString(), test_id, question_id) :
         </ol>
     </nav>
 </template>
+
+<style scoped lang="scss">
+    .app-breadcrumb {
+        .breadcrumb-item + .breadcrumb-item::before {
+            scale: 1.1;
+            margin-top: .18em;
+        }
+    }
+</style>

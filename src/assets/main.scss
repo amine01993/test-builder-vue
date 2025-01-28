@@ -15,6 +15,7 @@
 	$modal-content-border-radius: 0,
 	$breadcrumb-divider-color: vars.$app-orange,
 	$breadcrumb-active-color: vars.$app-grey2,
+	$breadcrumb-divider: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='#{vars.$app-orange}' class='bi bi-caret-right-fill' viewBox='0 0 16 16'><path d='m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z'/></svg>"),
 );
 @use '~bootstrap-icons/font/bootstrap-icons' with (
 	$bootstrap-icons-font-dir: "~bootstrap-icons/font/fonts"
@@ -26,4 +27,8 @@
 
 body {
 	background-color: string.unquote(vars.$app-grey + '75');
+	font-family: "Roboto Mono", serif;
+	font-optical-sizing: auto;
+	font-style: normal;
+	font-weight: 400;
 }

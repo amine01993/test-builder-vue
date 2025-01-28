@@ -340,6 +340,7 @@ function onDragEnd() {
                 text-align: right;
                 color: vars.$app-grey2;
                 font-size: .9em;
+                margin-top: 1vh;
             }
 
             .choice-item-divider {
