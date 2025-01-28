@@ -1,16 +1,18 @@
 import { defineStore } from "pinia";
-import { addDoc, collection, deleteDoc, doc, getCountFromServer, getDoc, getDocs, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getCountFromServer, getDoc, getDocs, limit, orderBy, query, startAfter, Timestamp, updateDoc, where } from "firebase/firestore";
 import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
-import type { Test } from "@/models/Test";
 import { useQuestionServiceStore } from "./questionService";
 import { useAuthenticationStore } from "./auth";
+import type { Test } from "@/models/Test";
 
 export const useTestServiceStore = defineStore('testService', () => {
 
     const {db} = useFirestoreStore();
     const userId: Ref<string|undefined> = ref();
     const testCount: Ref<number|undefined> = ref();
+    const testsPerPage: number = 25;
+    let lastDoc:any = null;
     const tests: Ref<Test[]|null> = ref(null);
     const {deleteQuestion, getQuestions} = useQuestionServiceStore();
 
@@ -53,13 +55,36 @@ export const useTestServiceStore = defineStore('testService', () => {
         const countSnap = await getCountFromServer(testsRef);
         testCount.value = countSnap.data().count;
 
-        const q = query(testsRef, where('user_id', '==', user_id), orderBy('updated_at', 'desc'));
+        const q = query(testsRef, where('user_id', '==', user_id), orderBy('updated_at', 'desc'), limit(testsPerPage));
         const snaps = await getDocs(q);
         tests.value = snaps.docs.map(snap => {
             const test = <Test>snap.data();
             test.id = snap.id;
             return test;
         });
+        if(snaps.docs.length > 0) {
+            lastDoc = snaps.docs[snaps.docs.length - 1];
+        }
+    }
+
+    async function loadMoreTests() {
+        if(!tests.value || !lastDoc) return;
+
+        const testsRef = collection(db, 'tests');
+
+        const q = query(testsRef, where('user_id', '==', userId.value), orderBy('updated_at', 'desc'), startAfter(lastDoc), limit(testsPerPage))
+        const snaps = await getDocs(q);
+
+        const newTests = snaps.docs.map(snap => {
+            const test = <Test>snap.data();
+            test.id = snap.id;
+            return test;
+        });
+        if(snaps.docs.length > 0) {
+            lastDoc = snaps.docs[snaps.docs.length - 1];
+        }
+
+        tests.value = tests.value.concat(newTests);
     }
 
     async function addTest(test: Test) {
@@ -138,6 +163,7 @@ export const useTestServiceStore = defineStore('testService', () => {
         testCount: computed(() => testCount),
         tests: computed(() => tests),
         loadTests,
+        loadMoreTests,
         addTest,
         updateTest,
         updateQuestionCount,

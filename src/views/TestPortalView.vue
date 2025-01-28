@@ -130,7 +130,7 @@ async function initializingDTest() {
             // You will not be able to continue the test once you leave.`
         };
 
-        nextTick();
+        await nextTick();
         if(testFormEl.value) {
             testFormEl.value.addEventListener('submit', preventTestSubmit);
         }

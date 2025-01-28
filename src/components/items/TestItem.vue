@@ -6,7 +6,6 @@ import { Modal } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
 
-
 const { test } = defineProps<{test?: Test}>();
 const router = useRouter();
 const {showMessage, startLoading, endLoading} = useMainStore();
@@ -98,8 +97,8 @@ function copyTestLink() {
 </script>
 
 <template>
-    <div class="test-item-container" v-if="test">
-        <div class="test-item-content">
+    <div class="test-item-container" :class="{'placeholder-wave': !test}">
+        <div class="test-item-content" v-if="test">
             <div class="test-item-title">{{ test.name }}</div>
             <hr class="test-item-divider">
             <div class="test-item-info">
@@ -117,9 +116,7 @@ function copyTestLink() {
                 <button type="button" class="btn btn-warning" @click="copyTestLink"><i class="bi bi-copy"></i></button>
             </div>
         </div>
-    </div>
-    <div class="test-item-container placeholder-wave" v-else>
-        <div class="test-item-content">
+        <div class="test-item-content" v-else>
             <div class="test-item-title placeholder col-6 offset-3 placeholder-lg bg-secondary"></div>
             <hr class="test-item-divider">
             <div class="test-item-info">
@@ -129,23 +126,22 @@ function copyTestLink() {
             <hr class="test-item-divider">
             <div class="test-item-actions placeholder col-9 offset-3 placeholder-lg bg-secondary"></div>
         </div>
-    </div>
 
-    <div class="modal" tabindex="-1" ref="confirm-deletion-modal" v-if="test">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete this test: "{{ test.name }}"?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" @click="deleteDTest">Delete</button>
+        <div class="modal" tabindex="-1" ref="confirm-deletion-modal" v-if="test">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this test: "{{ test.name }}"?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" @click="deleteDTest">Delete</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 </template>

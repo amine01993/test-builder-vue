@@ -1,31 +1,66 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
-import { onUnmounted } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
 import { useTestServiceStore } from '@/stores/testService';
-import TestItem from '@/components/items/TestItem.vue';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
+import AppHeader from '@/components/AppHeader.vue';
+import AppMenu from '@/components/AppMenu.vue';
+import TestItem from '@/components/items/TestItem.vue';
 import Breadcrumb from '@/components/items/Breadcrumb.vue';
 
 const {showMessage} = useMainStore();
-const {auth} = useAuthenticationStore();
-const {testCount, tests, loadTests} = useTestServiceStore();
+const {auth, user} = useAuthenticationStore();
+const {testCount, tests, loadTests, loadMoreTests} = useTestServiceStore();
+const loadingTests = ref(false);
+let testsLoaderEl: any = null;
 
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     try {
         await loadTests(user!.uid);
+        if(!testsLoaderEl) {
+            testsLoaderEl = document.querySelector('.tests-loader');
+        }
     }
     catch(error) {
         showMessage('failure', 'Error loading tests.');
     }
 });
 
+onMounted(() => {
+    document.addEventListener('scroll', checkLoaderVisiblity);
+    if(!testsLoaderEl) {
+        testsLoaderEl = document.querySelector('.tests-loader');
+    }    
+});
+
 onUnmounted(() => {
     onAuthEventDispose();
+    document.removeEventListener('scroll', checkLoaderVisiblity);
 });
+
+async function checkLoaderVisiblity() {
+    if(testsLoaderEl && !loadingTests.value) {
+        if(testsLoaderEl.getBoundingClientRect().top < window.innerHeight) {
+            if(user.value) {
+                loadingTests.value = true;
+                try {
+                    await loadMoreTests();
+                    await nextTick();
+                    
+                    testsLoaderEl = document.querySelector('.tests-loader');
+                }
+                catch(error) {
+                    showMessage('failure', 'Error loading more tests.');
+                }
+                finally {
+                    loadingTests.value = false;
+                }
+            }
+        }
+    }
+}
 
 </script>
 
@@ -57,7 +92,12 @@ onUnmounted(() => {
             <template v-else>
                 <TestItem v-for="index in [0, 1, 2]" :key="'test-placeholder-' + index" />
             </template>
+
+            <template v-if="testCount && tests && tests.length < testCount">
+                <TestItem :key="'test-placeholder-loading'" class="tests-loader" />
+            </template>
         </div>
+
     </div>
 </template>
 
