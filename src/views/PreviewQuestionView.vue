@@ -29,7 +29,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         }
 
         choices.value = undefined;
-        await loadChoices(test_id, question_id);
+        await loadChoices(test_id, question.value);
     }
     catch(error) {
         showMessage('failure', 'Error loading question data.');
@@ -51,7 +51,7 @@ onUnmounted(() => {
     <AppMenu />
 
     <div class="app-main">
-        <DisplayQuestion :question="question" :choices="choices" />
+        <DisplayQuestion :question="question" :choices="choices" :preview="true" />
     </div>
 </template>
 

@@ -1,0 +1,38 @@
+
+@use 'sass:string';
+@use '@/assets/variables' as vars;
+
+.app-header {
+    .left-side {
+
+        .menu-btn {
+            i {
+            }
+        }
+
+        .logo {
+            img {
+            }
+        }
+    }
+
+    .right-side {
+
+        .localization {
+
+        }
+
+        .user {
+            [type=button] {
+            }
+
+            &.dropdown {
+                .dropdown-item.di-icon {
+                }
+
+                .dropdown-menu {
+                }
+            }
+        }
+    }
+}

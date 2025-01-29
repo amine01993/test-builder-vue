@@ -2,17 +2,15 @@
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import draggable from 'vuedraggable';
 import { onAuthStateChanged } from 'firebase/auth';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import { QuestionType, type Question } from '@/models/Question';
+import draggable from 'vuedraggable';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useChoiceServiceStore } from '@/stores/choiceService';
+import { QuestionType, type Question } from '@/models/Question';
 import ChoiceItem from '@/components/items/ChoiceItem.vue';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
+import AppContainer from '@/components/AppContainer.vue';
 
 const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
 const route = useRoute();
@@ -136,81 +134,79 @@ function onDragEnd() {
 </script>
 
 <template>
-    <AppHeader />
-    <Breadcrumb :test_id="test_id" />
-    <AppMenu />
-
-    <div class="app-main">
-        <div class="question-form" :class="{'hide-form': !showForm}">
-            <div class="question-form-title mb-4">Edit Question</div>
-            <button class="btn toggle-form-btn" @click="toggleShowForm">
-                <i class="bi" :class="{'bi-chevron-down': !showForm, 'bi-chevron-up': showForm}"></i>
-            </button>
-
-            <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
-                <ul>
-                    <li v-for="error in serverErrors" :key="error">{{ error }}</li>
-                </ul>
+    <AppContainer :test_id="test_id">
+        <div class="app-main">
+            <div class="question-form" :class="{'hide-form': !showForm}">
+                <div class="question-form-title mb-4">Edit Question</div>
+                <button class="btn toggle-form-btn" @click="toggleShowForm">
+                    <i class="bi" :class="{'bi-chevron-down': !showForm, 'bi-chevron-up': showForm}"></i>
+                </button>
+    
+                <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
+                    <ul>
+                        <li v-for="error in serverErrors" :key="error">{{ error }}</li>
+                    </ul>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="question-input-text" class="form-label">Question</label>
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="question-input-type" class="form-label">Question Type</label>
+                    <select class="form-select" :class="{'is-invalid': errors.type}" id="question-input-type" v-model="type" :disabled="submitting">
+                        <option :value="QuestionType.Text">Text</option>
+                        <option :value="QuestionType.MultipleChoice">Multiple Choice</option>
+                        <option :value="QuestionType.Number">Number</option>
+                        <option :value="QuestionType.SingleChoice">Single Choice</option>
+                    </select>
+                    <div class="invalid-feedback is-invalid" v-if="errors.type">{{ errors.type }}</div>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="question-input-position" class="form-label">Position</label>
+                    <span class="label-info" data-bs-content="The position of the question in the test."><i class="bi bi-question-circle-fill"></i></span>
+                    <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
+                </div>
+    
+                <button type="button" class="btn btn-primary" @click="editQuestion" :disabled="submitting">
+                    <template v-if="!submitting">Edit</template>
+                    <template v-else>Editing ...</template>
+                </button>
             </div>
-
-            <div class="mb-3">
-                <label for="question-input-text" class="form-label">Question</label>
-                <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="question-input-type" class="form-label">Question Type</label>
-                <select class="form-select" :class="{'is-invalid': errors.type}" id="question-input-type" v-model="type" :disabled="submitting">
-                    <option :value="QuestionType.Text">Text</option>
-                    <option :value="QuestionType.MultipleChoice">Multiple Choice</option>
-                    <option :value="QuestionType.Number">Number</option>
-                    <option :value="QuestionType.SingleChoice">Single Choice</option>
-                </select>
-                <div class="invalid-feedback is-invalid" v-if="errors.type">{{ errors.type }}</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="question-input-position" class="form-label">Position</label>
-                <span class="label-info" data-bs-content="The position of the question in the test."><i class="bi bi-question-circle-fill"></i></span>
-                <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
-            </div>
-
-            <button type="button" class="btn btn-primary" @click="editQuestion" :disabled="submitting">
-                <template v-if="!submitting">Edit</template>
-                <template v-else>Editing ...</template>
-            </button>
         </div>
-    </div>
-
-    <div class="choice-actions">
-        <RouterLink :to="{name: 'create-choice', params: {test_id, question_id}}" class="btn btn-warning">Create New Choice</RouterLink>
-    </div>
-
-    <div class="choice-info" v-if="choiceCount !== 0">
-        <template v-if="choiceCount">
-            <span class="choice-info-label">Total number of choices:</span> {{ choiceCount }}
+    
+        <div class="choice-actions">
+            <RouterLink :to="{name: 'create-choice', params: {test_id, question_id}}" class="btn btn-warning">Create New Choice</RouterLink>
+        </div>
+    
+        <div class="choice-info" v-if="choiceCount !== 0">
+            <template v-if="choiceCount">
+                <span class="choice-info-label">Total number of choices:</span> {{ choiceCount }}
+            </template>
+            <template v-else>
+                <div class="placeholder-wave">
+                    <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
+                </div>
+            </template>
+        </div>
+        
+        <template v-if="choices">
+            <draggable v-model="choices" item-key="id" tag="div" :component-data="{'class': 'choice-list'}" handle=".choice-item-sort-handler" @end="onDragEnd">
+                <template #item="{element}">
+                    <ChoiceItem :test_id="test_id" :question_id="question_id" :choice="element" />
+                </template>
+            </draggable>
         </template>
         <template v-else>
-            <div class="placeholder-wave">
-                <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
+            <div class="choice-list">
+                <ChoiceItem v-for="index in [0, 1, 2]" :key="'choice-placeholder-' + index" />
             </div>
         </template>
-    </div>
-    
-    <template v-if="choices">
-        <draggable v-model="choices" item-key="id" tag="div" :component-data="{'class': 'choice-list'}" handle=".choice-item-sort-handler" @end="onDragEnd">
-            <template #item="{element}">
-                <ChoiceItem :test_id="test_id" :question_id="question_id" :choice="element" />
-            </template>
-        </draggable>
-    </template>
-    <template v-else>
-        <div class="choice-list">
-            <ChoiceItem v-for="index in [0, 1, 2]" :key="'choice-placeholder-' + index" />
-        </div>
-    </template>
+    </AppContainer>
 </template>
 
 <style scoped lang="scss">

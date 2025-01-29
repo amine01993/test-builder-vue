@@ -3,14 +3,12 @@ import { computed, onMounted, onUnmounted, ref, useTemplateRef, type Ref } from 
 import { onAuthStateChanged } from 'firebase/auth';
 import { Modal } from 'bootstrap';
 import { useRouter } from 'vue-router';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
-import type { Test } from '@/models/Test';
 import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
+import type { Test } from '@/models/Test';
 import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
+import AppContainer from '@/components/AppContainer.vue';
 
 const router = useRouter();
 const { test_id } = defineProps<{test_id: string}>();
@@ -108,35 +106,38 @@ function submitTest() {
 </script>
 
 <template>
-    <AppHeader />
-    <Breadcrumb />
-    <AppMenu />
-
-    <div class="app-test-header" v-if="test">
-        <div class="test-name">
-            {{ test.name }}
+    <AppContainer>
+        <div class="app-test-header" v-if="test">
+            <div class="test-name">
+                {{ test.name }}
+            </div>
+            <div class="test-limit">
+                <i class="bi bi-alarm"></i>
+                {{ timeLimit }}
+            </div>
         </div>
-        <div class="test-limit">
-            <i class="bi bi-alarm"></i>
-            {{ timeLimit }}
+        
+        <div class="app-test-description" v-if="test">
+            <div class="test-description" v-html="description"></div>
+            <div class="test-points">
+                ({{ test.max_points }} pts)
+            </div>
         </div>
-    </div>
 
-    <div class="app-test-description" v-if="test" v-html="description"></div>
-
-    <div class="app-main" v-if="test">
-        <DisplayQuestion v-for="(question, index) in test?.questions" :key="question.id"
-            :question="question" :choices="question.choices" :nbr="index + 1" :preview="true" />
-
-        <div class="app-test-actions">
-            <button type="button" class="btn btn-outline-primary to-the-top" @click="moveToTheTop">
-                <i class="bi bi-arrow-up"></i>
-            </button>
-            <button type="button" class="btn btn-primary" @click="finishTest">
-                Finish The Test
-            </button>
+        <div class="app-main" v-if="test">
+            <DisplayQuestion v-for="(question, index) in test?.questions" :key="question.id"
+                :question="question" :choices="question.choices" :nbr="index + 1" :preview="true" />
+    
+            <div class="app-test-actions">
+                <button type="button" class="btn btn-outline-primary to-the-top" @click="moveToTheTop">
+                    <i class="bi bi-arrow-up"></i>
+                </button>
+                <button type="button" class="btn btn-primary" @click="finishTest">
+                    Finish The Test
+                </button>
+            </div>
         </div>
-    </div>
+    </AppContainer>
 
     <div class="modal" tabindex="-1" ref="test-submission-modal">
         <div class="modal-dialog modal-dialog-centered">
@@ -154,7 +155,6 @@ function submitTest() {
             </div>
         </div>
     </div>
-
 </template>
 
 <style scoped lang="scss">
@@ -165,6 +165,15 @@ function submitTest() {
         padding: 2vh;
         background-color: vars.$app-white;
         box-shadow: 5px 5px 25px vars.$app-grey;
+    }
+
+    .app-test-description {
+        display: flex;
+        justify-content: space-between;
+
+        .test-points {
+            font-weight: 600;
+        }
     }
 
     .app-test-header {

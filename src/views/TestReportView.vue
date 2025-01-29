@@ -29,8 +29,8 @@ const startedAt = computed(() => {
 
 const lastedFor = computed(() => {
     if(testReport.value) {
-        const startDate = testReport.value.started_at.toDate();
-        const endDate = testReport.value.ended_in?.toDate();
+        const startDate: any = testReport.value.started_at.toDate();
+        const endDate: any = testReport.value.ended_in?.toDate();
         if(endDate) {
             const diffInS = Math.floor((endDate - startDate) / 1000);
             let val = diffInS;

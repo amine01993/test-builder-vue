@@ -2,11 +2,9 @@
 import { onAuthStateChanged, signInWithEmailAndPassword, type User } from 'firebase/auth';
 import { computed, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
+import AppContainer from '@/components/AppContainer.vue';
 
 const router = useRouter();
 const {auth, isAnonymous, signUpWithGoogle} = useAuthenticationStore();
@@ -76,55 +74,53 @@ async function signUpWithG() {
 </script>
 
 <template>
-    <AppHeader />
-    <Breadcrumb />
-    <AppMenu />
-
-    <div class="app-main">
-        <div class="sign-container">
-            <div class="login-form">
-                <div class="login-form-title mb-4">Login</div>
-
-                <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
-                    <ul>
-                        <li v-for="error in serverErrors" :key="error">{{ error }}</li>
-                    </ul>
-                </div>
-
-                <div class="mb-3">
-                    <label for="login-input-email" class="form-label">Email</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-at"></i></span>
-                        <input type="email" class="form-control" :class="{'is-invalid': errors.email}" id="login-input-email" v-model="email" :disabled="submitting">
-                        <div class="invalid-feedback is-invalid" v-if="errors.email">{{ errors.email }}</div>
+    <AppContainer>
+        <div class="app-main">
+            <div class="sign-container">
+                <div class="login-form">
+                    <div class="login-form-title mb-4">Login</div>
+    
+                    <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
+                        <ul>
+                            <li v-for="error in serverErrors" :key="error">{{ error }}</li>
+                        </ul>
                     </div>
-                </div>
-                <div class="mb-3">
-                    <label for="login-input-password" class="form-label">Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                        <input type="password" class="form-control" :class="{'is-invalid': errors.password}" id="login-input-password" v-model="password" :disabled="submitting">
-                        <div class="invalid-feedback is-invalid" v-if="errors.password">{{ errors.password }}</div>
+    
+                    <div class="mb-3">
+                        <label for="login-input-email" class="form-label">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-at"></i></span>
+                            <input type="email" class="form-control" :class="{'is-invalid': errors.email}" id="login-input-email" v-model="email" :disabled="submitting">
+                            <div class="invalid-feedback is-invalid" v-if="errors.email">{{ errors.email }}</div>
+                        </div>
                     </div>
+                    <div class="mb-3">
+                        <label for="login-input-password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                            <input type="password" class="form-control" :class="{'is-invalid': errors.password}" id="login-input-password" v-model="password" :disabled="submitting">
+                            <div class="invalid-feedback is-invalid" v-if="errors.password">{{ errors.password }}</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" @click="login" :disabled="submitting">
+                        <template v-if="!submitting">LOGIN</template>
+                        <template v-else>LOGGING IN ...</template>
+                    </button>
+    
                 </div>
-                <button type="button" class="btn btn-primary" @click="login" :disabled="submitting">
-                    <template v-if="!submitting">LOGIN</template>
-                    <template v-else>LOGGING IN ...</template>
-                </button>
-
-            </div>
-            <div class="signup-parties">
-                Or Sign Up Using <br>
-                <button type="button" class="btn btn-danger google-auth" @click="signUpWithG">
-                    <i class="bi bi-google"></i>
-                </button>
-            </div>
-            <div class="signup-link">
-                Or Sign Up Using <br>
-                <RouterLink :to="{name: 'register'}">SIGN UP</RouterLink>
+                <div class="signup-parties">
+                    Or Sign Up Using <br>
+                    <button type="button" class="btn btn-danger google-auth" @click="signUpWithG">
+                        <i class="bi bi-google"></i>
+                    </button>
+                </div>
+                <div class="signup-link">
+                    Or Sign Up Using <br>
+                    <RouterLink :to="{name: 'register'}">SIGN UP</RouterLink>
+                </div>
             </div>
         </div>
-    </div>
+    </AppContainer>
 </template>
 
 <style scoped lang="scss">

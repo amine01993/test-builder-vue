@@ -4,15 +4,13 @@ import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { onAuthStateChanged } from 'firebase/auth';
 import draggable from 'vuedraggable';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
 import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useQuestionServiceStore } from '@/stores/questionService';
-import QuestionItem from '@/components/items/QuestionItem.vue';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
 import type { Test } from '@/models/Test';
+import QuestionItem from '@/components/items/QuestionItem.vue';
+import AppContainer from '@/components/AppContainer.vue';
 
 const { test_id } = defineProps<{test_id: string}>();
 const route = useRoute();
@@ -141,76 +139,74 @@ function onDragEnd() {
 </script>
 
 <template>
-    <AppHeader />
-    <Breadcrumb />
-    <AppMenu />
-
-    <div class="app-main">
-        <div class="test-form" :class="{'hide-form': !showForm}">
-            <div class="test-form-title mb-4">Edit Test</div>
-            <button class="btn toggle-form-btn" @click="toggleShowForm">
-                <i class="bi" :class="{'bi-chevron-down': !showForm, 'bi-chevron-up': showForm}"></i>
-            </button>
-
-            <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
-                <ul>
-                    <li v-for="error in serverErrors" :key="error">{{ error }}</li>
-                </ul>
+    <AppContainer>
+        <div class="app-main">
+            <div class="test-form" :class="{'hide-form': !showForm}">
+                <div class="test-form-title mb-4">Edit Test</div>
+                <button class="btn toggle-form-btn" @click="toggleShowForm">
+                    <i class="bi" :class="{'bi-chevron-down': !showForm, 'bi-chevron-up': showForm}"></i>
+                </button>
+    
+                <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
+                    <ul>
+                        <li v-for="error in serverErrors" :key="error">{{ error }}</li>
+                    </ul>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="test-input-name" class="form-label">Name</label>
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="test-input-description" class="form-label">Description</label>
+                    <textarea class="form-control" :class="{'is-invalid': errors.description}" id="test-input-description" v-model="description" rows="3" :disabled="submitting"></textarea>
+                    <div class="invalid-feedback is-invalid" v-if="errors.description">{{ errors.description }}</div>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="test-input-timelimit" class="form-label">Time limit</label>
+                    <span class="label-info" data-bs-content="The test Time Limit is in seconds.<br>0 = no Time Limit"><i class="bi bi-question-circle-fill"></i></span>
+                    <input type="number" class="form-control" :class="{'is-invalid': errors.timeLimit}" id="test-input-timelimit" v-model="timeLimit" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.timeLimit">{{ errors.timeLimit }}</div>
+                </div>
+    
+                <button type="button" class="btn btn-primary" @click="editTest" :disabled="submitting">
+                    <template v-if="!submitting">Edit</template>
+                    <template v-else>Editing ...</template>
+                </button>
             </div>
-
-            <div class="mb-3">
-                <label for="test-input-name" class="form-label">Name</label>
-                <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="test-input-description" class="form-label">Description</label>
-                <textarea class="form-control" :class="{'is-invalid': errors.description}" id="test-input-description" v-model="description" rows="3" :disabled="submitting"></textarea>
-                <div class="invalid-feedback is-invalid" v-if="errors.description">{{ errors.description }}</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="test-input-timelimit" class="form-label">Time limit</label>
-                <span class="label-info" data-bs-content="The test Time Limit is in seconds.<br>0 = no Time Limit"><i class="bi bi-question-circle-fill"></i></span>
-                <input type="number" class="form-control" :class="{'is-invalid': errors.timeLimit}" id="test-input-timelimit" v-model="timeLimit" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.timeLimit">{{ errors.timeLimit }}</div>
-            </div>
-
-            <button type="button" class="btn btn-primary" @click="editTest" :disabled="submitting">
-                <template v-if="!submitting">Edit</template>
-                <template v-else>Editing ...</template>
-            </button>
         </div>
-    </div>
-
-    <div class="question-actions">
-        <RouterLink :to="{name: 'create-question', params: {test_id}}" class="btn btn-warning create-question">Create New Question</RouterLink>
-    </div>
-
-    <div class="question-info" v-if="questionCount !== 0">
-        <template v-if="questionCount">
-            <span class="question-info-label">Total number of questions:</span> {{ questionCount }}
+    
+        <div class="question-actions">
+            <RouterLink :to="{name: 'create-question', params: {test_id}}" class="btn btn-warning create-question">Create New Question</RouterLink>
+        </div>
+    
+        <div class="question-info" v-if="questionCount !== 0">
+            <template v-if="questionCount">
+                <span class="question-info-label">Total number of questions:</span> {{ questionCount }}
+            </template>
+            <template v-else>
+                <div class="placeholder-wave">
+                    <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
+                </div>
+            </template>
+        </div>
+        
+        <template v-if="questions">
+            <draggable v-model="questions" item-key="id" tag="div" :component-data="{'class': 'question-list'}" handle=".question-item-sort-handler" @end="onDragEnd">
+                <template #item="{element}">
+                    <QuestionItem :test_id="test_id" :question="element" />
+                </template>
+            </draggable>
         </template>
         <template v-else>
-            <div class="placeholder-wave">
-                <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
+            <div class="question-list">
+                <QuestionItem v-for="index in [0, 1, 2]" :key="'question-placeholder-' + index" />
             </div>
         </template>
-    </div>
-    
-    <template v-if="questions">
-        <draggable v-model="questions" item-key="id" tag="div" :component-data="{'class': 'question-list'}" handle=".question-item-sort-handler" @end="onDragEnd">
-            <template #item="{element}">
-                <QuestionItem :test_id="test_id" :question="element" />
-            </template>
-        </draggable>
-    </template>
-    <template v-else>
-        <div class="question-list">
-            <QuestionItem v-for="index in [0, 1, 2]" :key="'question-placeholder-' + index" />
-        </div>
-    </template>
+    </AppContainer>
 </template>
 
 <style scoped lang="scss">

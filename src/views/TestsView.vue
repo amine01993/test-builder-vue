@@ -5,20 +5,19 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
 import TestItem from '@/components/items/TestItem.vue';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
+import AppContainer from '@/components/AppContainer.vue';
 
 const {showMessage} = useMainStore();
 const {auth, user} = useAuthenticationStore();
-const {testCount, tests, loadTests, loadMoreTests} = useTestServiceStore();
+const {testCount, tests, loadTestCount, loadTests, loadMoreTests} = useTestServiceStore();
 const loadingTests = ref(false);
 let testsLoaderEl: any = null;
 
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     try {
-        await loadTests(user!.uid);
+        if(user === null) return;
+        await Promise.all([loadTestCount(user!.uid), loadTests(user!.uid)]) ;
         if(!testsLoaderEl) {
             testsLoaderEl = document.querySelector('.tests-loader');
         }
@@ -65,40 +64,37 @@ async function checkLoaderVisiblity() {
 </script>
 
 <template>
-    <AppHeader />
-    <Breadcrumb />
-    <AppMenu />
+    <AppContainer>
+        <div class="app-main">
+            <div class="test-actions">
+                <RouterLink :to="{name: 'create-test'}" class="btn btn-warning create-test">Create New Test</RouterLink>
+            </div>
 
-    <div class="app-main">
-        <div class="test-actions">
-            <RouterLink :to="{name: 'create-test'}" class="btn btn-warning create-test">Create New Test</RouterLink>
+            <div class="test-info" v-if="testCount !== 0">
+                <template v-if="testCount">
+                    <span class="test-info-label">Total number of tests:</span> {{ testCount }}
+                </template>
+                <template v-else>
+                    <div class="placeholder-wave">
+                        <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
+                    </div>
+                </template>
+            </div>
+            
+            <div class="test-list">
+                <template v-if="tests">
+                    <TestItem v-for="test in tests" :test="test" :key="test.id" />
+                </template>
+                <template v-else>
+                    <TestItem v-for="index in [0, 1, 2]" :key="'test-placeholder-' + index" />
+                </template>
+
+                <template v-if="testCount && tests && tests.length < testCount">
+                    <TestItem :key="'test-placeholder-loading'" class="tests-loader" />
+                </template>
+            </div>
         </div>
-
-        <div class="test-info" v-if="testCount !== 0">
-            <template v-if="testCount">
-                <span class="test-info-label">Total number of tests:</span> {{ testCount }}
-            </template>
-            <template v-else>
-                <div class="placeholder-wave">
-                    <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
-                </div>
-            </template>
-        </div>
-        
-        <div class="test-list">
-            <template v-if="tests">
-                <TestItem v-for="test in tests" :test="test" :key="test.id" />
-            </template>
-            <template v-else>
-                <TestItem v-for="index in [0, 1, 2]" :key="'test-placeholder-' + index" />
-            </template>
-
-            <template v-if="testCount && tests && tests.length < testCount">
-                <TestItem :key="'test-placeholder-loading'" class="tests-loader" />
-            </template>
-        </div>
-
-    </div>
+    </AppContainer>
 </template>
 
 <style scoped lang="scss">

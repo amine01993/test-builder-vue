@@ -1,0 +1,33 @@
+@use 'sass:string';
+@use '@/assets/variables' as vars;
+
+.app-menu {
+    box-shadow: unset;
+    width: 300px;
+    max-width: unset;
+    margin-left: -300px;
+    margin-top: 6.6vh;
+
+    &.open {
+        transform: none;
+        margin-left: 0;
+    }
+
+    &-overlay {
+
+        &.open {
+            display: none;
+        }
+    }
+
+    .menu-item {
+        
+
+        a {
+
+            &.selected-item {
+
+            }
+        }
+    }
+}

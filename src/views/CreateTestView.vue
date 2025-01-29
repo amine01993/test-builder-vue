@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import { useTestServiceStore } from '@/stores/testService';
 import { useRouter } from 'vue-router';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
+import { useTestServiceStore } from '@/stores/testService';
+import AppContainer from '@/components/AppContainer.vue';
 
 const router = useRouter();
 const {addTest} = useTestServiceStore();
@@ -78,45 +76,43 @@ async function createTest() {
 </script>
 
 <template>
-    <AppHeader />
-    <Breadcrumb />
-    <AppMenu />
-
-    <div class="app-main">
-        <div class="test-form">
-            <div class="test-form-title mb-4">Create New Test</div>
-
-            <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
-                <ul>
-                    <li v-for="error in serverErrors" :key="error">{{ error }}</li>
-                </ul>
+    <AppContainer>
+        <div class="app-main">
+            <div class="test-form">
+                <div class="test-form-title mb-4">Create New Test</div>
+    
+                <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
+                    <ul>
+                        <li v-for="error in serverErrors" :key="error">{{ error }}</li>
+                    </ul>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="test-input-name" class="form-label">Name</label>
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="test-input-description" class="form-label">Description</label>
+                    <textarea class="form-control" :class="{'is-invalid': errors.description}" id="test-input-description" v-model="description" rows="3" :disabled="submitting"></textarea>
+                    <div class="invalid-feedback is-invalid" v-if="errors.description">{{ errors.description }}</div>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="test-input-timelimit" class="form-label">Time limit</label>
+                    <span class="label-info" data-bs-content="The test Time Limit is in seconds.<br>0 = no Time Limit"><i class="bi bi-question-circle-fill"></i></span>
+                    <input type="number" class="form-control" :class="{'is-invalid': errors.timeLimit}" id="test-input-timelimit" v-model="timeLimit" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.timeLimit">{{ errors.timeLimit }}</div>
+                </div>
+    
+                <button type="button" class="btn btn-primary" @click="createTest" :disabled="submitting">
+                    <template v-if="!submitting">Create</template>
+                    <template v-else>Creating ...</template>
+                </button>
             </div>
-
-            <div class="mb-3">
-                <label for="test-input-name" class="form-label">Name</label>
-                <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="test-input-description" class="form-label">Description</label>
-                <textarea class="form-control" :class="{'is-invalid': errors.description}" id="test-input-description" v-model="description" rows="3" :disabled="submitting"></textarea>
-                <div class="invalid-feedback is-invalid" v-if="errors.description">{{ errors.description }}</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="test-input-timelimit" class="form-label">Time limit</label>
-                <span class="label-info" data-bs-content="The test Time Limit is in seconds.<br>0 = no Time Limit"><i class="bi bi-question-circle-fill"></i></span>
-                <input type="number" class="form-control" :class="{'is-invalid': errors.timeLimit}" id="test-input-timelimit" v-model="timeLimit" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.timeLimit">{{ errors.timeLimit }}</div>
-            </div>
-
-            <button type="button" class="btn btn-primary" @click="createTest" :disabled="submitting">
-                <template v-if="!submitting">Create</template>
-                <template v-else>Creating ...</template>
-            </button>
         </div>
-    </div>
+    </AppContainer>
 </template>
 
 <style scoped lang="scss">

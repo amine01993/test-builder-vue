@@ -3,14 +3,12 @@ import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { onAuthStateChanged } from 'firebase/auth';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import { QuestionType } from '@/models/Question';
 import { useQuestionServiceStore } from '@/stores/questionService';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
 import { useTestServiceStore } from '@/stores/testService';
 import { useMainStore } from '@/stores/main';
 import { useAuthenticationStore } from '@/stores/auth';
+import { QuestionType } from '@/models/Question';
+import AppContainer from '@/components/AppContainer.vue';
 
 const { test_id } = defineProps<{test_id: string}>();
 const router = useRouter();
@@ -103,54 +101,52 @@ async function createQuestion() {
 </script>
 
 <template>
-    <AppHeader />
-    <Breadcrumb :test_id="test_id" />
-    <AppMenu />
-
-    <div class="app-main">
-        <div class="question-form">
-            <div class="question-form-title mb-4">Create Question</div>
-
-            <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
-                <ul>
-                    <li v-for="error in serverErrors" :key="error">{{ error }}</li>
-                </ul>
+    <AppContainer :test_id="test_id">
+        <div class="app-main">
+            <div class="question-form">
+                <div class="question-form-title mb-4">Create Question</div>
+    
+                <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
+                    <ul>
+                        <li v-for="error in serverErrors" :key="error">{{ error }}</li>
+                    </ul>
+                </div>
+    
+                <div class="mb-3 test-name">
+                    {{ testName }}
+                </div>
+    
+                <div class="mb-3">
+                    <label for="question-input-text" class="form-label">Question</label>
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="question-input-type" class="form-label">Question Type</label>
+                    <select class="form-select" :class="{'is-invalid': errors.type}" id="question-input-type" v-model="type" :disabled="submitting">
+                        <option :value="QuestionType.Text">Text</option>
+                        <option :value="QuestionType.MultipleChoice">Multiple Choice</option>
+                        <option :value="QuestionType.Number">Number</option>
+                        <option :value="QuestionType.SingleChoice">Single Choice</option>
+                    </select>
+                    <div class="invalid-feedback is-invalid" v-if="errors.type">{{ errors.type }}</div>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="question-input-position" class="form-label">Position</label>
+                    <span class="label-info" data-bs-content="The position of the question in the test."><i class="bi bi-question-circle-fill"></i></span>
+                    <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
+                </div>
+    
+                <button type="button" class="btn btn-primary" @click="createQuestion" :disabled="submitting">
+                    <template v-if="!submitting">Create</template>
+                    <template v-else>Creating ...</template>
+                </button>
             </div>
-
-            <div class="mb-3 test-name">
-                {{ testName }}
-            </div>
-
-            <div class="mb-3">
-                <label for="question-input-text" class="form-label">Question</label>
-                <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="question-input-type" class="form-label">Question Type</label>
-                <select class="form-select" :class="{'is-invalid': errors.type}" id="question-input-type" v-model="type" :disabled="submitting">
-                    <option :value="QuestionType.Text">Text</option>
-                    <option :value="QuestionType.MultipleChoice">Multiple Choice</option>
-                    <option :value="QuestionType.Number">Number</option>
-                    <option :value="QuestionType.SingleChoice">Single Choice</option>
-                </select>
-                <div class="invalid-feedback is-invalid" v-if="errors.type">{{ errors.type }}</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="question-input-position" class="form-label">Position</label>
-                <span class="label-info" data-bs-content="The position of the question in the test."><i class="bi bi-question-circle-fill"></i></span>
-                <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
-            </div>
-
-            <button type="button" class="btn btn-primary" @click="createQuestion" :disabled="submitting">
-                <template v-if="!submitting">Create</template>
-                <template v-else>Creating ...</template>
-            </button>
         </div>
-    </div>
+    </AppContainer>
 </template>
 
 <style scoped lang="scss">

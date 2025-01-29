@@ -1,16 +1,12 @@
 <script setup lang="ts">
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
+import AppContainer from '@/components/AppContainer.vue';
 
 </script>
 
 <template>
-    <AppHeader />
-    <Breadcrumb />
-    <AppMenu />
-
-    <div class="app-main"></div>
+    <AppContainer>
+        <div class="app-main"></div>
+    </AppContainer>
 </template>
 
 <style scoped lang="scss">

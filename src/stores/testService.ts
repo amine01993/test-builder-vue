@@ -58,7 +58,7 @@ export const useTestServiceStore = defineStore('testService', () => {
     }
 
     async function loadTestCount(user_id: string) {
-        if(userId.value === user_id) return;
+        if(userId.value === user_id && testCount.value === undefined) return;
 
         userId.value = user_id;
 
@@ -69,10 +69,8 @@ export const useTestServiceStore = defineStore('testService', () => {
         testCount.value = countSnap.data().count;
     }
 
-    async function loadTests(user_id: string) {
-        if(userId.value === user_id) return;
-        
-        await loadTestCount(user_id);
+    async function loadTests(user_id: string) {        
+        if(userId.value === user_id && tests.value === undefined) return;
 
         const testsRef = collection(db, 'tests');
         const q = query(testsRef, where('user_id', '==', user_id), orderBy('updated_at', 'desc'), limit(testsPerPage));

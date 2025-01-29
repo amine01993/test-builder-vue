@@ -8,9 +8,7 @@ import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useChoiceServiceStore } from '@/stores/choiceService';
 import { QuestionType } from '@/models/Question';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
+import AppContainer from '@/components/AppContainer.vue';
 
 const { test_id, question_id, choice_id } = defineProps<{test_id: string, question_id: string, choice_id: string}>();
 const router = useRouter();
@@ -124,59 +122,57 @@ async function editChoice() {
 </script>
 
 <template>
-    <AppHeader />
-    <Breadcrumb :test_id="test_id" :question_id="question_id" />
-    <AppMenu />
-
-    <div class="app-main">
-        <div class="choice-form">
-            <div class="choice-form-title mb-4">Edit Choice</div>
-
-            <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
-                <ul>
-                    <li v-for="error in serverErrors" :key="error">{{ error }}</li>
-                </ul>
-            </div>
-
-            <div class="mb-3 question-text">
-                {{ questionText }}
-            </div>
-
-            <div class="mb-3">
-                <label for="choice-input-text" class="form-label">Choice</label>
-                <input :type="questionType === QuestionType.Number ? 'number' : 'text'" class="form-control" 
-                    :class="{'is-invalid': errors.text}" id="choice-input-text" v-model="text" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="choice-input-pts" class="form-label">Points</label>
-                <input type="number" class="form-control" :class="{'is-invalid': errors.points}" id="choice-input-pts" v-model="points" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.points">{{ errors.points }}</div>
-            </div>
-
-            <div class="mb-3">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="choice-input-correctness" v-model="correctness">
-                    <label class="form-check-label" for="choice-input-correctness">
-                        Correct Choice
-                    </label>
+    <AppContainer :test_id="test_id" :question_id="question_id">
+        <div class="app-main">
+            <div class="choice-form">
+                <div class="choice-form-title mb-4">Edit Choice</div>
+    
+                <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
+                    <ul>
+                        <li v-for="error in serverErrors" :key="error">{{ error }}</li>
+                    </ul>
                 </div>
+    
+                <div class="mb-3 question-text">
+                    {{ questionText }}
+                </div>
+    
+                <div class="mb-3">
+                    <label for="choice-input-text" class="form-label">Choice</label>
+                    <input :type="questionType === QuestionType.Number ? 'number' : 'text'" class="form-control" 
+                        :class="{'is-invalid': errors.text}" id="choice-input-text" v-model="text" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="choice-input-pts" class="form-label">Points</label>
+                    <input type="number" class="form-control" :class="{'is-invalid': errors.points}" id="choice-input-pts" v-model="points" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.points">{{ errors.points }}</div>
+                </div>
+    
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="choice-input-correctness" v-model="correctness">
+                        <label class="form-check-label" for="choice-input-correctness">
+                            Correct Choice
+                        </label>
+                    </div>
+                </div>
+    
+                <div class="mb-3">
+                    <label for="question-input-position" class="form-label">Position</label>
+                    <span class="label-info" data-bs-content="The position of the choice in the question."><i class="bi bi-question-circle-fill"></i></span>
+                    <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
+                </div>
+    
+                <button type="button" class="btn btn-primary" @click="editChoice" :disabled="submitting">
+                    <template v-if="!submitting">Edit</template>
+                    <template v-else>Editing ...</template>
+                </button>
             </div>
-
-            <div class="mb-3">
-                <label for="question-input-position" class="form-label">Position</label>
-                <span class="label-info" data-bs-content="The position of the choice in the question."><i class="bi bi-question-circle-fill"></i></span>
-                <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
-            </div>
-
-            <button type="button" class="btn btn-primary" @click="editChoice" :disabled="submitting">
-                <template v-if="!submitting">Edit</template>
-                <template v-else>Editing ...</template>
-            </button>
         </div>
-    </div>
+    </AppContainer>
 </template>
 
 <style scoped lang="scss">

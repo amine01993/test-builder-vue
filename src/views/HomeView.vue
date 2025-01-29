@@ -5,10 +5,8 @@ import { useAuthenticationStore } from '@/stores/auth';
 import { useTestServiceStore } from '@/stores/testService';
 import { useUserTestServiceStore } from '@/stores/userTestService';
 import { useMainStore } from '@/stores/main';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
 import UserTestItem from '@/components/items/UserTestItem.vue';
+import AppContainer from '@/components/AppContainer.vue';
 
 const {auth, user} = useAuthenticationStore();
 const {showMessage} = useMainStore();
@@ -66,37 +64,35 @@ async function checkLoaderVisiblity() {
 </script>
 
 <template>
-    <AppHeader />
-    <Breadcrumb />
-    <AppMenu />
-
-    <div class="app-main">
-        <div class="test-stat">
-            <div class="stat-title">Tests</div>
-            <div class="stat-content">{{ testCount }}</div>
-        </div>
-
-        <div class="test-stat">
-            <div class="stat-title">Test Sessions</div>
-            <div class="stat-content" v-if="userTestCount !== undefined">{{ userTestCount }}</div>
-            <div class="placeholder-wave" v-else>
-                <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
+    <AppContainer>
+        <div class="app-main">
+            <div class="test-stat">
+                <div class="stat-title">Tests</div>
+                <div class="stat-content">{{ testCount }}</div>
+            </div>
+    
+            <div class="test-stat">
+                <div class="stat-title">Test Sessions</div>
+                <div class="stat-content" v-if="userTestCount !== undefined">{{ userTestCount }}</div>
+                <div class="placeholder-wave" v-else>
+                    <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
+                </div>
+            </div>
+    
+            <div class="test-report-list">
+                <template v-if="userTests">
+                    <UserTestItem v-for="userTest in userTests" :userTest="userTest" :key="userTest.id" />
+                </template>
+                <template v-else>
+                    <UserTestItem v-for="index in 2" :key="'user-test-placeholder-' + index" />
+                </template>
+    
+                <template v-if="userTestCount && userTests && userTests.length < userTestCount">
+                    <UserTestItem :key="'user-test-placeholder-loading'" :class="loaderClassName" />
+                </template>
             </div>
         </div>
-
-        <div class="test-report-list">
-            <template v-if="userTests">
-                <UserTestItem v-for="userTest in userTests" :userTest="userTest" :key="userTest.id" />
-            </template>
-            <template v-else>
-                <UserTestItem v-for="index in 2" :key="'user-test-placeholder-' + index" />
-            </template>
-
-            <template v-if="userTestCount && userTests && userTests.length < userTestCount">
-                <UserTestItem :key="'user-test-placeholder-loading'" :class="loaderClassName" />
-            </template>
-        </div>
-    </div>
+    </AppContainer>
 </template>
 
 <style scoped lang="scss">

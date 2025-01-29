@@ -4,6 +4,7 @@
 .app-menu {
     height: 100vh;
     width: 75%;
+    max-width: 300px;
     background-color: vars.$app-white;
     position: fixed;
     top: 0;
