@@ -152,3 +152,41 @@ export async function updateCounts() {
         });
     });
 }
+
+export async function updatePointsAndQuestionType() {
+    console.log('update points');
+
+    const testsSnaps = await db.collection('tests').get();
+
+    testsSnaps.docs.forEach(async (tsnap) => {
+        // const test = tsnap.data();
+
+        const questionsSnaps = await db.collection('tests/' + tsnap.id + '/questions').get();
+        let testMaxPoints = 0;
+
+        questionsSnaps.docs.forEach(async qsnap => {
+
+            const question = qsnap.data();
+            const choicesSnap = await db.collection('tests/' + tsnap.id + '/questions/' + qsnap.id + '/choices').get();
+            let questionMaxPoints = 0;
+            choicesSnap.docs.forEach(async (csnap) => {
+
+                await csnap.ref.update({question: {type: question.type}});
+
+                const choice = csnap.data();
+                if(question.type === 2) {
+                    if(choice.points > 0) questionMaxPoints += choice.points;
+                }
+                else {
+                    questionMaxPoints = Math.max(questionMaxPoints, choice.points);
+                }
+            });
+
+            await qsnap.ref.update({max_points: questionMaxPoints});
+            testMaxPoints += questionMaxPoints;
+        });
+
+        await tsnap.ref.update({max_points: testMaxPoints});
+
+    });
+}

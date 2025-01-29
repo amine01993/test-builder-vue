@@ -24,7 +24,6 @@ const {questionCount, questions, loadQuestions, updateQuestionsPositions} = useQ
 
 const name = ref('');
 const description = ref('');
-const maxScore: Ref<number|string> = ref(0);
 const timeLimit: Ref<number|string> = ref(0);
 
 const showForm = ref((route.query.sF != '0'));
@@ -36,9 +35,6 @@ const errors = computed(() => {
     if(!submitted.value) return _errors;
 
     if(name.value === '') _errors.name = 'Name required';
-
-    if(typeof maxScore.value === 'string') _errors.maxScore = 'Maximum score must be a number';
-    else if(maxScore.value < 0) _errors.maxScore = 'Maximum score can\'t be a negatif number';
 
     if(typeof timeLimit.value === 'string') _errors.timeLimit = 'The time limit must be a number';
     else if(timeLimit.value < 0) _errors.timeLimit = 'The time limit can\'t be a negatif number';
@@ -59,7 +55,6 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         }
         name.value = test.name;
         description.value = test.description;
-        maxScore.value = test.max_points;
         timeLimit.value = test.time_limit;
     }
     catch(error) {
@@ -114,7 +109,6 @@ async function editTest() {
         await updateTest(test_id, {
             name: name.value,
             description: description.value,
-            max_points: Number(maxScore.value),
             time_limit: Number(timeLimit.value),
         });
         serverErrors.value = [];
@@ -174,13 +168,6 @@ function onDragEnd() {
                 <label for="test-input-description" class="form-label">Description</label>
                 <textarea class="form-control" :class="{'is-invalid': errors.description}" id="test-input-description" v-model="description" rows="3" :disabled="submitting"></textarea>
                 <div class="invalid-feedback is-invalid" v-if="errors.description">{{ errors.description }}</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="test-input-maxscore" class="form-label">Maximum Score</label>
-                <span class="label-info" data-bs-content="The Maximum number of points a test taker can achieve.<br>0 = no Max Score"><i class="bi bi-question-circle-fill"></i></span>
-                <input type="number" class="form-control" :class="{'is-invalid': errors.maxScore}" id="test-input-maxscore" v-model="maxScore" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.maxScore">{{ errors.maxScore }}</div>
             </div>
 
             <div class="mb-3">

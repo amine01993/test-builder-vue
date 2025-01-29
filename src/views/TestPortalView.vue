@@ -12,10 +12,9 @@ const router = useRouter();
 const { test_id } = defineProps<{test_id: string}>();
 const {startLoading, endLoading, showMessage, validateEmail} = useMainStore();
 const {auth} = useAuthenticationStore();
-const {test, displayName, email, requestUserInfo, updateUserInfo, initTest, sendReport, setTestReport} = useUserTestServiceStore();
+const {test, time_limit, displayName, email, requestUserInfo, updateUserInfo, initTest, sendReport, setTestReport} = useUserTestServiceStore();
 const testSubmissionEl = useTemplateRef('test-submission-modal');
 const testFormEl = useTemplateRef('test-form');
-const time_limit: Ref<number> = ref(180);
 
 const submitted = ref(false);
 const submitting = ref(false);
@@ -122,7 +121,6 @@ async function initializingDTest() {
             showMessage('failure', 'Test Not Found.');
             return;
         }
-        time_limit.value = test.value.time_limit;
 
         window.onbeforeunload = function() {
             return true;
@@ -204,7 +202,12 @@ function preventTestSubmit(event: SubmitEvent) {
         </div>
     </div>
 
-    <div class="app-test-description" v-if="test" v-html="description"></div>
+    <div class="app-test-description" v-if="test">
+        <div class="test-description" v-html="description"></div>
+        <div class="test-points">
+            ({{ test.max_points }} pts)
+        </div>
+    </div>
 
     <div class="app-main" v-if="test">
         <form ref="test-form">
@@ -262,6 +265,15 @@ function preventTestSubmit(event: SubmitEvent) {
             right: 0;
             left: 100%;
             transform: translateX(-100%);
+        }
+    }
+
+    .app-test-description {
+        display: flex;
+        justify-content: space-between;
+
+        .test-points {
+            font-weight: 600;
         }
     }
 

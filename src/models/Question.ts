@@ -4,7 +4,7 @@ import type { Choice } from "./Choice";
 export interface Question {
     id?: string;
     text: string;
-    max_points: number;
+    max_points?: number;
     type: QuestionType;
     position: number;
     choiceCount?: number;

@@ -2,12 +2,12 @@ import { defineStore } from "pinia";
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc, writeBatch } from "firebase/firestore";
 import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
-import type { Question } from "@/models/Question";
 import { useAuthenticationStore } from "./auth";
-import type { Choice } from "@/models/Choice";
 import { useChoiceServiceStore } from "./choiceService";
-import type { Test } from "@/models/Test";
 import { useTestServiceStore } from "./testService";
+import type { Test } from "@/models/Test";
+import { QuestionType, type Question } from "@/models/Question";
+import type { Choice } from "@/models/Choice";
 
 export const useQuestionServiceStore = defineStore('questionService', () => {
 
@@ -22,6 +22,25 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         if(question) {
             question.choiceCount = count;
         }
+    }
+
+    function updateMaxPoints(question_id: string) {
+        if(!questions.value) return;
+
+        const question = questions.value.find(q => q.id === question_id);
+        if(!question) return;
+
+        const {choices} = useChoiceServiceStore();
+        if(!choices.value) return;
+
+        let maxPoints = 0;
+        if(question.type === QuestionType.MultipleChoice) {
+            maxPoints = choices.value.reduce((acc, val) => acc + (val.points ?? 0), 0);
+        }
+        else {
+            maxPoints = choices.value.reduce((acc, val) => Math.max(acc, val.points ?? 0), 0);
+        }
+        question.max_points = maxPoints;
     }
 
     async function getQuestion(test_id: string, question_id: string): Promise<Question | undefined> {
@@ -113,7 +132,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         if(questionCount.value) questionCount.value++;
         else questionCount.value = 1;
         updateQuestionCount(test_id, questionCount.value);
-        
+
         return questionRef;
     }
 
@@ -121,7 +140,6 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         await updateDoc(doc(db, 'tests', test_id, 'questions', question_id), {
             text: question.text,
             type: question.type,
-            max_points: question.max_points,
             position: question.position,
         });
 
@@ -131,7 +149,6 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
                 const _question = questions.value[index];
                 _question.text = question.text;
                 _question.type = question.type;
-                _question.max_points = question.max_points;
                 _question.updated_at = Timestamp.fromDate(new Date);
 
                 // sort by position
@@ -222,6 +239,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         updateQuestion,
         updateQuestionsPositions,
         updateChoiceCount,
+        updateMaxPoints,
         deleteQuestion,
     }
 });

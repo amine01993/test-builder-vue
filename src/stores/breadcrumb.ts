@@ -14,7 +14,10 @@ export const useBreadcrumbStore = defineStore('breadcrumb', () => {
             case 'settings':
                 return [{ name: 'Settings', path: null }];
             case 'tests':
-                return [{ name: 'Tests', path: null }];
+                return [
+                    { name: 'Home', path: {name: 'home'} }, 
+                    { name: 'Tests', path: null }
+                ];
             case 'create-test':
                 return [
                     { name: 'Home', path: {name: 'home'} }, 

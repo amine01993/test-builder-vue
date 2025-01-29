@@ -23,7 +23,6 @@ const {getQuestion, updateQuestion} = useQuestionServiceStore();
 const {choiceCount, choices, loadChoices, updateChoicesPositions} = useChoiceServiceStore();
 
 const text = ref('');
-const maxPoints: Ref<number|string> = ref(0);
 const type: Ref<QuestionType> = ref(QuestionType.Text);
 const position: Ref<number|string> = ref(0);
 
@@ -36,9 +35,6 @@ const errors = computed(() => {
     if(!submitted.value) return _errors;
 
     if(text.value === '') _errors.text = 'Question required';
-
-    if(typeof maxPoints.value === 'string') _errors.maxPoints = 'Max points must be a number';
-    else if(maxPoints.value < 0) _errors.maxPoints = 'Max points can\'t be a negatif number';
 
     if(typeof position.value === 'string') _errors.position = 'The position must be a number';
 
@@ -59,7 +55,6 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         text.value = question.text;
         type.value = question.type;
         position.value = question.position;
-        maxPoints.value = question.max_points;
     }
     catch(error) {
         showMessage('failure', 'Error loading question data.');
@@ -111,7 +106,6 @@ async function editQuestion() {
         await updateQuestion(test_id, question_id, {
             text: text.value,
             type: type.value,
-            max_points: Number(maxPoints.value),
             position: Number(position.value),
         });
         serverErrors.value = [];
@@ -163,12 +157,6 @@ function onDragEnd() {
                 <label for="question-input-text" class="form-label">Question</label>
                 <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" :disabled="submitting">
                 <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="question-input-maxpts" class="form-label">Maximum Points</label>
-                <input type="number" class="form-control" :class="{'is-invalid': errors.maxPoints}" id="question-input-maxpts" v-model="maxPoints" :disabled="submitting">
-                <div class="invalid-feedback is-invalid" v-if="errors.maxPoints">{{ errors.maxPoints }}</div>
             </div>
 
             <div class="mb-3">

@@ -3,13 +3,13 @@ import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { onAuthStateChanged } from 'firebase/auth';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
 import { useChoiceServiceStore } from '@/stores/choiceService';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { QuestionType } from '@/models/Question';
+import AppHeader from '@/components/AppHeader.vue';
+import AppMenu from '@/components/AppMenu.vue';
 import Breadcrumb from '@/components/items/Breadcrumb.vue';
 
 const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
@@ -94,6 +94,9 @@ async function createChoice() {
             points: Number(points.value),
             is_correct: correctness.value,
             position: Number(position.value),
+            question: {
+                type: questionType.value,
+            },
         });
         serverErrors.value = [];
         router.push({name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}});

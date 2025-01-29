@@ -2,10 +2,11 @@ import { defineStore } from "pinia";
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc } from "firebase/firestore";
 import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
+import { useQuestionServiceStore } from "./questionService";
+import { useTestServiceStore } from "./testService";
 import { useAuthenticationStore } from "./auth";
 import type { Choice } from "@/models/Choice";
 import type { Question } from "@/models/Question";
-import { useQuestionServiceStore } from "./questionService";
 
 export const useChoiceServiceStore = defineStore('choiceService', () => {
 
@@ -61,7 +62,8 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
 
     async function addChoice(test_id: string, question_id: string, choice: Choice) {
         const {user} = useAuthenticationStore();
-        const {updateChoiceCount} = useQuestionServiceStore();
+        const {updateMaxPoints: updateTestMaxPoints} = useTestServiceStore();
+        const {updateChoiceCount, updateMaxPoints} = useQuestionServiceStore();
 
         choice.user_id = user.value?.uid;
         const choiceRef = await addDoc(collection(db, 'tests', test_id, 'questions', question_id, 'choices'), choice);
@@ -89,11 +91,18 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
         if(choiceCount.value) choiceCount.value++;
         else choiceCount.value = 1;
         updateChoiceCount(question_id, choiceCount.value);
+        if(choice.points && choice.points > 0) {
+            updateMaxPoints(question_id);
+            updateTestMaxPoints(test_id);
+        }
         
         return choiceRef;
     }
 
     async function updateChoice(test_id: string, question_id: string, choice_id: string, choice: Choice) {
+        const {updateMaxPoints: updateTestMaxPoints} = useTestServiceStore();
+        const {updateMaxPoints} = useQuestionServiceStore();
+
         await updateDoc(doc(db, 'tests', test_id, 'questions', question_id, 'choices', choice_id), {
             text: choice.text,
             is_correct: choice.is_correct,
@@ -107,7 +116,6 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
                 const _choice = choices.value[index];
                 _choice.text = choice.text;
                 _choice.is_correct = choice.is_correct;
-                _choice.points = choice.points;
                 _choice.updated_at = Timestamp.fromDate(new Date);
 
                 // sort by position
@@ -134,8 +142,13 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
                     }
                 }
                 _choice.position = choice.position;
+
+                if(_choice.points !== choice.points) {
+                    _choice.points = choice.points;
+                    updateMaxPoints(question_id);
+                    updateTestMaxPoints(test_id);
+                }
             }
-            console.log('after update', choices.value);
         }
     }
 
@@ -165,7 +178,8 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
     }
 
     async function deleteChoice(test_id: string, question_id: string, choice_id: string) {
-        const {updateChoiceCount} = useQuestionServiceStore();
+        const {updateMaxPoints: updateTestMaxPoints} = useTestServiceStore();
+        const {updateChoiceCount, updateMaxPoints} = useQuestionServiceStore();
 
         const choiceRef = doc(db, 'tests', test_id, 'questions', question_id, 'choices', choice_id);
         await deleteDoc(choiceRef);
@@ -178,6 +192,8 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
         if(choiceCount.value) choiceCount.value--;
         else choiceCount.value = 0;
         updateChoiceCount(question_id, choiceCount.value);
+        updateMaxPoints(question_id);
+        updateTestMaxPoints(test_id);
     }
 
     return {

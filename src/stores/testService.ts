@@ -23,6 +23,18 @@ export const useTestServiceStore = defineStore('testService', () => {
         }
     }
 
+    function updateMaxPoints(test_id: string) {
+        if(!tests.value) return;
+
+        const test = tests.value.find(t => t.id === test_id);
+        if(!test) return;
+
+        const {questions} = useQuestionServiceStore();
+        if(!questions.value) return;
+
+        test.max_points = questions.value.reduce((acc, val) => acc + (val.max_points ?? 0), 0);
+    }
+
     async function getTest(test_id: string, loadQuestions: boolean = false): Promise<Test|undefined> {
         const {user} = useAuthenticationStore();
         if(!userId.value && user.value?.uid === userId.value) {
@@ -45,16 +57,24 @@ export const useTestServiceStore = defineStore('testService', () => {
         return test;
     }
 
-    async function loadTests(user_id: string) {
+    async function loadTestCount(user_id: string) {
         if(userId.value === user_id) return;
 
         userId.value = user_id;
 
         const testsRef = collection(db, 'tests');
+        const testCounyQuery = query(testsRef, where('user_id', '==', user_id));
 
-        const countSnap = await getCountFromServer(testsRef);
+        const countSnap = await getCountFromServer(testCounyQuery);
         testCount.value = countSnap.data().count;
+    }
 
+    async function loadTests(user_id: string) {
+        if(userId.value === user_id) return;
+        
+        await loadTestCount(user_id);
+
+        const testsRef = collection(db, 'tests');
         const q = query(testsRef, where('user_id', '==', user_id), orderBy('updated_at', 'desc'), limit(testsPerPage));
         const snaps = await getDocs(q);
         tests.value = snaps.docs.map(snap => {
@@ -110,7 +130,6 @@ export const useTestServiceStore = defineStore('testService', () => {
         await updateDoc(doc(db, 'tests', test_id), {
             name: test.name,
             description: test.description,
-            max_points: test.max_points,
             time_limit: test.time_limit,
         });
 
@@ -120,7 +139,6 @@ export const useTestServiceStore = defineStore('testService', () => {
                 const _test = tests.value[index];
                 _test.name = test.name;
                 _test.description = test.description;
-                _test.max_points = test.max_points;
                 _test.time_limit = test.time_limit;
                 _test.updated_at = Timestamp.fromDate(new Date);
 
@@ -160,11 +178,13 @@ export const useTestServiceStore = defineStore('testService', () => {
         getTest,
         testCount: computed(() => testCount),
         tests: computed(() => tests),
+        loadTestCount,
         loadTests,
         loadMoreTests,
         addTest,
         updateTest,
         updateQuestionCount,
+        updateMaxPoints,
         deleteTest,
     }
 });

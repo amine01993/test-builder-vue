@@ -12,7 +12,7 @@ import UserTestItem from '@/components/items/UserTestItem.vue';
 
 const {auth, user} = useAuthenticationStore();
 const {showMessage} = useMainStore();
-const {testCount} = useTestServiceStore();
+const {testCount, loadTestCount} = useTestServiceStore();
 const {userTestCount, userTests, loadUserTests, loadMoreUserTests} = useUserTestServiceStore();
 const loadingUserTests = ref(false);
 let userTestsLoaderEl: any = null;
@@ -20,7 +20,7 @@ const loaderClassName = 'user-tests-loader';
 
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     try {
-        await loadUserTests(user!.uid);
+        await Promise.all([loadTestCount(user!.uid), loadUserTests(user!.uid)]);
         if(!userTestsLoaderEl) {
             userTestsLoaderEl = document.querySelector(`.${loaderClassName}`);
         }
