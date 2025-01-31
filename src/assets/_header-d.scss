@@ -1,39 +1,13 @@
 
 @use 'sass:string';
 @use '@/assets/variables' as vars;
+@use '@/assets/mixins' as mxs;
 
-.app-header {
-    .left-side {
-
-        .menu-btn {
-            cursor: pointer;
-            
-            i {
-            }
-        }
-
-        .logo {
-            img {
-            }
-        }
-    }
-
-    .right-side {
-
-        .localization {
-
-        }
-
-        .user {
-            [type=button] {
-            }
-
-            &.dropdown {
-                .dropdown-item.di-icon {
-                }
-
-                .dropdown-menu {
-                }
+@include mxs.desktopOnly {
+    .app-header {
+        .left-side {
+            .menu-btn {
+                cursor: pointer;
             }
         }
     }

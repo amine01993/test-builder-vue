@@ -16,6 +16,9 @@ export const useMainStore = defineStore('main', () => {
 
     function openMenu() {
         isMenuOpen.value = true;
+        if(isDesktop.value) {
+            localStorage.setItem('is-open-menu-d', String(isMenuOpen.value));
+        }
     }
 
     function closeMenu() {
@@ -26,6 +29,9 @@ export const useMainStore = defineStore('main', () => {
 
     function toggleMenu() {
         isMenuOpen.value = !isMenuOpen.value;
+        if(isDesktop.value) {
+            localStorage.setItem('is-open-menu-d', String(isMenuOpen.value));
+        }
     }
 
     function validateEmail(email: string): boolean {
@@ -47,6 +53,12 @@ export const useMainStore = defineStore('main', () => {
 
     function initIsDesktop() {
         isDesktop.value = window.matchMedia(`(min-width: ${DesktopMinWidth}px)`).matches;
+        if(isDesktop.value) {
+            const isMenuOpenD = localStorage.getItem('is-open-menu-d');
+            if(isMenuOpenD !== null && isMenuOpenD === 'true') {
+                isMenuOpen.value = true;
+            }
+        }
     }
 
     return {

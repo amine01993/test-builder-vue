@@ -1,32 +1,23 @@
 @use 'sass:string';
 @use '@/assets/variables' as vars;
+@use '@/assets/mixins' as mxs;
 
-.app-menu {
-    box-shadow: unset;
-    width: 300px;
-    max-width: unset;
-    margin-left: -300px;
-    margin-top: 6.6vh;
-
-    &.open {
-        transform: none;
-        margin-left: 0;
-    }
-
-    &-overlay {
-
+@include mxs.desktopOnly {
+    .app-menu {
+        box-shadow: unset;
+        width: 300px;
+        max-width: unset;
+        margin-left: -300px;
+        margin-top: 6.6vh;
+    
         &.open {
-            display: none;
+            transform: none;
+            margin-left: 0;
         }
-    }
-
-    .menu-item {
-        
-
-        a {
-
-            &.selected-item {
-
+    
+        &-overlay {
+            &.open {
+                display: none;
             }
         }
     }

@@ -15,11 +15,16 @@ export const useModalStore = defineStore('modal', () => {
         open.value = true;
     }
 
+    function close() {
+        open.value = false;
+    }
+
     return {
         open: computed(() => open),
         content: computed(() => content),
         actionText: computed(() => actionText),
         actionCb: computed(() => actionCb),
         confirm,
+        close,
     };
 });

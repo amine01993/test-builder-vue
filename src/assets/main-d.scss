@@ -1,9 +1,6 @@
 @use 'sass:string';
 @use '@/assets/variables' as vars;
 
-
-// @media (min-width: 768px) {
-
 @use '@/assets/header-d';
 @use '@/assets/breadcrumb-d';
 @use '@/assets/menu-d';
@@ -12,9 +9,6 @@
 
 	&.open {
 		margin-left: 300px;
-	}
-
-	.app-main {
 	}
 }
 

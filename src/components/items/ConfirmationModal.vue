@@ -4,7 +4,7 @@ import { Modal } from 'bootstrap';
 import { useModalStore } from '@/stores/modal';
 
 const confirmModalEl = useTemplateRef('confirm-deletion-modal');
-const {open, content, actionText, actionCb} = useModalStore();
+const {open, content, actionText, actionCb, close} = useModalStore();
 let confirmModal: Modal|null = null;
 
 watch(open, () => {
@@ -17,10 +17,14 @@ watch(open, () => {
 onMounted(() => {
     if(confirmModalEl.value) {
         confirmModal = new Modal(confirmModalEl.value);
+        confirmModalEl.value.addEventListener('hidden.bs.modal', close);
     }
 });
 
 onUnmounted(() => {
+    if(confirmModalEl.value) {
+        confirmModalEl.value.removeEventListener('hidden.bs.modal', close);
+    }
     if(confirmModal) {
         confirmModal.dispose();
     }

@@ -26,6 +26,16 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
     let lastDoc: any = null;
     const userTestsPerPage = 25;
 
+    async function updateDisplayName() {
+        const {user} = useAuthenticationStore();
+
+        if(user.value) {
+            await updateProfile(user.value, {
+                displayName: displayName.value,
+            });
+        }
+    }
+
     async function updateUserInfo() {
         const {user} = useAuthenticationStore();
 
@@ -154,6 +164,7 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
         userTestCount: computed(() => userTestCount),
         userTests: computed(() => userTests),
         updateUserInfo,
+        updateDisplayName,
         initTest,
         sendReport,
         setTestReport,

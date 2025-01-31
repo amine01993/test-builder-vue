@@ -4,7 +4,7 @@ import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue';
 import { useMainStore } from '@/stores/main';
 
 const {loading, loadStatus, LoadingStatus} = useMainStore();
-const modalEl = useTemplateRef('confirm-deletion-modal');
+const modalEl = useTemplateRef('loader-modal');
 let modal: Modal|null = null;
 
 onMounted(() => {
@@ -26,7 +26,7 @@ watch(loading, () => {
 </script>
 
 <template>
-    <div class="modal loader" tabindex="-1" ref="confirm-deletion-modal">
+    <div class="modal loader" tabindex="-1" ref="loader-modal">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-body">
@@ -44,7 +44,7 @@ watch(loading, () => {
 
 .loader.modal {
     .modal-dialog {
-        width: 200px;
+        width: 225px;
         text-align: center;
         margin: auto;
 

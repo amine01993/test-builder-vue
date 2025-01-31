@@ -1,5 +1,7 @@
 @use 'sass:string';
 @use '@/assets/variables' as vars;
+@use '@/assets/mixins' as mxs;
 
-.app-breadcrumb {
+@include mxs.desktopOnly {
+    .app-breadcrumb {}
 }

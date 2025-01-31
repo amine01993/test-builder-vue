@@ -63,45 +63,47 @@ onUnmounted(() => {
         :deep(.display-question) {
 
             &.question-type-choices {
-                display: grid;
-                grid-template-columns: 1fr 10vh;
-                row-gap: 1vh;
-
-                .choice-pts {
-                    text-align: right;
+                .question-wrapper {
+                    display: grid;
+                    grid-template-columns: 1fr 10.5vh;
+                    row-gap: 1vh;
                 }
+
+                .choices-wrapper {
+                    display: grid;
+                    grid-template-columns: 1fr 12.5vh;
+                    row-gap: 1vh;
+                    
+                    .choice-pts {
+                        text-align: right;
+                    }
+                }   
             }
 
             &.question-type-text {
-                display: grid;
-                grid-template-areas: "qt qp" "ci ." "cp .";
-                row-gap: 1vh;
-
-                .question-text {
-                    grid-area: qt;
+                .question-wrapper {
+                    display: grid;
+                    grid-template-columns: 1fr 10.5vh;
+                    row-gap: 1vh;
                 }
 
-                .question-pts {
-                    grid-area: qp;
-                }
-
-                .choice-input {
-                    grid-area: ci;
-                }
-
-                .choice-pts-wrapper {
-                    grid-area: cp;
+                .choices-wrapper {
                     display: flex;
                     flex-direction: column;
                     gap: 1vh;
-                    padding-top: 1vh;
 
-                    .choice-pts {
-                        text-align: left;
+                    .choice-pts-wrapper {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 1vh;
+
+                        .choice-pts {
+                            text-align: left;
+                        }
                     }
                 }
             }
-            
+
             .question-text, .question-pts {
                 font-weight: 600;
                 padding-bottom: 1vh;

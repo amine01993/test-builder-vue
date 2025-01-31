@@ -58,6 +58,7 @@
 
                 .dropdown-menu {
                     box-shadow: -15px 15px 10px string.unquote(vars.$app-grey + '75');
+                    min-width: 275px;
                 }
             }
         }
