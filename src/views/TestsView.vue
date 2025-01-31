@@ -5,10 +5,11 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
-import TestItem from '@/components/items/TestItem.vue';
 import AppContainer from '@/components/AppContainer.vue';
+import TestItem from '@/components/items/TestItem.vue';
+import TestItemD from '@/components/items/TestItemD.vue';
 
-const {showMessage} = useMainStore();
+const {isDesktop, showMessage} = useMainStore();
 const {auth, user} = useAuthenticationStore();
 const {testCount, tests, loadTestCount, loadTests, loadMoreTests} = useTestServiceStore();
 const loadingTests = ref(false);
@@ -17,7 +18,7 @@ let testsLoaderEl: any = null;
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     try {
         if(user === null) return;
-        await Promise.all([loadTestCount(user!.uid), loadTests(user!.uid)]) ;
+        await Promise.all([loadTestCount(user!.uid), loadTests(user!.uid)]);
         if(!testsLoaderEl) {
             testsLoaderEl = document.querySelector('.tests-loader');
         }
@@ -82,15 +83,44 @@ async function checkLoaderVisiblity() {
             </div>
             
             <div class="test-list">
-                <template v-if="tests">
-                    <TestItem v-for="test in tests" :test="test" :key="test.id" />
+                <template v-if="!isDesktop">
+                    <template v-if="tests">
+                        <TestItem v-for="test in tests" :test="test" :key="test.id" />
+                    </template>
+                    <template v-else>
+                        <TestItem v-for="index in [0, 1, 2]" :key="'test-placeholder-' + index" />
+                    </template>
+
+                    <template v-if="testCount && tests && tests.length < testCount">
+                        <TestItem :key="'test-placeholder-loading'" class="tests-loader" />
+                    </template>
                 </template>
                 <template v-else>
-                    <TestItem v-for="index in [0, 1, 2]" :key="'test-placeholder-' + index" />
-                </template>
+                    <table class="table" :class="{'loading': !tests}">
+                        <thead>
+                            <tr>
+                                <th scope="col">Test</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Max Points</th>
+                                <th scope="col">Time Limit</th>
+                                <th scope="col">Nbr of Questions</th>
+                                <th scope="col">Last updated at</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-if="tests">
+                                <TestItemD v-for="test in tests" :test="test" :key="test.id" />
+                            </template>
+                            <template v-else>
+                                <TestItemD v-for="index in 5" :key="'test-placeholder-' + index" />
+                            </template>
 
-                <template v-if="testCount && tests && tests.length < testCount">
-                    <TestItem :key="'test-placeholder-loading'" class="tests-loader" />
+                            <template v-if="testCount && tests && tests.length < testCount">
+                                <TestItemD :key="'test-placeholder-loading'" class="tests-loader" />
+                            </template>
+                        </tbody>
+                    </table>
                 </template>
             </div>
         </div>
@@ -100,6 +130,7 @@ async function checkLoaderVisiblity() {
 <style scoped lang="scss">
 @use 'sass:string';
 @use '@/assets/variables' as vars;
+@use '@/assets/mixins' as mxs;
 
 .app-main {
     .test-actions {
@@ -121,9 +152,55 @@ async function checkLoaderVisiblity() {
         flex-direction: column;
         gap: 3vh;
 
+        @include mxs.desktopOnly {
+            .table.loading > :not(caption) > * > * {
+                border-bottom-width: 5px;
+                border-bottom-color: vars.$app-white;
+            }
+        }
+
         :deep(.test-item-container) {
             background-color: vars.$app-white;
             box-shadow: 5px 5px 25px vars.$app-grey;
+
+            @include mxs.desktopOnly {
+                box-shadow: none;
+                font-size: .9em;
+
+                .placeholder {
+                    display: table-cell;
+                    padding: 2vh;
+                }
+
+                .test-last-update {
+                    color: vars.$app-grey2;
+                }
+
+                .test-description {
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    max-width: 30vh;
+
+                    &.full-text {
+                        white-space: normal;
+                    }
+                }
+
+                .test-item-actions-container {
+                    vertical-align: middle;
+
+                    .test-item-actions {
+                        display: flex;
+                        gap: 1vh;
+    
+                        .btn {
+                            border-radius: .5rem;
+                            padding: .7rem .8rem;
+                        }
+                    }
+                }
+            }
 
             .test-item-content {
                 padding: 1vh;

@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { onUnmounted, ref, type Ref } from 'vue';
 import { onAuthStateChanged } from 'firebase/auth';
-import AppHeader from '@/components/AppHeader.vue';
-import AppMenu from '@/components/AppMenu.vue';
-import Breadcrumb from '@/components/items/Breadcrumb.vue';
-import type { Question } from '@/models/Question';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import { useChoiceServiceStore } from '@/stores/choiceService';
+import type { Question } from '@/models/Question';
+import AppContainer from '@/components/AppContainer.vue';
 import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
 
 const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
@@ -46,13 +44,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <AppHeader />
-    <Breadcrumb :test_id="test_id" />
-    <AppMenu />
-
-    <div class="app-main">
-        <DisplayQuestion :question="question" :choices="choices" :preview="true" />
-    </div>
+    <AppContainer :test_id="test_id">
+        <div class="app-main">
+            <DisplayQuestion :question="question" :choices="choices" :preview="true" />
+        </div>
+    </AppContainer>
 </template>
 
 <style scoped lang="scss">

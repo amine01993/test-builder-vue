@@ -2,13 +2,16 @@
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { onMounted, onUnmounted } from 'vue';
 import { RouterView } from 'vue-router';
+import { useMainStore } from './stores/main';
 import { useAuthenticationStore } from './stores/auth';
 import Loader from './components/Loader.vue';
 import ToastMessage from './components/ToastMessage.vue';
-import { useMainStore } from './stores/main';
+import ConfirmationModal from './components/items/ConfirmationModal.vue';
 
-const {startLoading, endLoading, LoadingStatus, loadStatus, loading} = useMainStore();
+const {LoadingStatus, loadStatus, loading, startLoading, endLoading, initIsDesktop} = useMainStore();
 const {auth, setUser} = useAuthenticationStore();
+
+initIsDesktop();
 
 const onAuthEventDispose = onAuthStateChanged(auth, (user) => {
     console.log('onAuthStateChanged', user)
@@ -42,6 +45,7 @@ onUnmounted(() => {
     <RouterView />
     <Loader />
     <ToastMessage />
+    <ConfirmationModal />
 </template>
 
 <style scoped>

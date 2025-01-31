@@ -107,7 +107,7 @@ export const useTestServiceStore = defineStore('testService', () => {
         const {user} = useAuthenticationStore();
         test.user_id = user.value?.uid;
         const testRef = await addDoc(collection(db, 'tests'), test);
-
+        
         test.id = testRef.id;
         test.updated_at = Timestamp.fromDate(new Date);
 

@@ -9,13 +9,14 @@ import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import type { Test } from '@/models/Test';
-import QuestionItem from '@/components/items/QuestionItem.vue';
 import AppContainer from '@/components/AppContainer.vue';
+import QuestionItem from '@/components/items/QuestionItem.vue';
+import QuestionItemD from '@/components/items/QuestionItemD.vue';
 
 const { test_id } = defineProps<{test_id: string}>();
 const route = useRoute();
 const router = useRouter();
-const {startLoading, endLoading, showMessage} = useMainStore();
+const {isDesktop, startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {getTest, updateTest} = useTestServiceStore();
 const {questionCount, questions, loadQuestions, updateQuestionsPositions} = useQuestionServiceStore();
@@ -102,7 +103,6 @@ async function editTest() {
         return;
     }
 
-    // editfirebase test
     try {
         await updateTest(test_id, {
             name: name.value,
@@ -194,16 +194,48 @@ function onDragEnd() {
             </template>
         </div>
         
-        <template v-if="questions">
-            <draggable v-model="questions" item-key="id" tag="div" :component-data="{'class': 'question-list'}" handle=".question-item-sort-handler" @end="onDragEnd">
-                <template #item="{element}">
-                    <QuestionItem :test_id="test_id" :question="element" />
-                </template>
-            </draggable>
+        <template v-if="!isDesktop">
+            <template v-if="questions">
+                <draggable v-model="questions" item-key="id" tag="div" :component-data="{'class': 'question-list'}" handle=".question-item-sort-handler" @end="onDragEnd">
+                    <template #item="{element}">
+                        <QuestionItem :test_id="test_id" :question="element" />
+                    </template>
+                </draggable>
+            </template>
+            <template v-else>
+                <div class="question-list">
+                    <QuestionItem v-for="index in [0, 1, 2]" :key="'question-placeholder-' + index" />
+                </div>
+            </template>
         </template>
         <template v-else>
             <div class="question-list">
-                <QuestionItem v-for="index in [0, 1, 2]" :key="'question-placeholder-' + index" />
+                <table class="table" :class="{'loading': !questions}">
+                    <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Question</th>
+                            <th scope="col">Max Points</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Position</th>
+                            <th scope="col">Nbr of Choices</th>
+                            <th scope="col">Last updated at</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <template v-if="questions">
+                        <draggable v-model="questions" item-key="id" tag="tbody" handle=".question-item-sort-handler" @end="onDragEnd">
+                            <template #item="{element}">
+                                <QuestionItemD :test_id="test_id" :question="element" />
+                            </template>
+                        </draggable>
+                    </template>
+                    <template v-else>
+                        <tbody>
+                            <QuestionItemD v-for="index in 5" :key="'question-placeholder-' + index" />
+                        </tbody>
+                    </template>
+                </table>
             </div>
         </template>
     </AppContainer>
@@ -212,6 +244,7 @@ function onDragEnd() {
 <style scoped lang="scss">
 @use 'sass:string';
 @use '@/assets/variables' as vars;
+@use '@/assets/mixins' as mxs;
 
 .app-main {
     margin: 2vh;
@@ -292,10 +325,62 @@ function onDragEnd() {
     flex-direction: column;
     gap: 3vh;
 
+    @include mxs.desktopOnly {
+        .table.loading > :not(caption) > * > * {
+            border-bottom-width: 5px;
+            border-bottom-color: vars.$app-white;
+        }
+    }
+
     :deep(.question-item-container) {
         display: flex;
         background-color: vars.$app-white;
         box-shadow: 5px 5px 25px vars.$app-grey;
+
+        @include mxs.desktopOnly {
+            box-shadow: none;
+            font-size: .9em;
+            display: table-row;
+
+            .placeholder {
+                display: table-cell;
+                padding: 2vh;
+            }
+
+            .question-item-sort-handler-container {
+                padding: 0;
+                position: relative;
+                min-width: 6vh;
+
+                .question-item-sort-handler {
+                    min-height: 6vh;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    cursor: move;
+                }
+            }
+
+            .question-last-update {
+                color: vars.$app-grey2;
+            }
+
+            .question-item-actions-container {
+                vertical-align: middle;
+
+                .question-item-actions {
+                    display: flex;
+                    gap: 1vh;
+
+                    .btn {
+                        border-radius: .5rem;
+                        padding: .7rem .8rem;
+                    }
+                }
+            }
+        }
 
         .question-item-sort-handler {
             min-width: 6vh;

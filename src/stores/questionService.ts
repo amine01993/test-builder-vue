@@ -5,8 +5,8 @@ import { useFirestoreStore } from "./firestore";
 import { useAuthenticationStore } from "./auth";
 import { useChoiceServiceStore } from "./choiceService";
 import { useTestServiceStore } from "./testService";
-import type { Test } from "@/models/Test";
 import { QuestionType, type Question } from "@/models/Question";
+import type { Test } from "@/models/Test";
 import type { Choice } from "@/models/Choice";
 
 export const useQuestionServiceStore = defineStore('questionService', () => {
@@ -35,7 +35,10 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
 
         let maxPoints = 0;
         if(question.type === QuestionType.MultipleChoice) {
-            maxPoints = choices.value.reduce((acc, val) => acc + (val.points ?? 0), 0);
+            maxPoints = choices.value.reduce((acc, val) => {
+                const pts = val.points ?? 0;
+                return pts > 0 ? acc + pts : acc;
+            }, 0);
         }
         else {
             maxPoints = choices.value.reduce((acc, val) => Math.max(acc, val.points ?? 0), 0);
@@ -184,10 +187,12 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
             const positions = questions.value.map(q => q.position);
             let i = 0;
             while(i + 1 < positions.length) {
-                if(positions[i] > positions[i + 1]) {
-                    const tmp = positions[i];
-                    positions[i] = positions[i + 1];
-                    positions[i + 1] = tmp;
+                let k = i;
+                while(k > -1 && positions[k] > positions[k + 1]) {
+                    const tmp = positions[k];
+                    positions[k] = positions[k + 1];
+                    positions[k + 1] = tmp;
+                    k--;
                 }
                 i++;
             }

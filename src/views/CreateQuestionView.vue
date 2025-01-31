@@ -85,6 +85,7 @@ async function createQuestion() {
         await addQuestion(test_id, {
             text: text.value,
             max_points: 0,
+            choiceCount: 0,
             type: type.value,
             position: Number(position.value),
         });

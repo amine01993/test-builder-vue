@@ -9,13 +9,14 @@ import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useChoiceServiceStore } from '@/stores/choiceService';
 import { QuestionType, type Question } from '@/models/Question';
-import ChoiceItem from '@/components/items/ChoiceItem.vue';
 import AppContainer from '@/components/AppContainer.vue';
+import ChoiceItem from '@/components/items/ChoiceItem.vue';
+import ChoiceItemD from '@/components/items/ChoiceItemD.vue';
 
 const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
 const route = useRoute();
 const router = useRouter();
-const {startLoading, endLoading, showMessage} = useMainStore();
+const {isDesktop, startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {getQuestion, updateQuestion} = useQuestionServiceStore();
 const {choiceCount, choices, loadChoices, updateChoicesPositions} = useChoiceServiceStore();
@@ -193,17 +194,48 @@ function onDragEnd() {
                 </div>
             </template>
         </div>
-        
-        <template v-if="choices">
-            <draggable v-model="choices" item-key="id" tag="div" :component-data="{'class': 'choice-list'}" handle=".choice-item-sort-handler" @end="onDragEnd">
-                <template #item="{element}">
-                    <ChoiceItem :test_id="test_id" :question_id="question_id" :choice="element" />
-                </template>
-            </draggable>
+
+        <template v-if="!isDesktop">
+            <template v-if="choices">
+                <draggable v-model="choices" item-key="id" tag="div" :component-data="{'class': 'choice-list'}" handle=".choice-item-sort-handler" @end="onDragEnd">
+                    <template #item="{element}">
+                        <ChoiceItem :test_id="test_id" :question_id="question_id" :choice="element" />
+                    </template>
+                </draggable>
+            </template>
+            <template v-else>
+                <div class="choice-list">
+                    <ChoiceItem v-for="index in [0, 1, 2]" :key="'choice-placeholder-' + index" />
+                </div>
+            </template>
         </template>
         <template v-else>
             <div class="choice-list">
-                <ChoiceItem v-for="index in [0, 1, 2]" :key="'choice-placeholder-' + index" />
+                <table class="table" :class="{'loading': !choices}">
+                    <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Choice</th>
+                            <th scope="col">Points</th>
+                            <th scope="col">Is Correct</th>
+                            <th scope="col">Position</th>
+                            <th scope="col">Last updated at</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <template v-if="choices">
+                        <draggable v-model="choices" item-key="id" tag="tbody" handle=".choice-item-sort-handler" @end="onDragEnd">
+                            <template #item="{element}">
+                                <ChoiceItemD :test_id="test_id" :question_id="question_id" :choice="element" />
+                            </template>
+                        </draggable>
+                    </template>
+                    <template v-else>
+                        <tbody>
+                            <ChoiceItemD v-for="index in 5" :key="'choice-placeholder-' + index" />
+                        </tbody>
+                    </template>
+                </table>
             </div>
         </template>
     </AppContainer>
@@ -212,6 +244,7 @@ function onDragEnd() {
 <style scoped lang="scss">
 @use 'sass:string';
 @use '@/assets/variables' as vars;
+@use '@/assets/mixins' as mxs;
 
 .app-main {
     margin: 2vh;
@@ -292,10 +325,62 @@ function onDragEnd() {
     flex-direction: column;
     gap: 3vh;
 
+    @include mxs.desktopOnly {
+        .table.loading > :not(caption) > * > * {
+            border-bottom-width: 5px;
+            border-bottom-color: vars.$app-white;
+        }
+    }
+
     :deep(.choice-item-container) {
         display: flex;
         background-color: vars.$app-white;
         box-shadow: 5px 5px 25px vars.$app-grey;
+
+        @include mxs.desktopOnly {
+            box-shadow: none;
+            font-size: .9em;
+            display: table-row;
+
+            .placeholder {
+                display: table-cell;
+                padding: 2vh;
+            }
+
+            .choice-item-sort-handler-container {
+                padding: 0;
+                position: relative;
+                min-width: 6vh;
+
+                .choice-item-sort-handler {
+                    min-height: 6vh;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    cursor: move;
+                }
+            }
+
+            .choice-last-update {
+                color: vars.$app-grey2;
+            }
+
+            .choice-item-actions-container {
+                vertical-align: middle;
+
+                .choice-item-actions {
+                    display: flex;
+                    gap: 1vh;
+
+                    .btn {
+                        border-radius: .5rem;
+                        padding: .7rem .8rem;
+                    }
+                }
+            }
+        }
 
         .choice-item-sort-handler {
             min-width: 6vh;

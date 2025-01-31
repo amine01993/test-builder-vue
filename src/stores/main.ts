@@ -1,5 +1,5 @@
-import { ref, computed, type Ref } from 'vue'
-import { defineStore } from 'pinia'
+import { ref, computed, type Ref } from 'vue';
+import { defineStore } from 'pinia';
 
 export const useMainStore = defineStore('main', () => {
     enum LoadingStatus {
@@ -11,13 +11,17 @@ export const useMainStore = defineStore('main', () => {
     const loading = ref(false);
     const loadStatus: Ref<LoadingStatus> = ref(LoadingStatus.CONNECTING);
     const toastOpt: Ref<{message: string, status: 'success'|'failure'|''}> = ref({message: '', status: ''});
+    const isDesktop = ref(false);
+    const DesktopMinWidth = 1024;
 
     function openMenu() {
         isMenuOpen.value = true;
     }
 
     function closeMenu() {
-        isMenuOpen.value = false;
+        if(!isDesktop.value)  {
+            isMenuOpen.value = false;
+        }
     }
 
     function toggleMenu() {
@@ -41,6 +45,10 @@ export const useMainStore = defineStore('main', () => {
         toastOpt.value = {status, message};
     }
 
+    function initIsDesktop() {
+        isDesktop.value = window.matchMedia(`(min-width: ${DesktopMinWidth}px)`).matches;
+    }
+
     return {
         isMenuOpen: computed(() => isMenuOpen),
         openMenu, closeMenu, toggleMenu,
@@ -50,5 +58,7 @@ export const useMainStore = defineStore('main', () => {
         startLoading, endLoading,
         toastOpt: computed(() => toastOpt),
         showMessage,
+        isDesktop: computed(() => isDesktop),
+        initIsDesktop,
     };
 })

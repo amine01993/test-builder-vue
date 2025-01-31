@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Modal } from 'bootstrap';
 import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue';
-import { QuestionType, type Question } from '@/models/Question';
 import { useMainStore } from '@/stores/main';
 import { useQuestionServiceStore } from '@/stores/questionService';
+import { QuestionType, type Question } from '@/models/Question';
 
 
 const { test_id, question } = defineProps<{test_id?: string, question?: Question}>();

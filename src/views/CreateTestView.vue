@@ -61,6 +61,7 @@ async function createTest() {
             name: name.value,
             description: description.value,
             max_points: 0,
+            questionCount: 0,
             time_limit: Number(timeLimit.value),
         });
         serverErrors.value = [];
