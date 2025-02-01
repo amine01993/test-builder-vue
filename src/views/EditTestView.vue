@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Popover } from 'bootstrap';
-import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { onAuthStateChanged } from 'firebase/auth';
 import draggable from 'vuedraggable';
@@ -10,8 +10,6 @@ import { useMainStore } from '@/stores/main';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import type { Test } from '@/models/Test';
 import AppContainer from '@/components/AppContainer.vue';
-import QuestionItem from '@/components/items/QuestionItem.vue';
-import QuestionItemD from '@/components/items/QuestionItemD.vue';
 
 const { test_id } = defineProps<{test_id: string}>();
 const route = useRoute();
@@ -20,6 +18,8 @@ const {isDesktop, startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {getTest, updateTest} = useTestServiceStore();
 const {questionCount, questions, loadQuestions, updateQuestionsPositions} = useQuestionServiceStore();
+const QuestionItem = defineAsyncComponent(() => import('@/components/items/QuestionItem.vue'));
+const QuestionItemD = defineAsyncComponent(() => import('@/components/items/QuestionItemD.vue'));
 
 const name = ref('');
 const description = ref('');
@@ -335,6 +335,7 @@ function onDragEnd() {
             thead {
                 tr {
                     vertical-align: middle;
+                    text-align: center;
                 }
             }
         }

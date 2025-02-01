@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
-import { nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { defineAsyncComponent, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import AppContainer from '@/components/AppContainer.vue';
-import TestItem from '@/components/items/TestItem.vue';
-import TestItemD from '@/components/items/TestItemD.vue';
 
 const {isDesktop, showMessage} = useMainStore();
 const {auth, user} = useAuthenticationStore();
 const {testCount, tests, loadTestCount, loadTests, loadMoreTests} = useTestServiceStore();
 const loadingTests = ref(false);
 let testsLoaderEl: any = null;
+const TestItem = defineAsyncComponent(() => import('@/components/items/TestItem.vue'));
+const TestItemD = defineAsyncComponent(() => import('@/components/items/TestItemD.vue'));
 
 const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     try {
@@ -21,6 +21,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
         await Promise.all([loadTestCount(user!.uid), loadTests(user!.uid)]);
         if(!testsLoaderEl) {
             testsLoaderEl = document.querySelector('.tests-loader');
+            checkLoaderVisiblity();
         }
     }
     catch(error) {
@@ -32,6 +33,7 @@ onMounted(() => {
     document.addEventListener('scroll', checkLoaderVisiblity);
     if(!testsLoaderEl) {
         testsLoaderEl = document.querySelector('.tests-loader');
+        checkLoaderVisiblity();
     }    
 });
 
@@ -50,6 +52,8 @@ async function checkLoaderVisiblity() {
                     await nextTick();
                     
                     testsLoaderEl = document.querySelector('.tests-loader');
+                    loadingTests.value = false;
+                    checkLoaderVisiblity();
                 }
                 catch(error) {
                     showMessage('failure', 'Error loading more tests.');
@@ -162,6 +166,7 @@ async function checkLoaderVisiblity() {
                 thead {
                     tr {
                         vertical-align: middle;
+                        text-align: center;
                     }
                 }
             }

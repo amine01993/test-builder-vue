@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Popover } from 'bootstrap';
-import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { onAuthStateChanged } from 'firebase/auth';
 import draggable from 'vuedraggable';
@@ -10,8 +10,6 @@ import { useMainStore } from '@/stores/main';
 import { useChoiceServiceStore } from '@/stores/choiceService';
 import { QuestionType, type Question } from '@/models/Question';
 import AppContainer from '@/components/AppContainer.vue';
-import ChoiceItem from '@/components/items/ChoiceItem.vue';
-import ChoiceItemD from '@/components/items/ChoiceItemD.vue';
 
 const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
 const route = useRoute();
@@ -20,6 +18,9 @@ const {isDesktop, startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {getQuestion, updateQuestion} = useQuestionServiceStore();
 const {choiceCount, choices, loadChoices, updateChoicesPositions} = useChoiceServiceStore();
+
+const ChoiceItem = defineAsyncComponent(() => import('@/components/items/ChoiceItem.vue'));
+const ChoiceItemD = defineAsyncComponent(() => import('@/components/items/ChoiceItemD.vue'));
 
 const text = ref('');
 const type: Ref<QuestionType> = ref(QuestionType.Text);
@@ -335,6 +336,7 @@ function onDragEnd() {
             thead {
                 tr {
                     vertical-align: middle;
+                    text-align: center;
                 }
             }
         }
