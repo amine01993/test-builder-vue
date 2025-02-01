@@ -1,16 +1,34 @@
 <script setup lang="ts">
-import { RouterLink, useRouter } from 'vue-router';
+import { signOut } from 'firebase/auth';
+import { computed, onMounted, onUnmounted, useTemplateRef, watch } from 'vue';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { Dropdown } from 'bootstrap';
 import { useMainStore } from '@/stores/main';
 import { useAuthenticationStore } from '@/stores/auth';
-import { signOut } from 'firebase/auth';
-import { onMounted, onUnmounted, useTemplateRef } from 'vue';
-import { Dropdown } from 'bootstrap';
 
+const {locale, t} = useI18n();
 const router = useRouter();
-const { toggleMenu, showMessage } = useMainStore();
+const route = useRoute();
+const { toggleMenu, showMessage, toggleLocale } = useMainStore();
 const { user, auth, isAnonymous } = useAuthenticationStore();
 const userDropdown = useTemplateRef('user-dropdown');
 let dropdown: null|Dropdown = null;
+
+const title = computed(() => t('Test Builder App'));
+const lang = computed(() => locale.value === 'fr' ? 'FR' : 'EN');
+
+watch(title, () => {
+    document.title = title.value
+});
+
+function updateLocale() {
+    toggleLocale(locale, router, route);
+}
+
+if(route.params.locale && typeof route.params.locale === 'string') {
+    locale.value = route.params.locale;
+}
 
 onMounted(() => {
     if(userDropdown.value) {
@@ -50,8 +68,8 @@ async function signOutUser() {
             </div>
         </div>
         <div class="right-side">
-            <div class="localization">
-                <i class="bi bi-globe"></i> EN
+            <div class="localization" @click="updateLocale">
+                <i class="bi bi-globe"></i> {{ lang }}
             </div>
             <div class="user dropdown" ref="user-dropdown">
                 <button type="button" data-bs-toggle="dropdown">

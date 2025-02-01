@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { onAuthStateChanged, type User } from 'firebase/auth';
 import { defineAsyncComponent, nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useTestServiceStore } from '@/stores/testService';
 import { useUserTestServiceStore } from '@/stores/userTestService';
 import { useMainStore } from '@/stores/main';
 import AppContainer from '@/components/AppContainer.vue';
 
+const { t } = useI18n();
 const {auth, user} = useAuthenticationStore();
 const {isDesktop, showMessage} = useMainStore();
 const {testCount, loadTestCount} = useTestServiceStore();
@@ -27,7 +29,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
         }
     }
     catch(error) {
-        showMessage('failure', 'Error loading test sessions.');
+        showMessage('failure', t('Error loading test sessions.'));
     }
 });
 
@@ -58,7 +60,7 @@ async function checkLoaderVisiblity() {
                     checkLoaderVisiblity();
                 }
                 catch(error) {
-                    showMessage('failure', 'Error loading more test sessions.');
+                    showMessage('failure', t('Error loading more test sessions.'));
                 }
                 finally {
                     loadingUserTests.value = false;
@@ -74,12 +76,12 @@ async function checkLoaderVisiblity() {
         <div class="app-main">
             <div class="test-stats">
                 <div class="test-stat">
-                    <div class="stat-title">Tests</div>
+                    <div class="stat-title">{{ t('Tests') }}</div>
                     <div class="stat-content">{{ testCount }}</div>
                 </div>
         
                 <div class="test-stat">
-                    <div class="stat-title">Test Sessions</div>
+                    <div class="stat-title">{{ t('Test Sessions') }}</div>
                     <div class="stat-content" v-if="userTestCount !== undefined">{{ userTestCount }}</div>
                     <div class="placeholder-wave" v-else>
                         <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
@@ -104,14 +106,14 @@ async function checkLoaderVisiblity() {
                     <table class="table" :class="{'loading': !userTests}">
                         <thead>
                             <tr>
-                                <th scope="col">Test</th>
-                                <th scope="col">Full Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Started At</th>
-                                <th scope="col">Lasted For</th>
-                                <th scope="col">Score</th>
-                                <th scope="col">Answered Questions</th>
-                                <th scope="col">Last updated at</th>
+                                <th scope="col">{{ t('Test') }}</th>
+                                <th scope="col">{{ t('Full Name') }}</th>
+                                <th scope="col">{{ t('Email') }}</th>
+                                <th scope="col">{{ t('Started At') }}</th>
+                                <th scope="col">{{ t('Lasted For') }}</th>
+                                <th scope="col">{{ t('Score') }}</th>
+                                <th scope="col">{{ t('Answered Questions') }}</th>
+                                <th scope="col">{{ t('Last updated at') }}</th>
                             </tr>
                         </thead>
                         <tbody>

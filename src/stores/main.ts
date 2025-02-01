@@ -1,5 +1,6 @@
-import { ref, computed, type Ref } from 'vue';
 import { defineStore } from 'pinia';
+import { ref, computed, type Ref, type WritableComputedRef } from 'vue';
+import type { RouteLocationNormalizedLoadedGeneric, Router } from 'vue-router';
 
 export const useMainStore = defineStore('main', () => {
     enum LoadingStatus {
@@ -61,6 +62,14 @@ export const useMainStore = defineStore('main', () => {
         }
     }
 
+    function toggleLocale(locale: WritableComputedRef<string, string>, router: Router, route: RouteLocationNormalizedLoadedGeneric) {
+        if(locale.value === 'en') locale.value = 'fr';
+        else locale.value = 'en';
+        const _locale = locale.value === 'en' ? '' : 'fr';
+        console.log('toggleLocale', _locale);
+        router.push({ params: {...route.params, locale: _locale} });
+    }
+
     return {
         isMenuOpen: computed(() => isMenuOpen),
         openMenu, closeMenu, toggleMenu,
@@ -72,5 +81,6 @@ export const useMainStore = defineStore('main', () => {
         showMessage,
         isDesktop: computed(() => isDesktop),
         initIsDesktop,
+        toggleLocale,
     };
 })

@@ -1,0 +1,39 @@
+{
+    "Test Builder App": "Test Builder App",
+
+    "Failed to Sign out.": "Failed to Sign out.",
+    "Test Builder Logo": "Test Builder Logo",
+    "Welcome {name}": "Welcome {name}",
+    "Sign Out": "Sign Out",
+    "Anonymous": "Anonymous",
+    "Sign In": "Sign In",
+
+    "Home": "Home",
+    "Login": "Login",
+    "Register": "Register",
+    "Settings": "Settings",
+    "Tests": "Tests",
+    "Create a Test": "Create a Test",
+    "Edit a Test": "Edit a Test",
+    "Preview a Test": "Preview a Test",
+    "Create a Question": "Create a Question",
+    "Preview a Question": "Preview a Question",
+    "Edit a Question": "Edit a Question",
+    "Create a Choice": "Create a Choice",
+    "Edit a Choice": "Edit a Choice",
+
+    "Test Sessions": "Test Sessions",
+    "Test": "Test",
+    "Full Name": "Full Name",
+    "Email": "Email",
+    "Started At": "Started At",
+    "Lasted For": "Lasted For",
+    "Score": "Score",
+    "Answered Questions": "Answered Questions",
+    "Last updated at": "Last updated at",
+    "out of": "out of",
+    "Error loading test sessions.": "Error loading test sessions.",
+    "Error loading more test sessions.": "Error loading more test sessions."
+
+
+}

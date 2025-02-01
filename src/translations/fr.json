@@ -1,0 +1,30 @@
+{
+    "Test Builder App": "Application de création de tests",
+
+    "Home": "Home",
+    "Login": "Login",
+    "Register": "Register",
+    "Settings": "Settings",
+    "Tests": "Tests",
+    "Create a Test": "Create a Test",
+    "Edit a Test": "Edit a Test",
+    "Preview a Test": "Preview a Test",
+    "Create a Question": "Create a Question",
+    "Preview a Question": "Preview a Question",
+    "Edit a Question": "Edit a Question",
+    "Create a Choice": "Create a Choice",
+    "Edit a Choice": "Edit a Choice",
+
+    "Test Sessions": "Séances de test",
+    "Test": "Test",
+    "Full Name": "Nom et prénom",
+    "Email": "E-mail",
+    "Started At": "A commencé à",
+    "Lasted For": "A duré pour",
+    "Score": "Score",
+    "Answered Questions": "Questions répondues",
+    "Last updated at": "Dernière mise à jour",
+    "out of": "sur",
+    "Error loading test sessions.": "Erreur lors du chargement des sessions de test.",
+    "Error loading more test sessions.": "Erreur lors du chargement de sessions de test supplémentaires."
+}

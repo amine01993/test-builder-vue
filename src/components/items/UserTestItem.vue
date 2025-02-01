@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { useUserTestItem } from '@/composables/items/userTestItem';
 import type { UserTest } from '@/models/UserTest';
+import { computed } from 'vue';
 
+const { locale, t } = useI18n();
 const { userTest } = defineProps<{userTest?: UserTest}>();
 const {startedAt, lastedFor, updatedAt} = useUserTestItem(userTest);
 
+const spaceLabel = computed(() => locale.value === 'fr' ? ' ' : '');
 </script>
 
 <template>
@@ -13,13 +17,13 @@ const {startedAt, lastedFor, updatedAt} = useUserTestItem(userTest);
             <div class="user-test-item-title">{{ userTest.test.name }}</div>
             <hr class="user-test-item-divider">
             <div class="user-test-item-info">
-                <div class="user-test-property">Full Name: {{ userTest.user.displayName }}</div>
-                <div class="user-test-property">Email: {{ userTest.user.email }}</div>
-                <div class="user-test-property">Started At: {{ startedAt }}</div>
-                <div class="user-test-property">Lasted For: {{ lastedFor }}</div>
-                <div class="user-test-property" v-if="userTest.result">Score: {{ userTest.result?.score }}</div>
-                <div class="user-test-property">Answered Questions: {{ userTest.report?.length ?? 0 }} out of {{ userTest.test.questionCount }}</div>
-                <div class="user-test-last-update">Last updated at: {{ updatedAt }}</div>
+                <div class="user-test-property">{{ t('Full Name') }}{{ spaceLabel }}: {{ userTest.user.displayName }}</div>
+                <div class="user-test-property">{{ t('Email') }}{{ spaceLabel }}: {{ userTest.user.email }}</div>
+                <div class="user-test-property">{{ t('Started At') }}{{ spaceLabel }}: {{ startedAt }}</div>
+                <div class="user-test-property">{{ t('Lasted For') }}{{ spaceLabel }}: {{ lastedFor }}</div>
+                <div class="user-test-property" v-if="userTest.result">{{ t('Score') }}{{ spaceLabel }}: {{ userTest.result?.score }}</div>
+                <div class="user-test-property">{{ t('Answered Questions') }}{{ spaceLabel }}: {{ userTest.report?.length ?? 0 }} {{ t('out of') }} {{ userTest.test.questionCount }}</div>
+                <div class="user-test-last-update">{{ t('Last updated at') }}{{ spaceLabel }}: {{ updatedAt }}</div>
             </div>
         </div>
         <div class="test-item-content" v-else>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { onMounted, onUnmounted } from 'vue';
+import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { RouterView } from 'vue-router';
 import { useMainStore } from './stores/main';
 import { useAuthenticationStore } from './stores/auth';

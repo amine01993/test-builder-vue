@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { useUserTestItem } from '@/composables/items/userTestItem';
 import type { UserTest } from '@/models/UserTest';
 
+const { t } = useI18n();
 const { userTest } = defineProps<{userTest?: UserTest}>();
 const {startedAt, lastedFor, updatedAt} = useUserTestItem(userTest);
 </script>
@@ -15,7 +17,7 @@ const {startedAt, lastedFor, updatedAt} = useUserTestItem(userTest);
             <td>{{ startedAt }}</td>
             <td>{{ lastedFor }}</td>
             <td>{{ userTest.result?.score }}</td>
-            <td>{{ userTest.report?.length ?? 0 }} out of {{ userTest.test.questionCount }}</td>
+            <td>{{ userTest.report?.length ?? 0 }} {{ t('out of') }} {{ userTest.test.questionCount }}</td>
             <td class="test-last-update">{{ updatedAt }}</td>
         </template>
         <template v-else>
