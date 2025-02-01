@@ -87,6 +87,11 @@ const router = createRouter({
             props: true,
             component: () => import('../views/EditChoiceView.vue'),
         },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'notfound',
+            component: () => import('../views/NotFoundView.vue'), 
+        }
     ],
 })
 
