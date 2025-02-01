@@ -31,9 +31,10 @@ onUnmounted(() => {
 });
 
 async function confirmationAction() {
+    console.log('confirmationAction');
     open.value = false;
     if(actionCb.value) {
-        actionCb.value();
+        await actionCb.value();
     }
 }
 

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore";
 import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
 import { useQuestionServiceStore } from "./questionService";
@@ -33,8 +33,10 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
     }
 
     async function getChoices(test_id: string, question_id: string) {
+        const {user} = useAuthenticationStore();
+
         const choicesRef = collection(db, 'tests', test_id, 'questions', question_id, 'choices');
-        const q = query(choicesRef, orderBy('position'));
+        const q = query(choicesRef, where('user_id', '==', user.value?.uid), orderBy('position'));
         const snaps = await getDocs(q);
         return snaps.docs.map(snap => {
             const choice = <Choice>snap.data();
@@ -51,7 +53,7 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
         choiceCount.value = question.choiceCount;
 
         const choicesRef = collection(db, 'tests', test_id, 'questions', question.id, 'choices');
-        const q = query(choicesRef, orderBy('position'));
+        const q = query(choicesRef, where('user_id', '==', question.user_id), orderBy('position'));
         const snaps = await getDocs(q);
         choices.value = snaps.docs.map(snap => {
             const choice = <Choice>snap.data();

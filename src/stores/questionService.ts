@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc, writeBatch } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc, where, writeBatch } from "firebase/firestore";
 import { computed, ref, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
 import { useAuthenticationStore } from "./auth";
@@ -63,8 +63,10 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     }
 
     async function getQuestions(test_id: string): Promise<Question[]> {
+        const {user} = useAuthenticationStore();
+
         const questionsRef = collection(db, 'tests', test_id, 'questions');
-        const q = query(questionsRef, orderBy('position'));
+        const q = query(questionsRef, where('user_id', '==', user.value?.uid), orderBy('position'));
         const questions: Question[] = [];
         
         const choicesList = await getDocs(q)
@@ -96,7 +98,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         questionCount.value = test.questionCount;
 
         const questionsRef = collection(db, 'tests', test.id, 'questions');
-        const q = query(questionsRef, orderBy('position'));
+        const q = query(questionsRef, where('user_id', '==', test.user_id), orderBy('position'));
         const snaps = await getDocs(q);
         questions.value = snaps.docs.map(snap => {
             const question = <Question>snap.data();
@@ -210,6 +212,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     }
 
     async function deleteQuestion(test_id: string, question_id: string) {
+        const {user} = useAuthenticationStore();
         const {updateQuestionCount} = useTestServiceStore();
 
         const questionRef = doc(db, 'tests', test_id, 'questions', question_id);
@@ -227,7 +230,8 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         // delete choices
         const batch = writeBatch(db);
         const choicesRef = collection(db, 'tests', test_id, 'questions', question_id, 'choices');
-        const snaps = await getDocs(choicesRef);
+        const listQuestions = query(choicesRef, where('user_id', '==', user.value?.uid));
+        const snaps = await getDocs(listQuestions);
         snaps.forEach(snap => {
             batch.delete(snap.ref);
         });

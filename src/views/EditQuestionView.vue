@@ -330,6 +330,14 @@ function onDragEnd() {
             border-bottom-width: 5px;
             border-bottom-color: vars.$app-white;
         }
+
+        .table {
+            thead {
+                tr {
+                    vertical-align: middle;
+                }
+            }
+        }
     }
 
     :deep(.choice-item-container) {

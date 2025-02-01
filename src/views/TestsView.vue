@@ -157,6 +157,14 @@ async function checkLoaderVisiblity() {
                 border-bottom-width: 5px;
                 border-bottom-color: vars.$app-white;
             }
+
+            .table {
+                thead {
+                    tr {
+                        vertical-align: middle;
+                    }
+                }
+            }
         }
 
         :deep(.test-item-container) {

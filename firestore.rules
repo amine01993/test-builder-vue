@@ -11,12 +11,8 @@ service cloud.firestore {
             return resource.data.user_id == request.auth.uid;
         }
 
-        function createdByUser() {
+        function managedByUser() {
             return request.resource.data.user_id == request.auth.uid;
-        }
-
-        function updatedByUser() {
-            return request.resource.data.user_id == request.auth.uid || !('user_id' in request.resource.data);
         }
 
         function validTest() {
@@ -25,9 +21,17 @@ service cloud.firestore {
                 && request.resource.data['time_limit'] >= 0;
         }
 
+        function checkTestUpdate() {
+            return request.resource.data.diff(resource.data).unchangedKeys().hasAll(['questionCount', 'max_points', 'created_at', 'user_id']);
+        }
+
         function validQuestion() {
             return isNonEmptyString(request.resource.data['text'])
                 && request.resource.data['position'] is number;
+        }
+
+        function checkQuestionUpdate() {
+            return request.resource.data.diff(resource.data).unchangedKeys().hasAll(['choiceCount', 'max_points', 'created_at', 'user_id']);
         }
 
         function validChoice() {
@@ -36,37 +40,49 @@ service cloud.firestore {
                 && request.resource.data['position'] is number;
         }
 
+        function checkChoiceUpdate() {
+            return request.resource.data.diff(resource.data).unchangedKeys().hasAll(['question', 'created_at', 'user_id']);
+        }
+
         function isNonEmptyString(field) {
             return field is string && field.size() > 0;
         }
 
         match /tests/{testId} {
-            allow read: if isAuthenticated();
-            allow create: if isAuthenticated() && createdByUser() && validTest() 
+            allow read: if isAuthenticated() && belongToUser();
+            allow create: if isAuthenticated() && managedByUser() && validTest() 
                             && request.resource.data['max_points'] == 0 && request.resource.data['questionCount'] == 0;
-            allow update: if isAuthenticated() && updatedByUser() && validTest() 
-                            && resource.data['max_points'] == request.resource.data['max_points'] && resource.data['questionCount'] == request.resource.data['questionCount'];
+            allow update: if isAuthenticated() && managedByUser() && validTest() && checkTestUpdate();
             allow delete: if isAuthenticated() && belongToUser();
 
             match /questions/{questionId} {
-                allow read: if isAuthenticated();
-                allow create: if isAuthenticated() && createdByUser() && validQuestion() 
+                allow read: if isAuthenticated() && belongToUser();
+                allow create: if isAuthenticated() && managedByUser() && validQuestion() 
                                 && request.resource.data['max_points'] == 0 && request.resource.data['choiceCount'] == 0;
-                allow update: if isAuthenticated() && updatedByUser() && validQuestion() 
-                                && resource.data['max_points'] == request.resource.data['max_points'] && resource.data['choiceCount'] == request.resource.data['choiceCount'];
+                allow update: if isAuthenticated() && managedByUser() && validQuestion() && checkQuestionUpdate();
                 allow delete: if isAuthenticated() && belongToUser();
 
                 match /choices/{choiceId} {
-                    allow read: if isAuthenticated();
-                    allow create: if isAuthenticated() && createdByUser() && validChoice();
-                    allow update: if isAuthenticated() && updatedByUser() && validChoice();
+                    allow read: if isAuthenticated() && belongToUser();
+                    allow create: if isAuthenticated() && managedByUser() && validChoice();
+                    allow update: if isAuthenticated() && managedByUser() && validChoice() && checkChoiceUpdate();
                     allow delete: if isAuthenticated() && belongToUser();
                 }
             }
         }
 
         match /user_tests/{userTestId} {
-            allow read: if isAuthenticated();
+
+            function belongToUser() {
+                return resource.data.test.user_id == request.auth.uid;
+            }
+
+            function belongToTestTaker() {
+                return resource.data.user_id == request.auth.uid;
+            }
+            
+            allow get: if isAuthenticated() && (belongToUser() || belongToTestTaker());
+            allow list: if isAuthenticated() && belongToUser();
             allow write: if false;
         }
     }

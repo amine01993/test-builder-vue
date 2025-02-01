@@ -52,13 +52,15 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
             return;
         }
         time_limit.value = test.value.time_limit;
-        interval = setInterval(() => {
-            time_limit.value--;
-            if(time_limit.value === 0) {
-                clearInterval(interval);
-                interval = undefined;
-            }
-        }, 1000);
+        if(time_limit.value > 0) {
+            interval = setInterval(() => {
+                time_limit.value--;
+                if(time_limit.value === 0) {
+                    clearInterval(interval);
+                    interval = undefined;
+                }
+            }, 1000);
+        }
     }
     catch(error) {
         showMessage('failure', 'Error loading test data.');
@@ -117,7 +119,7 @@ function submitTest() {
             </div>
         </div>
         
-        <div class="app-test-description" v-if="test">
+        <div class="app-test-description" v-if="test?.description">
             <div class="test-description" v-html="description"></div>
             <div class="test-points">
                 ({{ test.max_points }} pts)

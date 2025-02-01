@@ -141,8 +141,9 @@ export const useTestServiceStore = defineStore('testService', () => {
                 _test.updated_at = Timestamp.fromDate(new Date);
 
                 if(index != 0) {
-                    tests.value.splice(index, 1);
-                    tests.value.unshift(_test);
+                    // tests.value.splice(index, 1);
+                    // tests.value.unshift(_test);
+                    tests.value = [_test, ...tests.value.slice(0, index), ...tests.value.slice(index + 1)];
                 }
             }
         }
@@ -162,7 +163,8 @@ export const useTestServiceStore = defineStore('testService', () => {
 
         // delete questions and choices
         const questionsRef = collection(db, 'tests', test_id, 'questions');
-        await getDocs(questionsRef)
+        const listQuestions = query(questionsRef, where('user_id', '==', userId.value));
+        await getDocs(listQuestions)
         .then(snaps => {
             const promises: Promise<void>[] = [];
             snaps.forEach(snap => {
