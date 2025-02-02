@@ -130,7 +130,7 @@ async function updateFullName() {
             box-shadow: 5px 5px 25px vars.$app-grey;
 
             .form-title {
-                font-size: 2em;
+                font-size: 1.7em;
                 font-weight: 600;
                 text-align: center;
             }

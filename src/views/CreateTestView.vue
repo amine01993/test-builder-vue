@@ -127,7 +127,7 @@ async function createTest() {
 
     .test-form {
         .test-form-title {
-            font-size: 2em;
+            font-size: 1.7em;
             font-weight: 600;
             text-align: center;
         }

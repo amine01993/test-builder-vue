@@ -286,11 +286,12 @@ function onDragEnd() {
         }
 
         .question-form-title {
-            font-size: 2em;
+            font-size: 1.7em;
             font-weight: 600;
             transform: translateX(-50%);
             margin-left: 50%;
-            display: inline-block;
+            display: block;
+            width: max-content;
             transition: all 200ms;
             white-space: nowrap;
         }
