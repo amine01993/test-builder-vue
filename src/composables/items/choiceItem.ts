@@ -1,10 +1,13 @@
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useMainStore } from "@/stores/main";
 import { useModalStore } from "@/stores/modal";
 import { useChoiceServiceStore } from "@/stores/choiceService";
 import type { Choice } from "@/models/Choice";
 
 export function useChoiceItem(test_id?: string, question_id?: string, choice?: Choice) {
+
+    const {locale, t} = useI18n();
     const {showMessage, startLoading, endLoading} = useMainStore();
     const {deleteChoice} = useChoiceServiceStore();
     const {confirm: confirmDeletion} = useModalStore();
@@ -12,7 +15,7 @@ export function useChoiceItem(test_id?: string, question_id?: string, choice?: C
     
     const updatedAt = computed(() => {
         const updated_at = choice!.updated_at!.toDate();
-            return new Intl.DateTimeFormat('en-US', {
+            return new Intl.DateTimeFormat(locale.value + '-CA', {
             day: 'numeric',
             month: 'short',
             year: (currentDate.getFullYear() === updated_at.getFullYear() ? undefined : 'numeric'),
@@ -24,8 +27,8 @@ export function useChoiceItem(test_id?: string, question_id?: string, choice?: C
     function confirmChoicedeletion() {
         if(choice) {
             confirmDeletion(
-                `Are you sure you want to delete this choice: "${choice.text}"?`,
-                'Delete', deleteDChoice
+                t('Are you sure you want to delete this choice: "{text}"?', {text: choice.text}),
+                t('Delete'), deleteDChoice
             );
         }
     }
@@ -35,10 +38,10 @@ export function useChoiceItem(test_id?: string, question_id?: string, choice?: C
             try {
                 startLoading();
                 await deleteChoice(test_id, question_id, choice.id);
-                showMessage('success', 'Choice deleted with success.');
+                showMessage('success', t('Choice deleted with success.'));
             }
             catch(error) {
-                showMessage('failure', 'Choice can not be deleted.');
+                showMessage('failure', t('Choice can not be deleted.'));
             }
             finally {
                 endLoading();

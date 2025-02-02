@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+import { useLocalizationStore } from '@/stores/localization';
 import type { Test } from '@/models/Test';
 import { useTestItem } from '@/composables/items/testItem';
 
+const {t} = useI18n();
+const {spaceLabel} = useLocalizationStore();
 const { test } = defineProps<{test?: Test}>();
 const {showMore, description, updatedAt, confirmTestdeletion, copyTestLink} = useTestItem(test);
+
 
 </script>
 
@@ -14,10 +19,10 @@ const {showMore, description, updatedAt, confirmTestdeletion, copyTestLink} = us
             <hr class="test-item-divider">
             <div class="test-item-info">
                 <div class="test-description" :class="{'full-text': showMore}" ref="test-description" v-html="description"></div>
-                <div class="test-property">Max Score: {{ test.max_points }}</div>
-                <div class="test-property">Time Limit: {{ test.time_limit }}</div> 
-                <div class="test-property" v-if="test.questionCount">Total number of questions: {{ test.questionCount }}</div> 
-                <div class="test-last-update">Last updated at: {{ updatedAt }}</div>
+                <div class="test-property">{{ t('Max Score') }}{{ spaceLabel }}: {{ test.max_points }}</div>
+                <div class="test-property">{{ t('Time Limit') }}{{ spaceLabel }}: {{ test.time_limit }}</div> 
+                <div class="test-property" v-if="test.questionCount">{{ t('Total number of questions') }}{{ spaceLabel }}: {{ test.questionCount }}</div> 
+                <div class="test-last-update">{{ t('Last updated at') }}{{ spaceLabel }}: {{ updatedAt }}</div>
             </div>
             <hr class="test-item-divider">
             <div class="test-item-actions">

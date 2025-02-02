@@ -4,13 +4,15 @@ import { useRoute } from 'vue-router';
 
 const { test_id, question_id } = defineProps<{test_id?: string, question_id?: string}>();
 const route = useRoute();
-const {getList} = useBreadcrumbStore();
+const {list, initList} = useBreadcrumbStore();
 
-const list = route.name ? getList(route.name.toString(), test_id, question_id) : [];
+if(route.name) {
+    initList(route.name.toString(), test_id, question_id);
+}
 </script>
 
 <template>
-    <nav aria-label="breadcrumb" class="app-breadcrumb">
+    <nav aria-label="breadcrumb" class="app-breadcrumb" v-if="list && list.length > 0">
         <ol class="breadcrumb">
             <li v-for="item in list" :key="item.name" 
                 class="breadcrumb-item" :class="{'active': !item.path}" :aria-current="item.path ? undefined : 'page'">

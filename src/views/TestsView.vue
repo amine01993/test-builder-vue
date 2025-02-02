@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
 import { defineAsyncComponent, nextTick, onMounted, onUnmounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
+import { useLocalizationStore } from '@/stores/localization';
 import AppContainer from '@/components/AppContainer.vue';
 
+const {t} = useI18n();
+const {spaceLabel} = useLocalizationStore();
 const {isDesktop, showMessage} = useMainStore();
 const {auth, user} = useAuthenticationStore();
 const {testCount, tests, loadTestCount, loadTests, loadMoreTests} = useTestServiceStore();
@@ -25,7 +29,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
         }
     }
     catch(error) {
-        showMessage('failure', 'Error loading tests.');
+        showMessage('failure', t('Error loading tests.'));
     }
 });
 
@@ -56,7 +60,7 @@ async function checkLoaderVisiblity() {
                     checkLoaderVisiblity();
                 }
                 catch(error) {
-                    showMessage('failure', 'Error loading more tests.');
+                    showMessage('failure', t('Error loading more tests.'));
                 }
                 finally {
                     loadingTests.value = false;
@@ -72,12 +76,12 @@ async function checkLoaderVisiblity() {
     <AppContainer>
         <div class="app-main">
             <div class="test-actions">
-                <RouterLink :to="{name: 'create-test'}" class="btn btn-warning create-test">Create New Test</RouterLink>
+                <RouterLink :to="{name: 'create-test'}" class="btn btn-warning create-test">{{ t('Create New Test') }}</RouterLink>
             </div>
 
             <div class="test-info" v-if="testCount !== 0">
                 <template v-if="testCount">
-                    <span class="test-info-label">Total number of tests:</span> {{ testCount }}
+                    <span class="test-info-label">{{ t('Total number of tests') }}{{ spaceLabel }}:</span> {{ testCount }}
                 </template>
                 <template v-else>
                     <div class="placeholder-wave">
@@ -103,13 +107,13 @@ async function checkLoaderVisiblity() {
                     <table class="table" :class="{'loading': !tests}">
                         <thead>
                             <tr>
-                                <th scope="col">Test</th>
-                                <th scope="col">Description</th>
-                                <th scope="col">Max Points</th>
-                                <th scope="col">Time Limit</th>
-                                <th scope="col">Nbr of Questions</th>
-                                <th scope="col">Last updated at</th>
-                                <th scope="col">Actions</th>
+                                <th scope="col">{{ t('Test') }}</th>
+                                <th scope="col">{{ t('Description') }}</th>
+                                <th scope="col">{{ t('Max Points') }}</th>
+                                <th scope="col">{{ t('Time Limit') }}</th>
+                                <th scope="col">{{ t('Nbr of Questions') }}</th>
+                                <th scope="col">{{ t('Last updated at') }}</th>
+                                <th scope="col">{{ t('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -1,77 +1,96 @@
 import { defineStore } from "pinia";
+import { computed, ref, watch, type Ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 export const useBreadcrumbStore = defineStore('breadcrumb', () => {
+    const {locale, t} = useI18n();
+    let routeName: string = '';
+    let test_id: string|undefined;
+    let question_id: string|undefined;
+    const list: Ref<any> = ref([]);
 
-    function getList(routeName: string, test_id?: string, question_id?: string) {
-    
+    watch(locale, () => {
+        list.value = getList();
+    });
+
+    function initList(_routeName: string, _test_id?: string, _question_id?: string) {
+        routeName = _routeName;
+        test_id = _test_id;
+        question_id = _question_id;
+        list.value = getList();
+    }
+
+
+    function getList() {
+        console.log('getList')
         switch(routeName) {
             case 'home':
-                return [{ name: 'Home', path: null }];
+                return [{ name: t('Home'), path: null }];
             case 'login':
-                return [{ name: 'Login', path: null }];
+                return [{ name: t('Login'), path: null }];
             case 'register':
-                return [{ name: 'Register', path: null }];
+                return [{ name: t('Register'), path: null }];
             case 'settings':
-                return [{ name: 'Settings', path: null }];
+                return [{ name: t('Settings'), path: null }];
             case 'tests':
                 return [
-                    { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Tests', path: null }
+                    { name: t('Home'), path: {name: 'home'} }, 
+                    { name: t('Tests'), path: null }
                 ];
             case 'create-test':
                 return [
-                    { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Tests', path: {name: 'tests'} }, 
-                    { name: 'Create a test', path: null },
+                    { name: t('Home'), path: {name: 'home'} }, 
+                    { name: t('Tests'), path: {name: 'tests'} }, 
+                    { name: t('Create a Test'), path: null },
                 ];
             case 'edit-test':
                 return [
-                    { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Tests', path: {name: 'tests'} }, 
-                    { name: 'Edit a test', path: null },
+                    { name: t('Home'), path: {name: 'home'} }, 
+                    { name: t('Tests'), path: {name: 'tests'} }, 
+                    { name: t('Edit Test'), path: null },
                 ];
             case 'preview-test':
                 return [
-                    { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Tests', path: {name: 'tests'} }, 
-                    { name: 'Preview a test', path: null },
+                    { name: t('Home'), path: {name: 'home'} }, 
+                    { name: t('Tests'), path: {name: 'tests'} }, 
+                    { name: t('Preview the Test'), path: null },
                 ];
             case 'create-question':
                 return [
-                    { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Tests', path: {name: 'tests'} }, 
-                    { name: 'Edit a Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
-                    { name: 'Create a question', path: null },
+                    { name: t('Home'), path: {name: 'home'} }, 
+                    { name: t('Tests'), path: {name: 'tests'} }, 
+                    { name: t('Edit Test'), path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
+                    { name: t('Create a Question'), path: null },
                 ];
             case 'preview-question':
                 return [
-                    { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Tests', path: {name: 'tests'} }, 
-                    { name: 'Edit a Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
-                    { name: 'Preview a question', path: null },
+                    { name: t('Home'), path: {name: 'home'} }, 
+                    { name: t('Tests'), path: {name: 'tests'} }, 
+                    { name: t('Edit Test'), path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
+                    { name: t('Preview the Question'), path: null },
                 ];
             case 'edit-question':
                 return [
-                    { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Tests', path: {name: 'tests'} }, 
-                    { name: 'Edit a Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
-                    { name: 'Edit a question', path: null },
+                    { name: t('Home'), path: {name: 'home'} }, 
+                    { name: t('Tests'), path: {name: 'tests'} }, 
+                    { name: t('Edit Test'), path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
+                    { name: t('Edit Question'), path: null },
                 ];
             case 'create-choice':
                 return [
-                    { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Tests', path: {name: 'tests'} }, 
-                    { name: 'Edit a Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
-                    { name: 'Edit a Question', path: {name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}} }, 
-                    { name: 'Create a choice', path: null },
+                    { name: t('Home'), path: {name: 'home'} }, 
+                    { name: t('Tests'), path: {name: 'tests'} }, 
+                    { name: t('Edit Test'), path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
+                    { name: t('Edit Question'), path: {name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}} }, 
+                    { name: t('Create a Choice'), path: null },
                 ];
             case 'edit-choice':
                 return [
-                    { name: 'Home', path: {name: 'home'} }, 
-                    { name: 'Tests', path: {name: 'tests'} }, 
-                    { name: 'Edit a Test', path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
-                    { name: 'Edit a Question', path: {name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}} }, 
-                    { name: 'Edit a choice', path: null },
+                    { name: t('Home'), path: {name: 'home'} }, 
+                    { name: t('Tests'), path: {name: 'tests'} }, 
+                    { name: t('Edit Test'), path: {name: 'edit-test', params: {test_id}, query: {sF: 0}} }, 
+                    { name: t('Edit Question'), path: {name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}} }, 
+                    { name: t('Edit Choice'), path: null },
                 ];
             default:
                 return [];
@@ -79,6 +98,7 @@ export const useBreadcrumbStore = defineStore('breadcrumb', () => {
     }
 
     return {
-        getList
+        initList,
+        list: computed(() => list),
     };
 });

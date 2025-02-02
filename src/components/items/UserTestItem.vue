@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import { useLocalizationStore } from '@/stores/localization';
 import { useUserTestItem } from '@/composables/items/userTestItem';
 import type { UserTest } from '@/models/UserTest';
-import { computed } from 'vue';
 
-const { locale, t } = useI18n();
+const { t } = useI18n();
+const {spaceLabel} = useLocalizationStore();
 const { userTest } = defineProps<{userTest?: UserTest}>();
 const {startedAt, lastedFor, updatedAt} = useUserTestItem(userTest);
 
-const spaceLabel = computed(() => locale.value === 'fr' ? ' ' : '');
 </script>
 
 <template>

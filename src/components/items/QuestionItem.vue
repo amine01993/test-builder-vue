@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+import { useLocalizationStore } from '@/stores/localization';
 import type { Question } from '@/models/Question';
 import { useQuestionItem } from '@/composables/items/questionItem';
 
+const {t} = useI18n();
 const { test_id, question } = defineProps<{test_id?: string, question?: Question}>();
+const {spaceLabel} = useLocalizationStore();
 const {questionType, updatedAt, confirmQuestiondeletion} = useQuestionItem(test_id, question);
 
 </script>
@@ -17,11 +21,11 @@ const {questionType, updatedAt, confirmQuestiondeletion} = useQuestionItem(test_
                 <div class="question-item-title">{{ question.text }}</div>
                 <hr class="question-item-divider">
                 <div class="question-item-info">
-                    <div class="question-property">Max Points: {{ question.max_points }}</div>
-                    <div class="question-property">Type: {{ questionType }}</div> 
-                    <div class="question-property">Position: {{ question.position }}</div> 
-                    <div class="question-property" v-if="question.choiceCount">Total number of choices: {{ question.choiceCount }}</div> 
-                    <div class="question-last-update">Last updated at: {{ updatedAt }}</div>
+                    <div class="question-property">{{ t('Max Points') }}{{ spaceLabel }}: {{ question.max_points }}</div>
+                    <div class="question-property">{{ t('Type') }}{{ spaceLabel }}: {{ questionType }}</div> 
+                    <div class="question-property">{{ t('Position') }}{{ spaceLabel }}: {{ question.position }}</div> 
+                    <div class="question-property" v-if="question.choiceCount">{{ t('Total number of choices') }}{{ spaceLabel }}: {{ question.choiceCount }}</div> 
+                    <div class="question-last-update">{{ t('Last updated at') }}: {{ updatedAt }}</div>
                 </div>
                 <hr class="question-item-divider">
                 <div class="question-item-actions">

@@ -1,6 +1,7 @@
 import * as logger from "firebase-functions/logger";
 import { getCredentialsMiddleware } from "./middleware/auth";
 import { finishTest, getTest, startTest } from "./helpers";
+import { auth } from "./init";
 
 const express = require('express');
 
@@ -57,3 +58,23 @@ httpApp.get('/test', async (req: any, res: any) => {
     }
 });
 
+httpApp.post('/update-locale', async (req: any, res: any) => {
+    logger.debug('updating locale', req.body);
+
+    try {
+        if(!req['uid']) {
+            res.status(403).json({error: 'Access Forbidden.'});
+            return;
+        }
+
+        const locale = req.body.locale === 'fr' ? 'fr' : 'en';
+
+        await auth.setCustomUserClaims(req['uid'], {locale});
+
+        res.status(200).json({ok: true});
+    }
+    catch(error) {
+        logger.error('Error /update-locale', error);
+        res.status(500).json({error: 'Error updating locale.'});
+    }
+});

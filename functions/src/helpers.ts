@@ -14,16 +14,14 @@ export async function getTest(test_id: string) {
         test.updated_at = undefined;
         test.questions = [];
 
-        const choicesList = await db.collection('tests/' + test.id + '/questions').orderBy('position').get()
+        const choicesList = await db.collection('tests/' + test.id + '/questions').orderBy('position')
+        .select('text', 'max_points', 'type', 'position').get()
         .then(snapshots => {
             const promises: Promise<any[]>[] = [];
             snapshots.forEach(snap => {
                 if(snap.exists) {
                     const question: any = snap.data();
                     question.id = snap.id;
-                    question.user_id = undefined;
-                    question.created_at = undefined;
-                    question.updated_at = undefined;   
                     test.questions.push(question);  
                     
                     promises.push(getChoices(test.id, snap.id));
@@ -41,18 +39,16 @@ export async function getTest(test_id: string) {
 }
 
 async function getChoices(test_id: string, question_id: string, forTest: boolean = true) {
-    const snaps = await db.collection('tests/' + test_id + '/questions/' + question_id + '/choices').orderBy('position').get();
+    let promise = db.collection('tests/' + test_id + '/questions/' + question_id + '/choices').orderBy('position');
+    if(forTest) {
+        promise = promise.select('text', 'position');
+    }
+    const snaps = await promise.get();
+
     return snaps.docs.map(snap => {
         const choice: any = snap.data();
         choice.id = snap.id;
 
-        if(forTest) {
-            choice.is_correct = undefined;
-            choice.points = undefined;
-            choice.user_id = undefined;
-            choice.created_at = undefined;
-            choice.updated_at = undefined;   
-        }
         return choice;
     });
 }

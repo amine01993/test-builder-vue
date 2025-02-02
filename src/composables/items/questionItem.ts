@@ -1,10 +1,13 @@
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useMainStore } from "@/stores/main";
 import { useModalStore } from "@/stores/modal";
 import { useQuestionServiceStore } from "@/stores/questionService";
 import { QuestionType, type Question } from "@/models/Question";
 
 export function useQuestionItem(test_id?: string, question?: Question) {
+    
+    const {locale, t} = useI18n();
     const {showMessage, startLoading, endLoading} = useMainStore();
     const {deleteQuestion} = useQuestionServiceStore();
     const {confirm: confirmDeletion} = useModalStore();
@@ -24,7 +27,7 @@ export function useQuestionItem(test_id?: string, question?: Question) {
     });
     const updatedAt = computed(() => {
         const updated_at = question!.updated_at!.toDate();
-        return new Intl.DateTimeFormat('en-US', {
+        return new Intl.DateTimeFormat(locale.value + '-CA', {
             day: 'numeric',
             month: 'short',
             year: (currentDate.getFullYear() === updated_at.getFullYear() ? undefined : 'numeric'),
@@ -36,8 +39,8 @@ export function useQuestionItem(test_id?: string, question?: Question) {
     function confirmQuestiondeletion() {
         if(question) {
             confirmDeletion(
-                `Are you sure you want to delete this question: "${question.text}"?`,
-                'Delete', deleteDQuestion
+                t('Are you sure you want to delete this question: "{text}"?', {text: question.text}),
+                t('Delete'), deleteDQuestion
             );
         }
     }
@@ -47,10 +50,10 @@ export function useQuestionItem(test_id?: string, question?: Question) {
             try {
                 startLoading();
                 await deleteQuestion(test_id, question.id);
-                showMessage('success', 'Question deleted with success.');
+                showMessage('success', t('Question deleted with success.'));
             }
             catch(error) {
-                showMessage('failure', 'Question can not be deleted.');
+                showMessage('failure', t('Question can not be deleted.'));
             }
             finally {
                 endLoading();

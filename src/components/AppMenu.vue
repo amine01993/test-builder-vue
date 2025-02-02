@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { useMainStore } from '@/stores/main';
 
+const {t} = useI18n();
 const { isMenuOpen, closeMenu } = useMainStore();
 </script>
 
@@ -9,17 +11,17 @@ const { isMenuOpen, closeMenu } = useMainStore();
     <div class="app-menu" :class="{'open': isMenuOpen}">
         <div class="menu-item">
             <RouterLink exactActiveClass="selected-item" :to="{name: 'home'}" @click="closeMenu">
-                Home
+                {{ t('Home') }}
             </RouterLink>
         </div>
         <div class="menu-item">
             <RouterLink exactActiveClass="selected-item" :to="{name: 'tests'}" @click="closeMenu">
-                Tests
+                {{ t('Tests') }}
             </RouterLink>
         </div>
         <div class="menu-item">
             <RouterLink exactActiveClass="selected-item" :to="{name: 'settings'}" @click="closeMenu">
-                Settings
+                {{ t('Settings') }}
             </RouterLink>
         </div>
     </div>

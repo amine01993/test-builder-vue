@@ -2,19 +2,23 @@
 import { Popover } from 'bootstrap';
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { onAuthStateChanged } from 'firebase/auth';
 import draggable from 'vuedraggable';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useChoiceServiceStore } from '@/stores/choiceService';
+import { useLocalizationStore } from '@/stores/localization';
 import { QuestionType, type Question } from '@/models/Question';
 import AppContainer from '@/components/AppContainer.vue';
 
+const {t} = useI18n();
 const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
 const route = useRoute();
 const router = useRouter();
 const {isDesktop, startLoading, endLoading, showMessage} = useMainStore();
+const {spaceLabel} = useLocalizationStore();
 const {auth} = useAuthenticationStore();
 const {getQuestion, updateQuestion} = useQuestionServiceStore();
 const {choiceCount, choices, loadChoices, updateChoicesPositions} = useChoiceServiceStore();
@@ -34,9 +38,9 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(text.value === '') _errors.text = 'Question required';
+    if(text.value === '') _errors.text = t('Question required');
 
-    if(typeof position.value === 'string') _errors.position = 'The position must be a number';
+    if(typeof position.value === 'string') _errors.position = t('The position must be a number');
 
     return _errors;
 });
@@ -49,7 +53,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     try {
         question = await getQuestion(test_id, question_id);
         if(!question) {
-            showMessage('failure', 'Question Not Found.');
+            showMessage('failure', t('Question Not Found.'));
             return;
         }
         text.value = question.text;
@@ -57,7 +61,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         position.value = question.position;
     }
     catch(error) {
-        showMessage('failure', 'Error loading question data.');
+        showMessage('failure', t('Error loading question data.'));
     }
     finally {
         if(showForm.value) endLoading();
@@ -69,7 +73,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         }
     }
     catch(error) {
-        showMessage('failure', 'Error loading choices.');
+        showMessage('failure', t('Error loading choices.'));
     }
 });
 
@@ -109,10 +113,10 @@ async function editQuestion() {
             position: Number(position.value),
         });
         serverErrors.value = [];
-        showMessage('success', 'Question edited with success.')
+        showMessage('success', t('Question edited with success.'))
     }
     catch(error: any) {
-        serverErrors.value = ['Server Error: ' + error.code]
+        serverErrors.value = [t('Server Error') + spaceLabel.value + ': ' + error.code]
     }
     finally {
         submitting.value = false;
@@ -127,10 +131,10 @@ function toggleShowForm() {
 function onDragEnd() {
     updateChoicesPositions(test_id, question_id)
     .then(() => {
-        showMessage('success', 'Positions updated with success.');
+        showMessage('success', t('Positions updated with success.'));
     })
     .catch(error => {
-        showMessage('failure', 'Sorry! Positions can not be updated.');
+        showMessage('failure', t('Sorry! Positions can not be updated.'));
     });
 }
 </script>
@@ -139,7 +143,7 @@ function onDragEnd() {
     <AppContainer :test_id="test_id">
         <div class="app-main">
             <div class="question-form" :class="{'hide-form': !showForm}">
-                <div class="question-form-title mb-4">Edit Question</div>
+                <div class="question-form-title mb-4">{{ t('Edit Question') }}</div>
                 <button class="btn toggle-form-btn" @click="toggleShowForm">
                     <i class="bi" :class="{'bi-chevron-down': !showForm, 'bi-chevron-up': showForm}"></i>
                 </button>
@@ -151,43 +155,43 @@ function onDragEnd() {
                 </div>
     
                 <div class="mb-3">
-                    <label for="question-input-text" class="form-label">Question</label>
+                    <label for="question-input-text" class="form-label">{{ t('Question') }}</label>
                     <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="question-input-type" class="form-label">Question Type</label>
+                    <label for="question-input-type" class="form-label">{{ t('Question Type') }}</label>
                     <select class="form-select" :class="{'is-invalid': errors.type}" id="question-input-type" v-model="type" :disabled="submitting">
-                        <option :value="QuestionType.Text">Text</option>
-                        <option :value="QuestionType.MultipleChoice">Multiple Choice</option>
-                        <option :value="QuestionType.Number">Number</option>
-                        <option :value="QuestionType.SingleChoice">Single Choice</option>
+                        <option :value="QuestionType.Text">{{ t('Text') }}</option>
+                        <option :value="QuestionType.MultipleChoice">{{ t('Multiple Choice') }}</option>
+                        <option :value="QuestionType.Number">{{ t('Number') }}</option>
+                        <option :value="QuestionType.SingleChoice">{{ t('Single Choice') }}</option>
                     </select>
                     <div class="invalid-feedback is-invalid" v-if="errors.type">{{ errors.type }}</div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="question-input-position" class="form-label">Position</label>
-                    <span class="label-info" data-bs-content="The position of the question in the test."><i class="bi bi-question-circle-fill"></i></span>
+                    <label for="question-input-position" class="form-label">{{ t('Position') }}</label>
+                    <span class="label-info" :data-bs-content="t('The position of the question in the test.')"><i class="bi bi-question-circle-fill"></i></span>
                     <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
                 </div>
     
                 <button type="button" class="btn btn-primary" @click="editQuestion" :disabled="submitting">
-                    <template v-if="!submitting">Edit</template>
-                    <template v-else>Editing ...</template>
+                    <template v-if="!submitting">{{ t('Edit') }}</template>
+                    <template v-else>{{ t('Editing') }} ...</template>
                 </button>
             </div>
         </div>
     
         <div class="choice-actions">
-            <RouterLink :to="{name: 'create-choice', params: {test_id, question_id}}" class="btn btn-warning">Create New Choice</RouterLink>
+            <RouterLink :to="{name: 'create-choice', params: {test_id, question_id}}" class="btn btn-warning">{{ t('Create New Choice') }}</RouterLink>
         </div>
     
         <div class="choice-info" v-if="choiceCount !== 0">
             <template v-if="choiceCount">
-                <span class="choice-info-label">Total number of choices:</span> {{ choiceCount }}
+                <span class="choice-info-label">{{ t('Total number of choices') }}{{ spaceLabel }}:</span> {{ choiceCount }}
             </template>
             <template v-else>
                 <div class="placeholder-wave">
@@ -216,12 +220,12 @@ function onDragEnd() {
                     <thead>
                         <tr>
                             <th scope="col"></th>
-                            <th scope="col">Choice</th>
-                            <th scope="col">Points</th>
-                            <th scope="col">Is Correct</th>
-                            <th scope="col">Position</th>
-                            <th scope="col">Last updated at</th>
-                            <th scope="col">Actions</th>
+                            <th scope="col">{{ t('Choice') }}</th>
+                            <th scope="col">{{ t('Points') }}</th>
+                            <th scope="col">{{ t('Is Correct?') }}</th>
+                            <th scope="col">{{ t('Position') }}</th>
+                            <th scope="col">{{ t('Last updated at') }}</th>
+                            <th scope="col">{{ t('Actions') }}</th>
                         </tr>
                     </thead>
                     <template v-if="choices">

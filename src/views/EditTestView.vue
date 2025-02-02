@@ -2,19 +2,23 @@
 import { Popover } from 'bootstrap';
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { onAuthStateChanged } from 'firebase/auth';
 import draggable from 'vuedraggable';
-import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
+import { useTestServiceStore } from '@/stores/testService';
 import { useQuestionServiceStore } from '@/stores/questionService';
+import { useLocalizationStore } from '@/stores/localization';
 import type { Test } from '@/models/Test';
 import AppContainer from '@/components/AppContainer.vue';
 
+const {t} = useI18n();
 const { test_id } = defineProps<{test_id: string}>();
 const route = useRoute();
 const router = useRouter();
 const {isDesktop, startLoading, endLoading, showMessage} = useMainStore();
+const {spaceLabel} = useLocalizationStore();
 const {auth} = useAuthenticationStore();
 const {getTest, updateTest} = useTestServiceStore();
 const {questionCount, questions, loadQuestions, updateQuestionsPositions} = useQuestionServiceStore();
@@ -33,10 +37,10 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(name.value === '') _errors.name = 'Name required';
+    if(name.value === '') _errors.name = t('Name required');
 
-    if(typeof timeLimit.value === 'string') _errors.timeLimit = 'The time limit must be a number';
-    else if(timeLimit.value < 0) _errors.timeLimit = 'The time limit can\'t be a negatif number';
+    if(typeof timeLimit.value === 'string') _errors.timeLimit = t('The time limit must be a number');
+    else if(timeLimit.value < 0) _errors.timeLimit = t('The time limit can\'t be a negatif number');
 
     return _errors;
 });
@@ -49,7 +53,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     try {
         test = await getTest(test_id);
         if(!test) {
-            showMessage('failure', 'Test Not Found.');
+            showMessage('failure', t('Test Not Found.'));
             return;
         }
         name.value = test.name;
@@ -57,7 +61,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         timeLimit.value = test.time_limit;
     }
     catch(error) {
-        showMessage('failure', 'Error loading test data.');
+        showMessage('failure', t('Error loading test data.'));
     }
     finally {
         if(showForm.value) endLoading();
@@ -69,7 +73,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         }
     }
     catch(error) {
-        showMessage('failure', 'Error loading questions.');
+        showMessage('failure', t('Error loading questions.'));
     }
 });
 
@@ -113,7 +117,7 @@ async function editTest() {
         router.push({name: 'tests'});
     }
     catch(error: any) {
-        serverErrors.value = ['Server Error: ' + error.code]
+        serverErrors.value = [t('Server Error') + spaceLabel.value + ': ' + error.code]
     }
     finally {
         submitting.value = false;
@@ -129,10 +133,10 @@ function onDragEnd() {
     if(test_id) {
         updateQuestionsPositions(test_id)
         .then(() => {
-            showMessage('success', 'Positions updated with success.');
+            showMessage('success', t('Positions updated with success.'));
         })
         .catch(error => {
-            showMessage('failure', 'Sorry! Positions can not be updated.');
+            showMessage('failure', t('Sorry! Positions can not be updated.'));
         });
     }
 }
@@ -142,7 +146,7 @@ function onDragEnd() {
     <AppContainer>
         <div class="app-main">
             <div class="test-form" :class="{'hide-form': !showForm}">
-                <div class="test-form-title mb-4">Edit Test</div>
+                <div class="test-form-title mb-4">{{ t('Edit Test') }}</div>
                 <button class="btn toggle-form-btn" @click="toggleShowForm">
                     <i class="bi" :class="{'bi-chevron-down': !showForm, 'bi-chevron-up': showForm}"></i>
                 </button>
@@ -154,38 +158,38 @@ function onDragEnd() {
                 </div>
     
                 <div class="mb-3">
-                    <label for="test-input-name" class="form-label">Name</label>
+                    <label for="test-input-name" class="form-label">{{ t('Name') }}</label>
                     <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="test-input-description" class="form-label">Description</label>
+                    <label for="test-input-description" class="form-label">{{ t('Description') }}</label>
                     <textarea class="form-control" :class="{'is-invalid': errors.description}" id="test-input-description" v-model="description" rows="3" :disabled="submitting"></textarea>
                     <div class="invalid-feedback is-invalid" v-if="errors.description">{{ errors.description }}</div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="test-input-timelimit" class="form-label">Time limit</label>
-                    <span class="label-info" data-bs-content="The test Time Limit is in seconds.<br>0 = no Time Limit"><i class="bi bi-question-circle-fill"></i></span>
+                    <label for="test-input-timelimit" class="form-label">{{ t('Time Limit') }}</label>
+                    <span class="label-info" :data-bs-content="t('The test Time Limit is in seconds.<br>0 = no Time Limit')"><i class="bi bi-question-circle-fill"></i></span>
                     <input type="number" class="form-control" :class="{'is-invalid': errors.timeLimit}" id="test-input-timelimit" v-model="timeLimit" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.timeLimit">{{ errors.timeLimit }}</div>
                 </div>
     
                 <button type="button" class="btn btn-primary" @click="editTest" :disabled="submitting">
-                    <template v-if="!submitting">Edit</template>
-                    <template v-else>Editing ...</template>
+                    <template v-if="!submitting">{{ t('Edit') }}</template>
+                    <template v-else>{{ t('Editing') }} ...</template>
                 </button>
             </div>
         </div>
     
         <div class="question-actions">
-            <RouterLink :to="{name: 'create-question', params: {test_id}}" class="btn btn-warning create-question">Create New Question</RouterLink>
+            <RouterLink :to="{name: 'create-question', params: {test_id}}" class="btn btn-warning create-question">{{ t('Create New Question') }}</RouterLink>
         </div>
     
         <div class="question-info" v-if="questionCount !== 0">
             <template v-if="questionCount">
-                <span class="question-info-label">Total number of questions:</span> {{ questionCount }}
+                <span class="question-info-label">{{ t('Total number of questions') }}{{ spaceLabel }}:</span> {{ questionCount }}
             </template>
             <template v-else>
                 <div class="placeholder-wave">
@@ -214,13 +218,13 @@ function onDragEnd() {
                     <thead>
                         <tr>
                             <th scope="col"></th>
-                            <th scope="col">Question</th>
-                            <th scope="col">Max Points</th>
-                            <th scope="col">Type</th>
-                            <th scope="col">Position</th>
-                            <th scope="col">Nbr of Choices</th>
-                            <th scope="col">Last updated at</th>
-                            <th scope="col">Actions</th>
+                            <th scope="col">{{ t('Question') }}</th>
+                            <th scope="col">{{ t('Max Points') }}</th>
+                            <th scope="col">{{ t('Type') }}</th>
+                            <th scope="col">{{ t('Position') }}</th>
+                            <th scope="col">{{ t('Nbr of Choices') }}</th>
+                            <th scope="col">{{ t('Last updated at') }}</th>
+                            <th scope="col">{{ t('Actions') }}</th>
                         </tr>
                     </thead>
                     <template v-if="questions">

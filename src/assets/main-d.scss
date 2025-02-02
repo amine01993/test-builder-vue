@@ -1,14 +1,18 @@
 @use 'sass:string';
 @use '@/assets/variables' as vars;
+@use '@/assets/mixins' as mxs;
 
 @use '@/assets/header-d';
 @use '@/assets/breadcrumb-d';
 @use '@/assets/menu-d';
 
+
 .app-container {
 
 	&.open {
-		margin-left: 300px;
+		mxs.desktopOnly {
+			margin-left: 300px;
+		}
 	}
 }
 

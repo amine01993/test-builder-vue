@@ -1,5 +1,6 @@
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, type ShallowRef } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { useMainStore } from "@/stores/main";
 import { useModalStore } from "@/stores/modal";
 import { useTestServiceStore } from "@/stores/testService";
@@ -7,6 +8,7 @@ import type { Test } from "@/models/Test";
 
 export function useTestItem(test?: Test) {
     const router = useRouter();
+    const {locale, t} = useI18n();
     const {showMessage, startLoading, endLoading} = useMainStore();
     const {deleteTest} = useTestServiceStore();
     const {confirm: confirmDeletion} = useModalStore();
@@ -24,7 +26,7 @@ export function useTestItem(test?: Test) {
     });
     const updatedAt = computed(() => {
         const updated_at = test!.updated_at!.toDate();
-            return new Intl.DateTimeFormat('en-US', {
+            return new Intl.DateTimeFormat(locale.value + '-CA', {
             day: 'numeric',
             month: 'short',
             year: (currentDate.getFullYear() === updated_at.getFullYear() ? undefined : 'numeric'),
@@ -52,8 +54,8 @@ export function useTestItem(test?: Test) {
     function confirmTestdeletion() {
         if(test) {
             confirmDeletion(
-                `Are you sure you want to delete this test: "${test.name}"?`,
-                'Delete', deleteDTest
+                t('Are you sure you want to delete this test: "{name}"?', {name: test.name}),
+                t('Delete'), deleteDTest
             );
         }
     }
@@ -63,10 +65,10 @@ export function useTestItem(test?: Test) {
             try {
                 startLoading();
                 await deleteTest(test.id);
-                showMessage('success', 'Test deleted with success.');
+                showMessage('success', t('Test deleted with success.'));
             }
             catch(error) {
-                showMessage('failure', 'Test can not be deleted.');
+                showMessage('failure', t('Test can not be deleted.'));
             }
             finally {
                 endLoading();
@@ -79,10 +81,10 @@ export function useTestItem(test?: Test) {
         const testLink = location.origin + routeLocation.fullPath;
         navigator.clipboard.writeText(testLink)
         .then(() => {
-            showMessage('success', 'Test link copied!');
+            showMessage('success', t('Test link copied!'));
         })
         .catch(() => {
-            showMessage('failure', 'Sorry, Test link couldn\'t be copied!');
+            showMessage('failure', t('Sorry, Test link couldn\'t be copied!'));
         });
     }
 
