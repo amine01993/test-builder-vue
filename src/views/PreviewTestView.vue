@@ -1,25 +1,26 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, type Ref } from 'vue';
+import { computed, onUnmounted, ref, type Ref } from 'vue';
 import { onAuthStateChanged } from 'firebase/auth';
-import { Modal } from 'bootstrap';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
+import { useModalStore } from '@/stores/modal';
 import type { Test } from '@/models/Test';
 import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
 import AppContainer from '@/components/AppContainer.vue';
 
-const router = useRouter();
 const { test_id } = defineProps<{test_id: string}>();
+const router = useRouter();
+const {t} = useI18n();
 const {startLoading, endLoading, showMessage} = useMainStore();
+const {confirm: confirmFinish} = useModalStore();
 const {auth} = useAuthenticationStore();
 const {getTest} = useTestServiceStore();
-const testSubmissionEl = useTemplateRef('test-submission-modal');
 const test: Ref<Test|undefined> = ref();
 const time_limit: Ref<number> = ref(180);
 let interval: number|undefined = undefined;
-let testSubmissionModal: Modal|null = null;
 
 const timeLimit = computed(() => {
     let val = time_limit.value;
@@ -33,7 +34,7 @@ const timeLimit = computed(() => {
     if(hours) str.push(hours + 'h');
     if(minutes) str.push(minutes + 'min');
     if(seconds) str.push(seconds + 's');
-    if(str.length === 0) return 'Time out';
+    if(str.length === 0) return t('Time out');
     return str.join(' ');
 });
 const description = computed(() => {
@@ -48,7 +49,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     try {
         test.value = await getTest(test_id, true);
         if(!test.value) {
-            showMessage('failure', 'Test Not Found.');
+            showMessage('failure', t('Test Not Found.'));
             return;
         }
         time_limit.value = test.value.time_limit;
@@ -63,16 +64,10 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         }
     }
     catch(error) {
-        showMessage('failure', 'Error loading test data.');
+        showMessage('failure', t('Error loading test data.'));
     }
     finally {
         endLoading();
-    }
-});
-
-onMounted(() => {
-    if(testSubmissionEl.value) {
-        testSubmissionModal = new Modal(testSubmissionEl.value, {backdrop: 'static', keyboard: false});
     }
 });
 
@@ -83,10 +78,6 @@ onUnmounted(() => {
         clearInterval(interval);
         interval = undefined;
     }
-
-    if(testSubmissionModal) {
-        testSubmissionModal.dispose();
-    }
 });
 
 function moveToTheTop() {
@@ -94,16 +85,14 @@ function moveToTheTop() {
 }
 
 function finishTest() {
-    if(testSubmissionModal) {
-        testSubmissionModal.show();
-    }
+    confirmFinish(
+        t('Are you sure you want to submit the test?<br>You will not be able to continue the test once it is submitted.'),
+        t('Submit'), async () => { submitTest(); }
+    );
 }
 
 function submitTest() {
-    if(testSubmissionModal) {
-        testSubmissionModal.hide();
-        router.push({name: 'tests'});
-    }
+    router.push({name: 'tests'});
 }
 </script>
 
@@ -135,28 +124,11 @@ function submitTest() {
                     <i class="bi bi-arrow-up"></i>
                 </button>
                 <button type="button" class="btn btn-primary" @click="finishTest">
-                    Finish The Test
+                    {{ t('Finish The Test') }}
                 </button>
             </div>
         </div>
     </AppContainer>
-
-    <div class="modal" tabindex="-1" ref="test-submission-modal">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <p>
-                        Are you sure you want to submit the test?<br>
-                        You will not be able to continue the test once it is submitted.
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" @click="submitTest">Submit</button>
-                </div>
-            </div>
-        </div>
-    </div>
 </template>
 
 <style scoped lang="scss">

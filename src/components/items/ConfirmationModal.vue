@@ -31,7 +31,6 @@ onUnmounted(() => {
 });
 
 async function confirmationAction() {
-    console.log('confirmationAction');
     open.value = false;
     if(actionCb.value) {
         await actionCb.value();
@@ -48,7 +47,7 @@ async function confirmationAction() {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>{{ content }}</p>
+                    <p :v-html="content"></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

@@ -2,12 +2,16 @@
 import { onAuthStateChanged, signInWithEmailAndPassword, type User } from 'firebase/auth';
 import { computed, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
+import { useLocalizationStore } from '@/stores/localization';
 import AppContainer from '@/components/AppContainer.vue';
 
 const router = useRouter();
+const {t} = useI18n();
 const {auth, isAnonymous, signUpWithGoogle} = useAuthenticationStore();
+const {spaceLabel} = useLocalizationStore();
 const {validateEmail} = useMainStore();
 const email = ref('');
 const password = ref('');
@@ -19,10 +23,10 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(email.value === '') _errors.email = 'Email required';
-    else if(!validateEmail(email.value)) _errors.email = 'Invalid email';
+    if(email.value === '') _errors.email = t('Email required');
+    else if(!validateEmail(email.value)) _errors.email = t('Invalid email');
 
-    if(password.value === '') _errors.password = 'Password required';
+    if(password.value === '') _errors.password = t('Password required');
 
     return _errors;
 });
@@ -49,13 +53,12 @@ async function login() {
         return;
     }
 
-    // createfirebase user
     try {
         await signInWithEmailAndPassword(auth, email.value, password.value);
         serverErrors.value = [];
     }
     catch(error: any) {
-        serverErrors.value = ['Server Error: ' + error.code]
+        serverErrors.value = [t('Server Error') + spaceLabel.value + ': ' + error.code]
     }
     finally {
         submitting.value = false;
@@ -68,7 +71,7 @@ async function signUpWithG() {
         router.push({name: 'home'});
     }
     catch(error: any) {
-        serverErrors.value = ['Server Error: ' + error.code];
+        serverErrors.value = [t('Server Error') + spaceLabel.value + ': ' + error.code]
     }
 }
 </script>
@@ -78,7 +81,7 @@ async function signUpWithG() {
         <div class="app-main">
             <div class="sign-container">
                 <div class="login-form">
-                    <div class="login-form-title mb-4">Login</div>
+                    <div class="login-form-title mb-4">{{ t('Login') }}</div>
     
                     <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
                         <ul>
@@ -87,7 +90,7 @@ async function signUpWithG() {
                     </div>
     
                     <div class="mb-3">
-                        <label for="login-input-email" class="form-label">Email</label>
+                        <label for="login-input-email" class="form-label">{{ t('Email') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-at"></i></span>
                             <input type="email" class="form-control" :class="{'is-invalid': errors.email}" id="login-input-email" v-model="email" :disabled="submitting">
@@ -95,7 +98,7 @@ async function signUpWithG() {
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="login-input-password" class="form-label">Password</label>
+                        <label for="login-input-password" class="form-label">{{ t('Password') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
                             <input type="password" class="form-control" :class="{'is-invalid': errors.password}" id="login-input-password" v-model="password" :disabled="submitting">
@@ -103,20 +106,20 @@ async function signUpWithG() {
                         </div>
                     </div>
                     <button type="button" class="btn btn-primary" @click="login" :disabled="submitting">
-                        <template v-if="!submitting">LOGIN</template>
-                        <template v-else>LOGGING IN ...</template>
+                        <template v-if="!submitting">{{ t('Login') }}</template>
+                        <template v-else>{{ t('Logging In') }} ...</template>
                     </button>
     
                 </div>
                 <div class="signup-parties">
-                    Or Sign Up Using <br>
+                    {{ t('Or Sign Up Using') }}<br>
                     <button type="button" class="btn btn-danger google-auth" @click="signUpWithG">
                         <i class="bi bi-google"></i>
                     </button>
                 </div>
                 <div class="signup-link">
-                    Or Sign Up Using <br>
-                    <RouterLink :to="{name: 'register'}">SIGN UP</RouterLink>
+                    {{ t('Or Sign Up Using') }}<br>
+                    <RouterLink :to="{name: 'register'}">{{ t('Sign Up') }}</RouterLink>
                 </div>
             </div>
         </div>

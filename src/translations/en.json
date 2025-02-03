@@ -96,5 +96,62 @@
     "Correctness": "Correctness",
     "Are you sure you want to delete this choice: \"{text}\"?": "Are you sure you want to delete this choice: \"{text}\"?",
     "Choice deleted with success.": "Choice deleted with success.",
-    "Choice can not be deleted.": "Choice can not be deleted."
+    "Choice can not be deleted.": "Choice can not be deleted.",
+
+    "Page not found": "Page not found",
+    "This page doesn't exist or was removed.<br>We suggest you back to home.": "This page doesn't exist or was removed.<br>We suggest you back to home.",
+    "Back to Home": "Back to Home",
+
+    "Full Name required": "Full Name required",
+    "The uploaded file cannot exceed the maximum limit of {size}.": "The uploaded file cannot exceed the maximum limit of {size}.",
+    "The uploaded file must be an image.": "The uploaded file must be an image.",
+    "Personal Information": "Personal Information",
+    "Save": "Save",
+    "Saving": "Saving",
+
+    "Choice required": "Choice required",
+    "Max points must be a number": "Max points must be a number",
+    "Error loading question.": "Error loading question.",
+    "Create Choice": "Create Choice",
+    "Correct Choice": "Correct Choice",
+    "The position of the choice in the question.": "The position of the choice in the question.",
+    "Create": "Create",
+    "Creating": "Creating",
+
+    "Error loading test.": "Error loading test.",
+    "Create Question": "Create Question",
+
+    "Name required": "Name required",
+
+    "Points must be a number": "Points must be a number",
+    "Choice Not Found.": "Choice Not Found.",
+    "Error loading data.": "Error loading data.",
+    "Choice edited with success.": "Choice edited with success.",
+
+    "Email required": "Email required",
+    "Invalid email": "Invalid email",
+    "Password required": "Password required",
+    "Password": "Password",
+    "Logging In": "Logging In",
+    "Or Sign Up Using": "Or Sign Up Using",
+    "Sign Up": "Sign Up",
+
+    "Require lowercase character": "Require lowercase character",
+    "Require special character": "Require special character",
+    "Require numeric character": "Require numeric character",
+    "Minimum password length is {size}": "Minimum password length is {size}",
+    "Password too long": "Password too long",
+    "Password mismatch": "Password mismatch",
+    "Confirm Password": "Confirm Password",
+    "Signing Up": "Signing Up",
+    "Or Sign In Using": "Or Sign In Using",
+
+    "Time out": "Time out",
+    "Finish The Test": "Finish The Test",
+    "Starting": "Starting",
+    "Start Test": "Start Test",
+    "Are you sure you want to submit the test?<br>You will not be able to continue the test once it is submitted.": "Are you sure you want to submit the test?<br>You will not be able to continue the test once it is submitted.",
+    "Submit": "Submit",
+    "Connecting": "Connecting",
+    "Loading": "Loading"
 }

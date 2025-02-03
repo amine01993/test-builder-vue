@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import AppContainer from '@/components/AppContainer.vue';
 
+const {t} = useI18n();
 </script>
 
 <template>
@@ -8,13 +10,11 @@ import AppContainer from '@/components/AppContainer.vue';
         <div class="app-main">
             <div class="error">
                 <div class="error-code">404</div>
-                <div class="error-message">Page not found</div>
+                <div class="error-message">{{ t('Page not found') }}</div>
             </div>
-            <div class="description">
-                This page doesn't exist or was removed.<br>We suggest you back to home.
-            </div>
+            <div class="description" :v-html="t('This page doesn\'t exist or was removed.<br>We suggest you back to home.')"></div>
             <RouterLink :to="{name: 'home'}" class="btn btn-primary">
-                <i class="bi bi-arrow-left"></i>Back to Home
+                <i class="bi bi-arrow-left"></i>{{ t('Back to Home') }}
             </RouterLink>
         </div>
     </AppContainer>

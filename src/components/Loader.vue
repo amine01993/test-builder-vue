@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Modal } from 'bootstrap';
 import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useMainStore } from '@/stores/main';
 
+const {t} = useI18n();
 const {loading, loadStatus, LoadingStatus} = useMainStore();
 const modalEl = useTemplateRef('loader-modal');
 let modal: Modal|null = null;
@@ -31,8 +33,8 @@ watch(loading, () => {
             <div class="modal-content">
                 <div class="modal-body">
                     <div class="spinner-border text-light" role="status"></div>
-                    <template v-if="loadStatus === LoadingStatus.CONNECTING">Connecting ...</template>
-                    <template v-else>Loading ...</template>
+                    <template v-if="loadStatus === LoadingStatus.CONNECTING">{{ t('Connecting') }} ...</template>
+                    <template v-else>{{ t('Loading') }} ...</template>
                 </div>
             </div>
         </div>

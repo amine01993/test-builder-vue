@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref, useTemplateRef, type Ref } from 'vue';
+import { computed, nextTick, onUnmounted, ref, useTemplateRef } from 'vue';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { Modal } from 'bootstrap';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
+import { useModalStore } from '@/stores/modal';
 import { useUserTestServiceStore } from '@/stores/userTestService';
 import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
 
-const router = useRouter();
 const { test_id } = defineProps<{test_id: string}>();
+const router = useRouter();
+const {t} = useI18n();
 const {startLoading, endLoading, showMessage, validateEmail} = useMainStore();
+const {confirm: confirmFinish} = useModalStore();
 const {auth} = useAuthenticationStore();
 const {test, time_limit, displayName, email, requestUserInfo, updateUserInfo, initTest, sendReport, setTestReport} = useUserTestServiceStore();
-const testSubmissionEl = useTemplateRef('test-submission-modal');
 const testFormEl = useTemplateRef('test-form');
 
 const submitted = ref(false);
@@ -22,16 +24,15 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(displayName.value === '') _errors.displayName = 'Full name required';
+    if(displayName.value === '') _errors.displayName = t('Full Name required');
 
-    if(email.value === '') _errors.email = 'Email required';
-    else if(!validateEmail(email.value)) _errors.email = 'Invalid email';
+    if(email.value === '') _errors.email = t('Email required');
+    else if(!validateEmail(email.value)) _errors.email = t('Invalid email');
 
     return _errors;
 });
 
 let timeoutInterval: number|undefined = undefined;
-let testSubmissionModal: Modal|null = null;
 
 const timeLimit = computed(() => {
     let val = time_limit.value;
@@ -45,7 +46,7 @@ const timeLimit = computed(() => {
     if(hours) str.push(hours + 'h');
     if(minutes) str.push(minutes + 'min');
     if(seconds) str.push(seconds + 's');
-    if(str.length === 0) return 'Time out';
+    if(str.length === 0) return t('Time out');
     return str.join(' ');
 });
 const description = computed(() => {
@@ -67,22 +68,12 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
     }    
 });
 
-onMounted(() => {
-    if(testSubmissionEl.value) {
-        testSubmissionModal = new Modal(testSubmissionEl.value, {backdrop: 'static', keyboard: false});
-    }
-});
-
 onUnmounted(() => {
     onAuthEventDispose();
 
     if(timeoutInterval !== undefined) {
         clearInterval(timeoutInterval);
         timeoutInterval = undefined;
-    }
-
-    if(testSubmissionModal) {
-        testSubmissionModal.dispose();
     }
 
     if(testFormEl.value) {
@@ -118,7 +109,7 @@ async function initializingDTest() {
         timeoutInterval = await initTest(test_id);
 
         if(!test.value) {
-            showMessage('failure', 'Test Not Found.');
+            showMessage('failure', t('Test Not Found.'));
             return;
         }
 
@@ -134,7 +125,7 @@ async function initializingDTest() {
         }
     }
     catch(error) {
-        showMessage('failure', 'Error loading test data.');
+        showMessage('failure', t('Error loading test data.'));
     }
     finally {
         endLoading();
@@ -146,17 +137,13 @@ function moveToTheTop() {
 }
 
 function finishTest() {
-    if(testSubmissionModal) {
-        testSubmissionModal.show();
-    }
-
+    confirmFinish(
+        t('Are you sure you want to submit the test?<br>You will not be able to continue the test once it is submitted.'),
+        t('Submit'), submitTest
+    );
 }
 
 async function submitTest() {
-    if(testSubmissionModal) {
-        testSubmissionModal.hide();
-    }
-
     if(testFormEl.value) {
         const formData = new FormData(testFormEl.value);
         const testReport = await sendReport(formData);
@@ -175,20 +162,20 @@ function preventTestSubmit(event: SubmitEvent) {
 <template>
     <div class="user-info-form" v-if="!test && requestUserInfo">
         <div class="mb-3">
-            <label for="full-name-input" class="form-label">Full Name</label>
+            <label for="full-name-input" class="form-label">{{ t('Full Name') }}</label>
             <input type="text" :class="{'is-invalid': errors.displayName}" id="full-name-input" class="form-control" v-model="displayName" :disabled="submitting" />
             <div class="invalid-feedback is-invalid" v-if="errors.displayName">{{ errors.displayName }}</div>
         </div>
 
         <div class="mb-3">
-            <label for="email-input" class="form-label">Email</label>
+            <label for="email-input" class="form-label">{{ t('Email') }}</label>
             <input type="email" :class="{'is-invalid': errors.email}" id="email-input" class="form-control" v-model="email" :disabled="submitting" />
             <div class="invalid-feedback is-invalid" v-if="errors.email">{{ errors.email }}</div>
         </div>
 
         <button type="button" @click="startTest" class="btn btn-primary" :disabled="submitting">
-            <template v-if="submitting">Starting ...</template>
-            <template v-else>Start Test</template>
+            <template v-if="submitting">{{ t('Starting') }} ...</template>
+            <template v-else>{{ t('Start Test') }}</template>
         </button>
     </div>
 
@@ -220,28 +207,10 @@ function preventTestSubmit(event: SubmitEvent) {
                 <i class="bi bi-arrow-up"></i>
             </button>
             <button type="button" class="btn btn-primary" @click="finishTest">
-                Finish The Test
+                {{ t('Finish The Test') }}
             </button>
         </div>
     </div>
-
-    <div class="modal" tabindex="-1" ref="test-submission-modal">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <p>
-                        Are you sure you want to submit the test?<br>
-                        You will not be able to continue the test once it is submitted.
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" @click="submitTest">Submit</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </template>
 
 <style scoped lang="scss">

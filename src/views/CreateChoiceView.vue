@@ -2,18 +2,22 @@
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useChoiceServiceStore } from '@/stores/choiceService';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
+import { useLocalizationStore } from '@/stores/localization';
 import { QuestionType } from '@/models/Question';
 import AppContainer from '@/components/AppContainer.vue';
 
 const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
 const router = useRouter();
+const {t} = useI18n();
 const {showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
+const {spaceLabel} = useLocalizationStore();
 const {getQuestion} = useQuestionServiceStore();
 const {addChoice} = useChoiceServiceStore();
 const questionText = ref('');
@@ -31,11 +35,11 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(text.value === '') _errors.text = 'Choice required';
+    if(text.value === '') _errors.text = t('Choice required');
 
-    if(typeof points.value === 'string') _errors.points = 'Max points must be a number';
+    if(typeof points.value === 'string') _errors.points = t('Max points must be a number');
 
-    if(typeof position.value === 'string') _errors.position = 'The position must be a number';
+    if(typeof position.value === 'string') _errors.position = t('The position must be a number');
 
     return _errors;
 });
@@ -45,14 +49,14 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     try {
         const question = await getQuestion(test_id, question_id);
         if(!question) {
-            showMessage('failure', 'Question Not Found.');
+            showMessage('failure', t('Question Not Found.'));
             return;
         }
         questionText.value = question.text;
         questionType.value = question.type;
     }
     catch(error) {
-        showMessage('failure', 'Error loading question.');
+        showMessage('failure', t('Error loading question.'));
     }
     finally {}
 });
@@ -100,7 +104,7 @@ async function createChoice() {
         router.push({name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}});
     }
     catch(error: any) {
-        serverErrors.value = ['Server Error: ' + error.code]
+        serverErrors.value = [t('Server Error') + spaceLabel.value + ': ' + error.code]
     }
     finally {
         submitting.value = false;
@@ -112,7 +116,7 @@ async function createChoice() {
     <AppContainer :test_id="test_id" :question_id="question_id">
         <div class="app-main">
             <div class="choice-form">
-                <div class="choice-form-title mb-4">Create Choice</div>
+                <div class="choice-form-title mb-4">{{ t('Create Choice') }}</div>
     
                 <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
                     <ul>
@@ -125,14 +129,14 @@ async function createChoice() {
                 </div>
     
                 <div class="mb-3">
-                    <label for="choice-input-text" class="form-label">Choice</label>
+                    <label for="choice-input-text" class="form-label">{{ t('Choice') }}</label>
                     <input :type="questionType === QuestionType.Number ? 'number' : 'text'" class="form-control" 
                         :class="{'is-invalid': errors.text}" id="choice-input-text" v-model="text" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="choice-input-pts" class="form-label">Points</label>
+                    <label for="choice-input-pts" class="form-label">{{ t('Points') }}</label>
                     <input type="number" class="form-control" :class="{'is-invalid': errors.points}" id="choice-input-pts" v-model="points" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.points">{{ errors.points }}</div>
                 </div>
@@ -141,21 +145,21 @@ async function createChoice() {
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="choice-input-correctness" v-model="correctness">
                         <label class="form-check-label" for="choice-input-correctness">
-                            Correct Choice
+                            {{ t('Correct Choice') }}
                         </label>
                     </div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="question-input-position" class="form-label">Position</label>
-                    <span class="label-info" data-bs-content="The position of the choice in the question."><i class="bi bi-question-circle-fill"></i></span>
+                    <label for="question-input-position" class="form-label">{{ t('Position') }}</label>
+                    <span class="label-info" :data-bs-content="t('The position of the choice in the question.')"><i class="bi bi-question-circle-fill"></i></span>
                     <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
                 </div>
     
                 <button type="button" class="btn btn-primary" @click="createChoice" :disabled="submitting">
-                    <template v-if="!submitting">Create</template>
-                    <template v-else>Creating ...</template>
+                    <template v-if="!submitting">{{ t('Create') }}</template>
+                    <template v-else>{{ t('Creating') }} ...</template>
                 </button>
             </div>
         </div>

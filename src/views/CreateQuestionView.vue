@@ -2,18 +2,22 @@
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import { useTestServiceStore } from '@/stores/testService';
 import { useMainStore } from '@/stores/main';
 import { useAuthenticationStore } from '@/stores/auth';
+import { useLocalizationStore } from '@/stores/localization';
 import { QuestionType } from '@/models/Question';
 import AppContainer from '@/components/AppContainer.vue';
 
 const { test_id } = defineProps<{test_id: string}>();
 const router = useRouter();
+const {t} = useI18n();
 const {showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
+const {spaceLabel} = useLocalizationStore();
 const {getTest} = useTestServiceStore();
 const {addQuestion} = useQuestionServiceStore();
 const testName = ref('');
@@ -29,9 +33,9 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(text.value === '') _errors.text = 'Question required';
+    if(text.value === '') _errors.text = t('Question required');
 
-    if(typeof position.value === 'string') _errors.position = 'The position must be a number';
+    if(typeof position.value === 'string') _errors.position = t('The position must be a number');
 
     return _errors;
 });
@@ -41,13 +45,13 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     try {
         const test = await getTest(test_id);
         if(!test) {
-            showMessage('failure', 'Test Not Found.');
+            showMessage('failure', t('Test Not Found.'));
             return;
         }
         testName.value = test.name;
     }
     catch(error) {
-        showMessage('failure', 'Error loading test.');
+        showMessage('failure', t('Error loading test.'));
     }
     finally {}
 });
@@ -93,7 +97,7 @@ async function createQuestion() {
         router.push({name: 'edit-test', params: {test_id}, query: {sF: 0}});
     }
     catch(error: any) {
-        serverErrors.value = ['Server Error: ' + error.code]
+        serverErrors.value = [t('Server Error') + spaceLabel.value + ': ' + error.code]
     }
     finally {
         submitting.value = false;
@@ -105,7 +109,7 @@ async function createQuestion() {
     <AppContainer :test_id="test_id">
         <div class="app-main">
             <div class="question-form">
-                <div class="question-form-title mb-4">Create Question</div>
+                <div class="question-form-title mb-4">{{ t('Create Question') }}</div>
     
                 <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
                     <ul>
@@ -118,32 +122,32 @@ async function createQuestion() {
                 </div>
     
                 <div class="mb-3">
-                    <label for="question-input-text" class="form-label">Question</label>
+                    <label for="question-input-text" class="form-label">{{ t('Question') }}</label>
                     <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="question-input-type" class="form-label">Question Type</label>
+                    <label for="question-input-type" class="form-label">{{ t('Question Type') }}</label>
                     <select class="form-select" :class="{'is-invalid': errors.type}" id="question-input-type" v-model="type" :disabled="submitting">
-                        <option :value="QuestionType.Text">Text</option>
-                        <option :value="QuestionType.MultipleChoice">Multiple Choice</option>
-                        <option :value="QuestionType.Number">Number</option>
-                        <option :value="QuestionType.SingleChoice">Single Choice</option>
+                        <option :value="QuestionType.Text">{{ t('Text') }}</option>
+                        <option :value="QuestionType.MultipleChoice">{{ t('Multiple Choice') }}</option>
+                        <option :value="QuestionType.Number">{{ t('Number') }}</option>
+                        <option :value="QuestionType.SingleChoice">{{ t('Single Choice') }}</option>
                     </select>
                     <div class="invalid-feedback is-invalid" v-if="errors.type">{{ errors.type }}</div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="question-input-position" class="form-label">Position</label>
-                    <span class="label-info" data-bs-content="The position of the question in the test."><i class="bi bi-question-circle-fill"></i></span>
+                    <label for="question-input-position" class="form-label">{{ t('Position') }}</label>
+                    <span class="label-info" :data-bs-content="t('The position of the question in the test.')"><i class="bi bi-question-circle-fill"></i></span>
                     <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
                 </div>
     
                 <button type="button" class="btn btn-primary" @click="createQuestion" :disabled="submitting">
-                    <template v-if="!submitting">Create</template>
-                    <template v-else>Creating ...</template>
+                    <template v-if="!submitting">{{ t('Create') }}</template>
+                    <template v-else>{{ t('Creating') }} ...</template>
                 </button>
             </div>
         </div>

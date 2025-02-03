@@ -2,10 +2,14 @@
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useTestServiceStore } from '@/stores/testService';
+import { useLocalizationStore } from '@/stores/localization';
 import AppContainer from '@/components/AppContainer.vue';
 
 const router = useRouter();
+const {t} = useI18n();
+const {spaceLabel} = useLocalizationStore();
 const {addTest} = useTestServiceStore();
 const name = ref('');
 const description = ref('');
@@ -18,10 +22,10 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(name.value === '') _errors.name = 'Name required';
+    if(name.value === '') _errors.name = t('Name required');
 
-    if(typeof timeLimit.value === 'string') _errors.timeLimit = 'The time limit must be a number';
-    else if(timeLimit.value < 0) _errors.timeLimit = 'The time limit can\'t be a negatif number';
+    if(typeof timeLimit.value === 'string') _errors.timeLimit = t('The time limit must be a number');
+    else if(timeLimit.value < 0) _errors.timeLimit = t('The time limit can\'t be a negatif number');
 
     return _errors;
 });
@@ -55,7 +59,6 @@ async function createTest() {
         return;
     }
 
-    // createfirebase test
     try {
         await addTest({
             name: name.value,
@@ -68,7 +71,7 @@ async function createTest() {
         router.push({name: 'tests'});
     }
     catch(error: any) {
-        serverErrors.value = ['Server Error: ' + error.code]
+        serverErrors.value = [t('Server Error') + spaceLabel.value + ': ' + error.code]
     }
     finally {
         submitting.value = false;
@@ -80,7 +83,7 @@ async function createTest() {
     <AppContainer>
         <div class="app-main">
             <div class="test-form">
-                <div class="test-form-title mb-4">Create New Test</div>
+                <div class="test-form-title mb-4">{{ t('Create New Test') }}</div>
     
                 <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
                     <ul>
@@ -89,27 +92,27 @@ async function createTest() {
                 </div>
     
                 <div class="mb-3">
-                    <label for="test-input-name" class="form-label">Name</label>
+                    <label for="test-input-name" class="form-label">{{ t('Name') }}</label>
                     <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="test-input-description" class="form-label">Description</label>
+                    <label for="test-input-description" class="form-label">{{ t('Description') }}</label>
                     <textarea class="form-control" :class="{'is-invalid': errors.description}" id="test-input-description" v-model="description" rows="3" :disabled="submitting"></textarea>
                     <div class="invalid-feedback is-invalid" v-if="errors.description">{{ errors.description }}</div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="test-input-timelimit" class="form-label">Time limit</label>
-                    <span class="label-info" data-bs-content="The test Time Limit is in seconds.<br>0 = no Time Limit"><i class="bi bi-question-circle-fill"></i></span>
+                    <label for="test-input-timelimit" class="form-label">{{ t('Time Limit') }}</label>
+                    <span class="label-info" :data-bs-content="t('The test Time Limit is in seconds.<br>0 = no Time Limit')"><i class="bi bi-question-circle-fill"></i></span>
                     <input type="number" class="form-control" :class="{'is-invalid': errors.timeLimit}" id="test-input-timelimit" v-model="timeLimit" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.timeLimit">{{ errors.timeLimit }}</div>
                 </div>
     
                 <button type="button" class="btn btn-primary" @click="createTest" :disabled="submitting">
-                    <template v-if="!submitting">Create</template>
-                    <template v-else>Creating ...</template>
+                    <template v-if="!submitting">{{ t('Create') }}</template>
+                    <template v-else>{{ t('Creating') }} ...</template>
                 </button>
             </div>
         </div>

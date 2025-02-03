@@ -97,5 +97,62 @@
     "Correctness": "Exactitude",
     "Are you sure you want to delete this choice: \"{text}\"?": "Etes-vous sûr de vouloir supprimer ce choix : \"{text}\" ?",
     "Choice deleted with success.": "Choix supprimé avec succès.",
-    "Choice can not be deleted.": "Le choix ne peut pas être supprimé."
+    "Choice can not be deleted.": "Le choix ne peut pas être supprimé.",
+    
+    "Page not found": "Page non trouvée",
+    "This page doesn't exist or was removed.<br>We suggest you back to home.": "Cette page n'existe pas ou a été supprimée.<br>Nous vous suggérons de retourner à l'accueil.",
+    "Back to Home": "Retour à l'Accueil",
+
+    "Full Name required": "Nom Complet requis",
+    "The uploaded file cannot exceed the maximum limit of {size}.": "Le fichier téléchargé ne peut pas dépasser la limite maximale de {size}.",
+    "The uploaded file must be an image.": "Le fichier téléchargé doit être une image.",
+    "Personal Information": "Informations personnels",
+    "Save": "Sauvegarder",
+    "Saving": "Sauvegardement",
+
+    "Choice required": "Choix requis",
+    "Max points must be a number": "Le nombre maximum de points doit être un nombre",
+    "Error loading question.": "Erreur lors du chargement de la question.",
+    "Create Choice": "Créer un Choix",
+    "Correct Choice": "Choix Correct",
+    "The position of the choice in the question.": "La position du choix dans la question.",
+    "Create": "Créer",
+    "Creating": "Création",
+
+    "Error loading test.": "Erreur lors du chargement du test.",
+    "Create Question": "Créer une Question",
+
+    "Name required": "Nom requis",
+
+    "Points must be a number": "Les points doivent être un nombre",
+    "Choice Not Found.": "Choix non trouvé.",
+    "Error loading data.": "Erreur lors du chargement des données.",
+    "Choice edited with success.": "Choix édité avec succès.",
+
+    "Email required": "E-mail requis",
+    "Invalid email": "E-mail invalide",
+    "Password required": "Mot de passe requis",
+    "Password": "Mot de passe",
+    "Logging In": "Connexion",
+    "Or Sign Up Using": "Ou Inscrivez-vous en Utilisant",
+    "Sign Up": "S'inscrire",
+
+    "Require lowercase character": "Nécessite un caractère minuscule",
+    "Require special character": "Nécessite un caractère spécial",
+    "Require numeric character": "Nécessite un caractère numérique",
+    "Minimum password length is {size}": "La longueur minimale du mot de passe est {size}",
+    "Password too long": "Mot de passe trop long",
+    "Password mismatch": "Mot de passe est différent",
+    "Confirm Password": "Confirmez le mot de passe",
+    "Signing Up": "Inscription",
+    "Or Sign In Using": "Ou Connectez-vous en Utilisant",
+
+    "Time out": "Temps mort",
+    "Finish The Test": "Terminer Le Test",
+    "Starting": "Commencement",
+    "Start Test": "Commencer le Test",
+    "Are you sure you want to submit the test?<br>You will not be able to continue the test once it is submitted.": "Êtes-vous sûr de vouloir soumettre le test ?<br>Vous ne pourrez pas continuer le test une fois qu'il sera soumis.",
+    "Submit": "Soumettre",
+    "Connecting": "Connexion",
+    "Loading": "chargement"
 }

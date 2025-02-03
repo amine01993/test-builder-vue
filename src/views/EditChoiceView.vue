@@ -2,18 +2,22 @@
 import { Popover } from 'bootstrap';
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useChoiceServiceStore } from '@/stores/choiceService';
+import { useLocalizationStore } from '@/stores/localization';
 import { QuestionType } from '@/models/Question';
 import AppContainer from '@/components/AppContainer.vue';
 
 const { test_id, question_id, choice_id } = defineProps<{test_id: string, question_id: string, choice_id: string}>();
 const router = useRouter();
+const {t} = useI18n();
 const {startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
+const {spaceLabel} = useLocalizationStore();
 const {getQuestion} = useQuestionServiceStore();
 const {getChoice, updateChoice} = useChoiceServiceStore();
 const questionText = ref('');
@@ -31,11 +35,11 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(text.value === '') _errors.text = 'Choice required';
+    if(text.value === '') _errors.text = t('Choice required');
 
-    if(typeof points.value === 'string') _errors.points = 'Points must be a number';
+    if(typeof points.value === 'string') _errors.points = t('Points must be a number');
 
-    if(typeof position.value === 'string') _errors.position = 'The position must be a number';
+    if(typeof position.value === 'string') _errors.position = t('The position must be a number');
 
     return _errors;
 });
@@ -46,7 +50,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     try {
         const question = await getQuestion(test_id, question_id);
         if(!question) {
-            showMessage('failure', 'Question Not Found.');
+            showMessage('failure', t('Question Not Found.'));
             return;
         }
         questionText.value = question.text;
@@ -54,7 +58,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
 
         const choice = await getChoice(test_id, question_id, choice_id);
         if(!choice) {
-            showMessage('failure', 'Choice Not Found.');
+            showMessage('failure', t('Choice Not Found.'));
             return;
         }
         text.value = choice.text;
@@ -63,7 +67,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         position.value = choice.position;
     }
     catch(error) {
-        showMessage('failure', 'Error loading data.');
+        showMessage('failure', t('Error loading data.'));
     }
     finally {
         endLoading();
@@ -109,11 +113,11 @@ async function editChoice() {
                 type: questionType.value,
             },
         });
-        showMessage('success', 'Choice edited with success.');
+        showMessage('success', t('Choice edited with success.'));
         router.push({name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}});
     }
     catch(error: any) {
-        serverErrors.value = ['Server Error: ' + error.code];
+        serverErrors.value = [t('Server Error') + spaceLabel.value + ': ' + error.code]
     }
     finally {
         submitting.value = false;
@@ -125,7 +129,7 @@ async function editChoice() {
     <AppContainer :test_id="test_id" :question_id="question_id">
         <div class="app-main">
             <div class="choice-form">
-                <div class="choice-form-title mb-4">Edit Choice</div>
+                <div class="choice-form-title mb-4">{{ t('Edit Choice') }}</div>
     
                 <div class="alert alert-danger" role="alert" v-if="serverErrors.length">
                     <ul>
@@ -138,14 +142,14 @@ async function editChoice() {
                 </div>
     
                 <div class="mb-3">
-                    <label for="choice-input-text" class="form-label">Choice</label>
+                    <label for="choice-input-text" class="form-label">{{ t('Choice') }}</label>
                     <input :type="questionType === QuestionType.Number ? 'number' : 'text'" class="form-control" 
                         :class="{'is-invalid': errors.text}" id="choice-input-text" v-model="text" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="choice-input-pts" class="form-label">Points</label>
+                    <label for="choice-input-pts" class="form-label">{{ t('Points') }}</label>
                     <input type="number" class="form-control" :class="{'is-invalid': errors.points}" id="choice-input-pts" v-model="points" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.points">{{ errors.points }}</div>
                 </div>
@@ -154,21 +158,21 @@ async function editChoice() {
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="choice-input-correctness" v-model="correctness">
                         <label class="form-check-label" for="choice-input-correctness">
-                            Correct Choice
+                            {{ t('Correct Choice') }}
                         </label>
                     </div>
                 </div>
     
                 <div class="mb-3">
-                    <label for="question-input-position" class="form-label">Position</label>
-                    <span class="label-info" data-bs-content="The position of the choice in the question."><i class="bi bi-question-circle-fill"></i></span>
+                    <label for="question-input-position" class="form-label">{{ t('Position') }}</label>
+                    <span class="label-info" :data-bs-content="t('The position of the choice in the question.')"><i class="bi bi-question-circle-fill"></i></span>
                     <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
                 </div>
     
                 <button type="button" class="btn btn-primary" @click="editChoice" :disabled="submitting">
-                    <template v-if="!submitting">Edit</template>
-                    <template v-else>Editing ...</template>
+                    <template v-if="!submitting">{{ t('Edit') }}</template>
+                    <template v-else>{{ t('Editing') }} ...</template>
                 </button>
             </div>
         </div>

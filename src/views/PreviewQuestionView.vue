@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onUnmounted, ref, type Ref } from 'vue';
 import { onAuthStateChanged } from 'firebase/auth';
+import { useI18n } from 'vue-i18n';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useQuestionServiceStore } from '@/stores/questionService';
@@ -10,6 +11,7 @@ import AppContainer from '@/components/AppContainer.vue';
 import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
 
 const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
+const {t} = useI18n();
 const {auth} = useAuthenticationStore();
 const {startLoading, endLoading, showMessage} = useMainStore();
 const {getQuestion} = useQuestionServiceStore();
@@ -22,7 +24,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     try {
         question.value = await getQuestion(test_id, question_id);
         if(!question.value) {
-            showMessage('failure', 'Question Not Found.');
+            showMessage('failure', t('Question Not Found.'));
             return;
         }
 
@@ -30,7 +32,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         await loadChoices(test_id, question.value);
     }
     catch(error) {
-        showMessage('failure', 'Error loading question data.');
+        showMessage('failure', t('Error loading question data.'));
     }
     finally {
         endLoading();
