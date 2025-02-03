@@ -51,7 +51,7 @@ import AppContainer from '@/components/AppContainer.vue';
             border-radius: .5em;
             justify-content: center;
 
-            mxs.desktopOnly {
+            @include mxs.desktopOnly {
                 width: 250px;
             }
         }

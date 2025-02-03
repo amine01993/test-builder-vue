@@ -7,10 +7,9 @@
 @use '@/assets/menu-d';
 
 
-.app-container {
-
-	&.open {
-		mxs.desktopOnly {
+@include mxs.desktopOnly {
+	.app-container {
+		&.open {
 			margin-left: 300px;
 		}
 	}

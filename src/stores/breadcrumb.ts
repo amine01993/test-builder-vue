@@ -22,7 +22,6 @@ export const useBreadcrumbStore = defineStore('breadcrumb', () => {
 
 
     function getList() {
-        console.log('getList')
         switch(routeName) {
             case 'home':
                 return [{ name: t('Home'), path: null }];
