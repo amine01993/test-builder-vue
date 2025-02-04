@@ -3,25 +3,51 @@ import { Toast } from 'bootstrap';
 import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue';
 import { useMainStore } from '@/stores/main';
 
-const {toastOpt} = useMainStore();
+const {toastOpt, showMessage} = useMainStore();
 const toastEl = useTemplateRef('toast-message');
 let toast: Toast|null = null;
+let className = '';
 
 onMounted(() => {
     if(toastEl.value) {
         toast = new Toast(toastEl.value);
+        toastEl.value.addEventListener('hidden.bs.toast', resetColor);
     }
 });
 
 onUnmounted(() => {
     if(toast) toast.dispose();
+
+    if(toastEl.value) {
+        toastEl.value.removeEventListener('hidden.bs.toast', resetColor);
+    }
 });
 
 watch(toastOpt, () => {
     if(toastEl.value && toast) {
+        if(className) toastEl.value.classList.remove(className);
+
+        switch(toastOpt.value.status) {
+            case '':
+                className = '';
+                break;
+            case 'success':
+                className = 'text-bg-success';
+                break;
+            case 'failure':
+                className = 'text-bg-danger';
+                break;
+        }
+
+        if(className) toastEl.value.classList.add(className);
+
         toast.show();
     }
 });
+
+function resetColor() {
+    if(className) toastEl.value!.classList.remove(className);    
+}
 </script>
 
 <template>
