@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed, type Ref, type WritableComputedRef } from 'vue';
-import type { RouteLocationNormalizedLoadedGeneric, Router } from 'vue-router';
+import { ref, computed, type Ref } from 'vue';
 
 export const useMainStore = defineStore('main', () => {
     enum LoadingStatus {

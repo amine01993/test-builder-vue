@@ -20,7 +20,6 @@ export const useBreadcrumbStore = defineStore('breadcrumb', () => {
         list.value = getList();
     }
 
-
     function getList() {
         switch(routeName) {
             case 'home':
