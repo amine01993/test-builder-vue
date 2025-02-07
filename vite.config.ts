@@ -1,11 +1,14 @@
-import { fileURLToPath, URL } from 'node:url'
+import { fileURLToPath, URL } from 'node:url';
 
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import vueDevTools from 'vite-plugin-vue-devtools'
+import { defineConfig, UserConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import vueDevTools from 'vite-plugin-vue-devtools';
+import { InlineConfig } from 'vitest/node';
+
+type ViteConfig = UserConfig & { test: InlineConfig };
 
 // https://vite.dev/config/
-export default defineConfig({
+const config: ViteConfig = {
     plugins: [
         vue(),
         vueDevTools(),
@@ -28,5 +31,10 @@ export default defineConfig({
     },
     build: {
         cssCodeSplit: true,
+    },
+    test: {
+        reporters: ['verbose', 'html'],
     }
-})
+};
+
+export default defineConfig(config);

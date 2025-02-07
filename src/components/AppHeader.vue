@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { signOut } from 'firebase/auth';
-import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue';
+import { onMounted, onUnmounted, useTemplateRef } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { Dropdown } from 'bootstrap';
@@ -49,7 +49,7 @@ async function signOutUser() {
             </div>
             <div class="logo">
                 <RouterLink :to="{name: 'home'}">
-                    <img alt="Test Builder Logo" src="@/assets/logo.svg">
+                    <img :alt="t('Test Builder Logo')" src="@/assets/logo.svg">
                 </RouterLink>
             </div>
         </div>
