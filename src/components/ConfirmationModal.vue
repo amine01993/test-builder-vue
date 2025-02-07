@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue';
 import { Modal } from 'bootstrap';
+import { useI18n } from 'vue-i18n';
 import { useModalStore } from '@/stores/modal';
 
-const confirmModalEl = useTemplateRef('confirm-deletion-modal');
+const {t} = useI18n();
+const confirmModalEl = useTemplateRef('confirm-modal');
 const {open, content, actionText, actionCb, close} = useModalStore();
 let confirmModal: Modal|null = null;
 
@@ -40,7 +42,7 @@ async function confirmationAction() {
 </script>
 
 <template>
-    <div class="modal" tabindex="-1" ref="confirm-deletion-modal">
+    <div class="modal" tabindex="-1" ref="confirm-modal">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -50,9 +52,9 @@ async function confirmationAction() {
                     <p :v-html="content"></p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t('Cancel') }}</button>
                     <template v-if="actionCb">
-                        <button type="button" class="btn btn-danger" @click="confirmationAction">{{ actionText }}</button>
+                        <button type="button" class="btn btn-danger btn-submit" @click="confirmationAction">{{ actionText }}</button>
                     </template>
                 </div>
             </div>

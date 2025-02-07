@@ -5,10 +5,10 @@ import { RouterView } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useMainStore } from './stores/main';
 import { useAuthenticationStore } from './stores/auth';
+import { useLocalizationStore } from './stores/localization';
 import Loader from './components/Loader.vue';
 import ToastMessage from './components/ToastMessage.vue';
-import ConfirmationModal from './components/items/ConfirmationModal.vue';
-import { useLocalizationStore } from './stores/localization';
+import ConfirmationModal from './components/ConfirmationModal.vue';
 
 const {t} = useI18n();
 const {initLocale} = useLocalizationStore();

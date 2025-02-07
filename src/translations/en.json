@@ -153,5 +153,6 @@
     "Are you sure you want to submit the test?<br>You will not be able to continue the test once it is submitted.": "Are you sure you want to submit the test?<br>You will not be able to continue the test once it is submitted.",
     "Submit": "Submit",
     "Connecting": "Connecting",
-    "Loading": "Loading"
+    "Loading": "Loading",
+    "Cancel": "Cancel"
 }

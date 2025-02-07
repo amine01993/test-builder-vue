@@ -2,7 +2,7 @@
 import { useMainStore } from '@/stores/main';
 import AppHeader from './AppHeader.vue';
 import AppMenu from './AppMenu.vue';
-import Breadcrumb from './items/Breadcrumb.vue';
+import Breadcrumb from './Breadcrumb.vue';
 
 const { test_id, question_id } = defineProps<{test_id?: string, question_id?: string}>();
 const {isMenuOpen} = useMainStore();

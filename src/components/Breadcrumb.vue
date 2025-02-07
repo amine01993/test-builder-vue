@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useBreadcrumbStore } from '@/stores/breadcrumb';
 import { useRoute } from 'vue-router';
+import { useBreadcrumbStore } from '@/stores/breadcrumb';
 
 const { test_id, question_id } = defineProps<{test_id?: string, question_id?: string}>();
 const route = useRoute();

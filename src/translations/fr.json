@@ -154,5 +154,6 @@
     "Are you sure you want to submit the test?<br>You will not be able to continue the test once it is submitted.": "Êtes-vous sûr de vouloir soumettre le test ?<br>Vous ne pourrez pas continuer le test une fois qu'il sera soumis.",
     "Submit": "Soumettre",
     "Connecting": "Connexion",
-    "Loading": "chargement"
+    "Loading": "chargement",
+    "Cancel": "Annuler"
 }

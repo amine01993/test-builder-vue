@@ -3,7 +3,7 @@ import { Toast } from 'bootstrap';
 import { onMounted, onUnmounted, useTemplateRef, watch } from 'vue';
 import { useMainStore } from '@/stores/main';
 
-const {toastOpt, showMessage} = useMainStore();
+const {toastOpt} = useMainStore();
 const toastEl = useTemplateRef('toast-message');
 let toast: Toast|null = null;
 let className = '';

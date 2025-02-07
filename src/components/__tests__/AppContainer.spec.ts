@@ -8,7 +8,7 @@ import { useMainStore } from "@/stores/main";
 import AppContainer from '@/components/AppContainer.vue';
 import AppHeader from "../AppHeader.vue";
 import AppMenu from "../AppMenu.vue";
-import Breadcrumb from "../items/Breadcrumb.vue";
+import Breadcrumb from "../Breadcrumb.vue";
 
 describe('AppContainer', () => {
     let wrapper: (VueWrapper | null) = null;
