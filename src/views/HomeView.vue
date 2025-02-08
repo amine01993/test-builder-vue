@@ -77,7 +77,10 @@ async function checkLoaderVisiblity() {
             <div class="test-stats">
                 <div class="test-stat">
                     <div class="stat-title">{{ t('Tests') }}</div>
-                    <div class="stat-content">{{ testCount }}</div>
+                    <div class="stat-content" v-if="testCount !== undefined">{{ testCount }}</div>
+                    <div class="placeholder-wave" v-else>
+                        <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
+                    </div>
                 </div>
         
                 <div class="test-stat">
