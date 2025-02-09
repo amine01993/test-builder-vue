@@ -34,10 +34,6 @@ export const useMainStore = defineStore('main', () => {
         }
     }
 
-    function validateEmail(email: string): boolean {
-        return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
-    }
-
     function startLoading(status: LoadingStatus = LoadingStatus.LOADING) {
         loading.value = true;
         loadStatus.value = status;
@@ -64,7 +60,6 @@ export const useMainStore = defineStore('main', () => {
     return {
         isMenuOpen: computed(() => isMenuOpen),
         openMenu, closeMenu, toggleMenu,
-        validateEmail,
         loading: computed(() => loading),
         loadStatus: computed(() => loadStatus), LoadingStatus,
         startLoading, endLoading,

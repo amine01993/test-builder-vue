@@ -4,15 +4,14 @@ import { computed, onUnmounted, ref, type Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthenticationStore } from '@/stores/auth';
-import { useMainStore } from '@/stores/main';
 import { useLocalizationStore } from '@/stores/localization';
+import { validateEmail } from '@/helpers/utils';
 import AppContainer from '@/components/AppContainer.vue';
 
 const router = useRouter();
 const {t} = useI18n();
 const {auth, isAnonymous, signUpWithGoogle} = useAuthenticationStore();
 const {spaceLabel} = useLocalizationStore();
-const {validateEmail} = useMainStore();
 const email = ref('');
 const password = ref('');
 

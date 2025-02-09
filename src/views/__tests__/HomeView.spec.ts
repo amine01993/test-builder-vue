@@ -138,7 +138,7 @@ describe('HomeView', () => {
     });
 
     it('check test report list when defined and no more tests', async () => {
-        const {userTestCount, userTests} = useUserTestServiceStore();
+        const {userTests} = useUserTestServiceStore();
         const reportList = wrapper?.find('.test-report-list');
 
         userTests.value = userTestsData;
@@ -152,7 +152,6 @@ describe('HomeView', () => {
 
     it('check test report list when defined and more tests to load', async () => {
         const {userTestCount, userTests} = useUserTestServiceStore();
-        const reportList = wrapper?.find('.test-report-list');
 
         userTests.value = userTestsData;
         userTestCount.value = userTestsData.length + 10;

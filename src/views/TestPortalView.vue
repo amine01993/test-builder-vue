@@ -7,12 +7,13 @@ import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useModalStore } from '@/stores/modal';
 import { useUserTestServiceStore } from '@/stores/userTestService';
+import { validateEmail } from '@/helpers/utils';
 import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
 
 const { test_id } = defineProps<{test_id: string}>();
 const router = useRouter();
 const {t} = useI18n();
-const {startLoading, endLoading, showMessage, validateEmail} = useMainStore();
+const {startLoading, endLoading, showMessage} = useMainStore();
 const {confirm: confirmFinish} = useModalStore();
 const {auth} = useAuthenticationStore();
 const {test, time_limit, displayName, email, requestUserInfo, updateUserInfo, initTest, sendReport, setTestReport} = useUserTestServiceStore();

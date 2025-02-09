@@ -1,6 +1,7 @@
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it } from "vitest";
 import {useMainStore} from '@/stores/main';
+import { validateEmail } from "@/helpers/utils";
 
 describe('main store', () => {
 
@@ -37,8 +38,6 @@ describe('main store', () => {
     });
 
     it('check email validation', () => {
-        const {validateEmail} = useMainStore();
-
         expect(validateEmail('')).toBe(false);
         expect(validateEmail('test@anonymous.com')).toBe(true);
         expect(validateEmail('myemmail')).toBe(false);
