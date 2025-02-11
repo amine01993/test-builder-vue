@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useMainStore } from "@/stores/main";
 import { useModalStore } from "@/stores/modal";
 import { useTestServiceStore } from "@/stores/testService";
+import { formatDate } from "@/helpers/utils";
 import type { Test } from "@/models/Test";
 
 export function useTestItem(test?: Test) {
@@ -14,7 +15,6 @@ export function useTestItem(test?: Test) {
     const {confirm: confirmDeletion} = useModalStore();
     const testDescriptionEl: Readonly<ShallowRef<HTMLDivElement | null>> = useTemplateRef('test-description');
     const showMore = ref(false);
-    const currentDate = new Date();
 
     const description = computed(() => {
         if(showMore.value) {
@@ -25,14 +25,9 @@ export function useTestItem(test?: Test) {
         }
     });
     const updatedAt = computed(() => {
-        const updated_at = test!.updated_at!.toDate();
-            return new Intl.DateTimeFormat(locale.value + '-CA', {
-            day: 'numeric',
-            month: 'short',
-            year: (currentDate.getFullYear() === updated_at.getFullYear() ? undefined : 'numeric'),
-            hour: 'numeric',
-            minute: 'numeric',
-        }).format(updated_at);
+        if(!test) return '';
+        const updated_at = test.updated_at!.toDate();
+        return formatDate(updated_at, locale.value);
     });
 
     onMounted(() => {
@@ -76,16 +71,17 @@ export function useTestItem(test?: Test) {
         }
     }
 
-    function copyTestLink() {
+    async function copyTestLink() {
         const routeLocation = router.resolve({name: 'test-portal', params: {test_id: test!.id}});
         const testLink = location.origin + routeLocation.fullPath;
-        navigator.clipboard.writeText(testLink)
-        .then(() => {
+
+        try {
+            await navigator.clipboard.writeText(testLink);
             showMessage('success', t('Test link copied!'));
-        })
-        .catch(() => {
+        }
+        catch(error) {
             showMessage('failure', t('Sorry, Test link couldn\'t be copied!'));
-        });
+        }
     }
 
     return {

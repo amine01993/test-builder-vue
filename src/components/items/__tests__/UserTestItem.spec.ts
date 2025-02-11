@@ -64,7 +64,6 @@ describe('UserTestItem', () => {
 
         expect(container?.exists()).toBe(true);
         expect(container?.classes('placeholder-wave')).toBe(false);
-        console.log('container', container?.html()); 
         const userTest = container?.find('.user-test-item-content');
         const title = container?.find('.user-test-item-title');
         expect(userTest?.exists()).toBe(true);

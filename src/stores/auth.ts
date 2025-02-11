@@ -1,6 +1,6 @@
 import { ref, computed, type Ref } from 'vue';
 import { defineStore } from 'pinia';
-import { connectAuthEmulator, getAuth, GoogleAuthProvider, linkWithPopup, type User } from 'firebase/auth'
+import { connectAuthEmulator, getAuth, GoogleAuthProvider, linkWithPopup, type User } from 'firebase/auth';
 import { useFirebaseStore } from './firebase';
 
 export const useAuthenticationStore = defineStore('auth', () => {

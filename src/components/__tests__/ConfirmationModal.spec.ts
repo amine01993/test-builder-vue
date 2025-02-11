@@ -1,11 +1,10 @@
 import { createTestingPinia } from "@pinia/testing";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vitest } from "vitest";
+import { nextTick } from "vue";
 import i18n from "@/i18n";
-import router from "@/router";
 import { useModalStore } from "@/stores/modal";
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
-import { nextTick } from "vue";
 
 describe('ConfirmationModal', () => {
 
@@ -15,7 +14,6 @@ describe('ConfirmationModal', () => {
         wrapper = mount(ConfirmationModal, {
             global: {
                 plugins: [
-                    router,
                     i18n,
                     createTestingPinia({
                         createSpy: vitest.fn,

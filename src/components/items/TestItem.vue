@@ -9,7 +9,6 @@ const {spaceLabel} = useLocalizationStore();
 const { test } = defineProps<{test?: Test}>();
 const {showMore, description, updatedAt, confirmTestdeletion, copyTestLink} = useTestItem(test);
 
-
 </script>
 
 <template>
