@@ -41,9 +41,6 @@ const {t} = useI18n();
             font-weight: 500;
             font-size: 1.9em;
         }
-        .description {
-
-        }
 
         .btn {
             display: flex;

@@ -1,3 +1,4 @@
+import { QuestionType, type Question } from "@/models/Question";
 
 export function validateEmail(email: string): boolean {
     return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
@@ -28,4 +29,26 @@ export function formatInterval(startDate: Date, endDate: Date): string {
     if(minutes) str.push(minutes + 'min');
     if(seconds) str.push(seconds + 's');
     return str.join(' ');
+}
+
+export function getQuestionType(question: Question) {
+    switch(question?.type) {
+        case QuestionType.MultipleChoice:
+            return 'Multiple Choice';
+        case QuestionType.Number:
+            return 'Number';
+        case QuestionType.SingleChoice:
+            return 'Single Choice';
+        default:
+            return 'Text';
+    }
+};
+
+export async function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => {
+        const timeout = setTimeout(() => {
+            resolve();
+            clearTimeout(timeout);
+        }, ms);
+    })
 }

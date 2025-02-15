@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref, type Ref } from 'vue';
+import { computed, onUnmounted } from 'vue';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -7,7 +7,6 @@ import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useModalStore } from '@/stores/modal';
-import type { Test } from '@/models/Test';
 import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
 import AppContainer from '@/components/AppContainer.vue';
 
@@ -17,9 +16,7 @@ const {t} = useI18n();
 const {startLoading, endLoading, showMessage} = useMainStore();
 const {confirm: confirmFinish} = useModalStore();
 const {auth} = useAuthenticationStore();
-const {getTest} = useTestServiceStore();
-const test: Ref<Test|undefined> = ref();
-const time_limit: Ref<number> = ref(180);
+const {test, time_limit, loadTest} = useTestServiceStore();
 let interval: number|undefined = undefined;
 
 const timeLimit = computed(() => {
@@ -37,6 +34,7 @@ const timeLimit = computed(() => {
     if(str.length === 0) return t('Time out');
     return str.join(' ');
 });
+
 const description = computed(() => {
     if(test.value?.description) {
         return test.value.description.replace(/\n/g, "<br />");
@@ -47,20 +45,10 @@ const description = computed(() => {
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     startLoading();
     try {
-        test.value = await getTest(test_id, true);
+        interval = await loadTest(test_id, true);
         if(!test.value) {
             showMessage('failure', t('Test Not Found.'));
             return;
-        }
-        time_limit.value = test.value.time_limit;
-        if(time_limit.value > 0) {
-            interval = setInterval(() => {
-                time_limit.value--;
-                if(time_limit.value === 0) {
-                    clearInterval(interval);
-                    interval = undefined;
-                }
-            }, 1000);
         }
     }
     catch(error) {

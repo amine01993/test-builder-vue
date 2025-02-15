@@ -9,12 +9,15 @@ import type { Test } from "@/models/Test";
 export const useTestServiceStore = defineStore('testService', () => {
 
     const {db} = useFirestoreStore();
+    const {deleteQuestion, getQuestions} = useQuestionServiceStore();
+
     const userId: Ref<string|undefined> = ref();
     const testCount: Ref<number|undefined> = ref();
     const testsPerPage: number = 25;
     let lastDoc:any = null;
     const tests: Ref<Test[]|null> = ref(null);
-    const {deleteQuestion, getQuestions} = useQuestionServiceStore();
+    const test: Ref<Test|undefined> = ref();
+    const time_limit: Ref<number> = ref(180);
 
     function updateQuestionCount(test_id: string, count: number) {
         const test = tests.value?.find(t => t.id === test_id);
@@ -37,7 +40,7 @@ export const useTestServiceStore = defineStore('testService', () => {
 
     async function getTest(test_id: string, loadQuestions: boolean = false): Promise<Test|undefined> {
         const {user} = useAuthenticationStore();
-        if(!userId.value && user.value?.uid === userId.value) {
+        if(!loadQuestions && (!userId.value || user.value?.uid === userId.value)) {
             const test = tests.value?.find(t => t.id === test_id);
             if(test) return test;
         }
@@ -55,6 +58,46 @@ export const useTestServiceStore = defineStore('testService', () => {
         }
 
         return test;
+    }
+
+    async function loadTest(test_id: string, loadQuestions: boolean = false): Promise<number|undefined> {
+        const {user} = useAuthenticationStore();
+        if(!loadQuestions && (!userId.value || user.value?.uid === userId.value)) {
+            const _test = tests.value?.find(t => t.id === test_id);
+            if(_test) {
+                test.value = _test;
+            }
+        }
+
+        const testRef = doc(db, 'tests', test_id);
+        const snap = await getDoc(testRef);
+        if(!snap.exists()) {
+            return;
+        }
+        const _test = <Test>snap.data();
+        _test.id = snap.id;
+
+        test.value = _test;
+
+        if(loadQuestions) {
+            _test.questions = await getQuestions(snap.id);
+            test.value.questions = _test.questions;
+
+            if(_test) {
+                time_limit.value = _test.time_limit;
+    
+                if(time_limit.value > 0) {
+                    let interval: number|undefined = setInterval(() => {
+                        time_limit.value--;
+                        if(time_limit.value === 0) {
+                            clearInterval(interval);
+                            interval = undefined;
+                        }
+                    }, 1000);
+                    return interval;
+                }
+            }
+        }
     }
 
     async function loadTestCount(user_id: string) {
@@ -175,9 +218,12 @@ export const useTestServiceStore = defineStore('testService', () => {
     }
 
     return {
-        getTest,
+        test: computed(() => test),
+        time_limit: computed(() => time_limit),
         testCount: computed(() => testCount),
         tests: computed(() => tests),
+        getTest,
+        loadTest,
         loadTestCount,
         loadTests,
         loadMoreTests,

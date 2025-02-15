@@ -3,7 +3,8 @@ import { useI18n } from "vue-i18n";
 import { useMainStore } from "@/stores/main";
 import { useModalStore } from "@/stores/modal";
 import { useQuestionServiceStore } from "@/stores/questionService";
-import { QuestionType, type Question } from "@/models/Question";
+import { formatDate, getQuestionType } from "@/helpers/utils";
+import { type Question } from "@/models/Question";
 
 export function useQuestionItem(test_id?: string, question?: Question) {
     
@@ -11,29 +12,16 @@ export function useQuestionItem(test_id?: string, question?: Question) {
     const {showMessage, startLoading, endLoading} = useMainStore();
     const {deleteQuestion} = useQuestionServiceStore();
     const {confirm: confirmDeletion} = useModalStore();
-    const currentDate = new Date();
     
     const questionType = computed(() => {
-        switch(question?.type) {
-            case QuestionType.MultipleChoice:
-                return 'Multiple Choice';
-            case QuestionType.Number:
-                return 'Number';
-            case QuestionType.SingleChoice:
-                return 'Single Choice';
-            default:
-                return 'Text';
-        }
+        if(!question) return '';
+        return getQuestionType(question);
     });
+
     const updatedAt = computed(() => {
-        const updated_at = question!.updated_at!.toDate();
-        return new Intl.DateTimeFormat(locale.value + '-CA', {
-            day: 'numeric',
-            month: 'short',
-            year: (currentDate.getFullYear() === updated_at.getFullYear() ? undefined : 'numeric'),
-            hour: 'numeric',
-            minute: 'numeric',
-        }).format(updated_at);
+        if(!question) return '';
+        const updated_at = question.updated_at!.toDate();
+        return formatDate(updated_at, locale.value);
     });
     
     function confirmQuestiondeletion() {

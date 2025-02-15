@@ -1,26 +1,25 @@
-import { beforeEach, describe, expect, it, vi, vitest } from "vitest";
-import TestsView from "../TestsView.vue";
-import { createPinia, setActivePinia } from "pinia";
-import router from "@/router";
-import i18n from "@/i18n";
+import { beforeEach, describe, expect, it, vitest } from "vitest";
+import { createPinia, setActivePinia } from "pinia"; 
+import { nextTick } from "vue";
 import { createTestingPinia } from "@pinia/testing";
 import { flushPromises, mount, VueWrapper } from "@vue/test-utils";
+import router from "@/router";
+import i18n from "@/i18n";
+import { useTestServiceStore } from "@/stores/testService";
+import { tests as testsData } from "@/components/items/__tests__/testData";
 import AppContainer from "@/components/AppContainer.vue";
 import AppMenu from "@/components/AppMenu.vue";
 import Breadcrumb from "@/components/Breadcrumb.vue";
-import { useTestServiceStore } from "@/stores/testService";
-import { nextTick } from "vue";
+import TestsView from "../TestsView.vue";
 import TestItem from "@/components/items/TestItem.vue";
-import { tests as testsData } from "@/components/items/__tests__/testData";
-import { useModalStore } from "@/stores/modal";
-import ConfirmationModal from "@/components/ConfirmationModal.vue";
-import App from "@/App.vue";
-import { Timestamp } from "firebase/firestore";
 
 describe('TestsView', () => {
     let wrapper: (VueWrapper|null) = null;
 
     beforeEach(async () => {
+        router.push('/tests');
+        await router.isReady();
+
         setActivePinia(createPinia());
         
         wrapper = mount(TestsView, {
@@ -39,8 +38,6 @@ describe('TestsView', () => {
             },
         });
 
-        router.push('/tests');
-        await router.isReady();
 
         await flushPromises();
     });

@@ -58,7 +58,7 @@ async function createTest() {
         submitting.value = false;
         return;
     }
-
+    
     try {
         await addTest({
             name: name.value,
