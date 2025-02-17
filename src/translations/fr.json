@@ -155,5 +155,6 @@
     "Submit": "Soumettre",
     "Connecting": "Connexion",
     "Loading": "chargement",
-    "Cancel": "Annuler"
+    "Cancel": "Annuler",
+    "({points} pts)": "({points} pts)"
 }

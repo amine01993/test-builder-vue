@@ -18,9 +18,8 @@ const {t} = useI18n();
 const {showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {spaceLabel} = useLocalizationStore();
-const {getTest} = useTestServiceStore();
+const {test, loadTest} = useTestServiceStore();
 const {addQuestion} = useQuestionServiceStore();
-const testName = ref('');
 
 const text = ref('');
 const type: Ref<QuestionType> = ref(QuestionType.Text);
@@ -43,12 +42,11 @@ const errors = computed(() => {
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
 
     try {
-        const test = await getTest(test_id);
-        if(!test) {
+        await loadTest(test_id);
+        if(!test.value) {
             showMessage('failure', t('Test Not Found.'));
             return;
         }
-        testName.value = test.name;
     }
     catch(error) {
         showMessage('failure', t('Error loading test.'));
@@ -118,7 +116,7 @@ async function createQuestion() {
                 </div>
     
                 <div class="mb-3 test-name">
-                    {{ testName }}
+                    {{ test?.name }}
                 </div>
     
                 <div class="mb-3">

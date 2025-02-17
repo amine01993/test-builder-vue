@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import type { Choice } from '@/models/Choice';
 import { QuestionType, type Question } from '@/models/Question';
 
 const { question, choices, nbr, preview } = defineProps<{question?: Question, choices?: Choice[], nbr?: number, preview: boolean}>();
-
+const {t} = useI18n();
 </script>
 
 <template>
@@ -14,7 +15,7 @@ const { question, choices, nbr, preview } = defineProps<{question?: Question, ch
         }">
         <div class="question-wrapper">
             <div class="question-text">{{ nbr ?? 1 }}. {{ question.text }}</div>
-            <div class="question-pts">({{ question.max_points }} pts)</div>
+            <div class="question-pts">{{ t('({points} pts)', {points: question.max_points}) }}</div>
         </div>
 
         <div class="choices-wrapper">
@@ -28,7 +29,7 @@ const { question, choices, nbr, preview } = defineProps<{question?: Question, ch
                             </div>
                         </div>
                         <div class="choice-pts" v-if="preview">
-                            ({{ choice.points }} pts)
+                            {{ t('({points} pts)', {points: choice.points}) }}
                             <template v-if="choice.is_correct"><i class="bi bi-check2"></i></template>
                             <template v-else><i class="bi bi-x-lg"></i></template>
                         </div>
@@ -44,7 +45,7 @@ const { question, choices, nbr, preview } = defineProps<{question?: Question, ch
                             </div>
                         </div>
                         <div class="choice-pts" v-if="preview">
-                            ({{ choice.points }} pts)
+                            {{ t('({points} pts)', {points: choice.points}) }}
                             <template v-if="choice.is_correct"><i class="bi bi-check2"></i></template>
                             <template v-else><i class="bi bi-x-lg"></i></template>
                         </div>
@@ -58,7 +59,7 @@ const { question, choices, nbr, preview } = defineProps<{question?: Question, ch
                     <div class="choice-pts-wrapper" v-if="preview">
                         <template v-for="choice in choices" :key="choice.id">
                             <div class="choice-pts">
-                                {{ choice.text }} ({{ choice.points }} pts)
+                                {{ choice.text }} {{ t('({points} pts)', {points: choice.points}) }}
                                 <template v-if="choice.is_correct"><i class="bi bi-check2"></i></template>
                                 <template v-else><i class="bi bi-x-lg"></i></template>
                             </div>
@@ -73,7 +74,7 @@ const { question, choices, nbr, preview } = defineProps<{question?: Question, ch
                     <div class="choice-pts-wrapper" v-if="preview">
                         <template v-for="choice in choices" :key="choice.id">
                             <div class="choice-pts">
-                                {{ choice.text }} ({{ choice.points }} pts)
+                                {{ choice.text }} {{ t('({points} pts)', {points: choice.points}) }}
                                 <template v-if="choice.is_correct"><i class="bi bi-check2"></i></template>
                                 <template v-else><i class="bi bi-x-lg"></i></template>
                             </div>

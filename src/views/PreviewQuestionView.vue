@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { onUnmounted, ref, type Ref } from 'vue';
+import { onUnmounted } from 'vue';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useI18n } from 'vue-i18n';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import { useChoiceServiceStore } from '@/stores/choiceService';
-import type { Question } from '@/models/Question';
 import AppContainer from '@/components/AppContainer.vue';
 import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
 
@@ -14,15 +13,13 @@ const { test_id, question_id } = defineProps<{test_id: string, question_id: stri
 const {t} = useI18n();
 const {auth} = useAuthenticationStore();
 const {startLoading, endLoading, showMessage} = useMainStore();
-const {getQuestion} = useQuestionServiceStore();
+const {question, loadQuestion} = useQuestionServiceStore();
 const {choices, loadChoices} = useChoiceServiceStore();
-
-const question: Ref<Question|undefined> = ref();
 
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     startLoading();
     try {
-        question.value = await getQuestion(test_id, question_id);
+        await loadQuestion(test_id, question_id);
         if(!question.value) {
             showMessage('failure', t('Question Not Found.'));
             return;

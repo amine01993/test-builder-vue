@@ -154,5 +154,6 @@
     "Submit": "Submit",
     "Connecting": "Connecting",
     "Loading": "Loading",
-    "Cancel": "Cancel"
+    "Cancel": "Cancel",
+    "({points} pts)": "({points} pts)"
 }

@@ -50,7 +50,7 @@ describe('EditTestView', () => {
         await wrapper.find('#test-input-timelimit').setValue(testData.time_limit);
     });
 
-    it('check breadcrumb', async () => {
+    it('check breadcrumb', () => {
         const container = wrapper?.findComponent(AppContainer);
         const breadcrumb = container?.findComponent(Breadcrumb);
         const breadcrumbContainer = breadcrumb?.find('.app-breadcrumb');
@@ -75,7 +75,7 @@ describe('EditTestView', () => {
         expect(title?.html()).toContain('Edit Test');
     });
 
-    it('check test input values', async () => {
+    it('check test input values', () => {
         const name = wrapper?.find('#test-input-name');
         const description = wrapper?.find('#test-input-description');
         const timeLimit = wrapper?.find('#test-input-timelimit');
@@ -127,7 +127,7 @@ describe('EditTestView', () => {
         expect(count?.text()).toContain('Total number of questions: ' + questionCount.value);
     });
 
-    it('check question list when undefined', async () => {
+    it('check question list when undefined', () => {
         const list = wrapper?.find('.question-list');
         const questionItems = wrapper?.findAllComponents(QuestionItem);
 
@@ -150,7 +150,7 @@ describe('EditTestView', () => {
         expect(questionItems?.at(0)?.find('.question-item-container').classes('placeholder-wave')).toBe(false);
     });
 
-    it('check question item preview-test link', async () => {
+    it('check question item preview-question link', async () => {
         const push = vitest.spyOn(router, 'push');
         const {questions} = useQuestionServiceStore();
 
@@ -168,7 +168,7 @@ describe('EditTestView', () => {
         expect(push).toHaveBeenCalledWith({name: 'preview-question', params: {test_id: questionsData[0].test_id, question_id: questionsData[0].id}});
     });
 
-    it('check test item edit-test link', async () => {
+    it('check test item edit-question link', async () => {
         const push = vitest.spyOn(router, 'push');
         const {questions} = useQuestionServiceStore();
 
@@ -186,7 +186,7 @@ describe('EditTestView', () => {
         expect(push).toHaveBeenCalledWith({name: 'edit-question', params: {test_id: questionsData[0].test_id, question_id: questionsData[0].id}});
     });
 
-    it('check test item delete action', async () => {
+    it('check question item delete action', async () => {
         const {questions} = useQuestionServiceStore();
 
         questions.value = questionsData;

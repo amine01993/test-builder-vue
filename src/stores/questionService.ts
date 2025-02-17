@@ -16,6 +16,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     const testId: Ref<string|undefined> = ref();
     const questionCount: Ref<number|undefined> = ref();
     const questions: Ref<Question[]|undefined> = ref();
+    const question: Ref<Question|undefined> = ref();
 
     function updateChoiceCount(question_id: string, count: number) {
         const question = questions.value?.find(q => q.id === question_id);
@@ -60,6 +61,20 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
             return question;
         }
         return;
+    }
+
+    async function loadQuestion(test_id: string, question_id: string): Promise<void> {
+        if(testId.value === test_id) {
+            question.value = questions.value?.find(q => q.id === question_id);
+        }
+
+        const questionRef = doc(db, 'tests', test_id, 'questions', question_id);
+        const snap = await getDoc(questionRef);
+        if(snap.exists()) {
+            const _question = <Question>snap.data();
+            _question.id = snap.id;
+            question.value = _question;
+        }
     }
 
     async function getQuestions(test_id: string): Promise<Question[]> {
@@ -239,10 +254,12 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     }
 
     return {
+        question: computed(() => question),
         questionCount: computed(() => questionCount),
         questions: computed(() => questions),
         getQuestion,
         getQuestions,
+        loadQuestion,
         loadQuestions,
         addQuestion,
         updateQuestion,

@@ -12,6 +12,7 @@ import { useChoiceServiceStore } from '@/stores/choiceService';
 import { useLocalizationStore } from '@/stores/localization';
 import { QuestionType, type Question } from '@/models/Question';
 import AppContainer from '@/components/AppContainer.vue';
+import { useTestServiceStore } from '@/stores/testService';
 
 const {t} = useI18n();
 const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
@@ -20,6 +21,7 @@ const router = useRouter();
 const {isDesktop, startLoading, endLoading, showMessage} = useMainStore();
 const {spaceLabel} = useLocalizationStore();
 const {auth} = useAuthenticationStore();
+const {test, loadTest} = useTestServiceStore();
 const {getQuestion, updateQuestion} = useQuestionServiceStore();
 const {choiceCount, choices, loadChoices, updateChoicesPositions} = useChoiceServiceStore();
 
@@ -48,6 +50,18 @@ const errors = computed(() => {
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
 
     if(showForm.value) startLoading();
+
+    try {
+        await loadTest(test_id);
+        if(!test.value) {
+            showMessage('failure', t('Test Not Found.'));
+            return;
+        }
+    }
+    catch(error) {
+        showMessage('failure', t('Error loading test.'));
+    }
+    finally {}
 
     let question: Question|undefined;
     try {
@@ -152,6 +166,10 @@ function onDragEnd() {
                     <ul>
                         <li v-for="error in serverErrors" :key="error">{{ error }}</li>
                     </ul>
+                </div>
+
+                <div class="mb-3 test-name">
+                    {{ test?.name }}
                 </div>
     
                 <div class="mb-3">
@@ -272,6 +290,11 @@ function onDragEnd() {
                 transform: translateX(0);
                 margin-left: 0;
             }
+        }
+
+        .test-name {
+            text-align: center;
+            font-weight: 600;
         }
 
         .toggle-form-btn {
