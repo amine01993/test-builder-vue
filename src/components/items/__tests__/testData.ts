@@ -421,3 +421,196 @@ export const fullTest = {
         }
     ]
 };
+
+export const fullRealTest = {
+    questionCount: 7,
+    max_points: 2,
+    time_limit: 180,
+    user_id: "T9zxQ021bZdRPBFzbdLaO1B7Fwjg",
+    name: "Hello world!",
+    description: "A beginner's test,\nwelcome to Test Builder.\nHope you enjoy it!",
+    id: "wgLwri0DvrTiT5yhPSnM",
+    questions: [
+        {
+            max_points: 2,            
+            text: "What is the leading SPA framework ?",
+            choiceCount: 4,
+            position: -10,
+            type: 2,
+            id: "iI3GLPVCaFR4CbXdoPCp",
+            choices: [
+                {                    
+                    text: "Vue",
+                    position: 0,
+                    id: "XbqIIjIZbM0V9s7p8YpK"
+                },
+                {                    
+                    text: "Angular",
+                    position: 1,
+                    id: "gAc44A7rbcMw7PGX6yLf"
+                },
+                {                    
+                    text: "React",
+                    position: 2,
+                    id: "EQ3GjVjBwfg2gLqd4CKk"
+                },
+                {                    
+                    text: "Svelte",
+                    position: 4,
+                    points: -1,
+                    id: "euTO9H9SrugtXIAQLkd8"
+                }
+            ]
+        },
+        {
+            max_points: 0,
+            text: "is 11 a prime number?",
+            choiceCount: 2,
+            position: -1,
+            type: 1,
+            id: "G9N9H39Hom3o5LABPbZU",
+            choices: [
+                {
+                    text: "True",
+                    position: 0,
+                    id: "srm1zooGwkkXucPiWNhi"
+                },
+                {
+                    text: "False",
+                    position: 1,
+                    id: "nMQPEyFakxg6d7g4xrxO"
+                }
+            ]
+        },
+        {
+            max_points: 0,
+            text: "What is the most popular phone ?",
+            choiceCount: 3,
+            position: 0,
+            type: 1,
+            id: "pLJDQD8nwUVK1Hpa3p5r",
+            choices: [
+                {
+                    text: "IPhone",
+                    position: 0,
+                    id: "u2lfhzCR1IfEYUnO0O17"
+                },
+                {
+                    text: "Samsung",
+                    position: 1,
+                    id: "Xlu1pEvYpyOKdSxWxbTK"
+                },
+                {
+                    text: "Nokia",
+                    position: 5,
+                    id: "JgYL1HweBB5wEIDn21cc"
+                }
+            ]
+        },
+        {
+            max_points: 0,
+            text: "The best social media platform?",
+            choiceCount: 1,
+            position: 0,
+            type: 3,
+            id: "zwlm0LpRyIYyLUcxrMWV",
+            choices: [
+                {
+                    text: "Youtube",
+                    position: 0,
+                    id: "JR2HCvK2KJbJH0YXcLQ0"
+                }
+            ]
+        },
+        {
+            max_points: 0,
+            text: "3 + 6 * 2?",
+            choiceCount: 4,
+            position: 1,
+            type: 4,
+            id: "8LAJxNq1d8HBFr0zlGW7",
+            choices: [
+                {
+                    text: "78",
+                    position: 0,
+                    id: "ALYB80ArEk99Iy1ONQmE"
+                },
+                {
+                    text: "18",
+                    position: 1,
+                    id: "ndaXZl2MeYmf6hIgtwl6"
+                },
+                {
+                    text: "15",
+                    position: 2,
+                    id: "p2MpjvyIYERLpUchFnAk"
+                },
+                {
+                    text: "33",
+                    position: 5,
+                    id: "KmFW1LPwdRh4M524XIv2"
+                }
+            ]
+        },
+        {
+            max_points: 0,
+            text: "What is the time difference between ET and GMT ?",
+            choiceCount: 4,
+            position: 2,
+            type: 3,
+            id: "qKEPzirR32KUcJjnfjhL",
+            choices: [
+                {
+                    text: "5 hours",
+                    position: 0,
+                    id: "3NLNQUaB6H4F4iaFvAId"
+                },
+                {
+                    text: "five hours",
+                    position: 0,
+                    id: "cOfenERXGsk5BLwOlDiO"
+                },
+                {
+                    text: "5",
+                    position: 0,
+                    id: "dxXwWABTGXszaujNZZzj"
+                },
+                {
+                    text: "3 hours",
+                    position: 1,
+                    id: "7ySTJqIU5ZRetOO9qjJM"
+                }
+            ]
+        },
+        {
+            max_points: 0,
+            choiceCount: 4,
+            text: "How many seconds in one Hour?",
+            position: 3,
+            type: 1,
+            id: "MCwGApqdQugUglZaD72U",
+            choices: [
+                {
+                    text: "60",
+                    position: -1,
+                    id: "8x5pe8itP1XgNOAurGAR"
+                },
+                {
+                    text: "50",
+                    position: 0,
+                    id: "DNEWNr9QxU7Y8K9A5XCI"
+                },
+                {
+                    text: "3600",
+                    position: 1,
+                    id: "AhHUdTspiv6VLuimqC0O"
+                },
+                {
+                    text: "2400",
+                    position: 4,
+                    id: "ni4Rrx9QzVTR4NasYJ9p"
+                }
+            ]
+        }
+    ]
+};

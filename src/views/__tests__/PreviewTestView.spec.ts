@@ -98,6 +98,11 @@ describe('PreviewTestView', () => {
         expect(timer?.html()).toContain('3min');
         await sleep(1000);
         expect(timer?.html()).toContain('2min 59s');
+
+        if(interval) {
+            clearInterval(interval);
+            interval = undefined;
+        }
     });
 
     it('check preview test description and points', async () => {

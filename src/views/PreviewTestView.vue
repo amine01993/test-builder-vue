@@ -7,6 +7,7 @@ import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useModalStore } from '@/stores/modal';
+import { formatTime } from '@/helpers/utils';
 import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
 import AppContainer from '@/components/AppContainer.vue';
 
@@ -20,19 +21,10 @@ const {test, time_limit, loadTest} = useTestServiceStore();
 let interval: number|undefined = undefined;
 
 const timeLimit = computed(() => {
-    let val = time_limit.value;
-    const hours = Math.floor(val / 60 / 60);
-    val = val - hours * 60 * 60;
-    const minutes = Math.floor(val / 60);
-    val = val - minutes * 60;
-    const seconds = val;
+    let format = formatTime(time_limit.value);
+    if(format === '') return t('Time out');
+    return format;
 
-    let str = [];
-    if(hours) str.push(hours + 'h');
-    if(minutes) str.push(minutes + 'min');
-    if(seconds) str.push(seconds + 's');
-    if(str.length === 0) return t('Time out');
-    return str.join(' ');
 });
 
 const description = computed(() => {

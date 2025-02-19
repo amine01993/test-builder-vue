@@ -155,5 +155,8 @@
     "Connecting": "Connecting",
     "Loading": "Loading",
     "Cancel": "Cancel",
-    "({points} pts)": "({points} pts)"
+    "({points} pts)": "({points} pts)",
+
+    "Test Results": "Test Results",
+    "Test Report Not Found.": "Test Report Not Found."
 }

@@ -7,7 +7,7 @@ import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useModalStore } from '@/stores/modal';
 import { useUserTestServiceStore } from '@/stores/userTestService';
-import { validateEmail } from '@/helpers/utils';
+import { formatTime, validateEmail } from '@/helpers/utils';
 import DisplayQuestion from '@/components/items/DisplayQuestion.vue';
 
 const { test_id } = defineProps<{test_id: string}>();
@@ -36,20 +36,11 @@ const errors = computed(() => {
 let timeoutInterval: number|undefined = undefined;
 
 const timeLimit = computed(() => {
-    let val = time_limit.value;
-    const hours = Math.floor(val / 60 / 60);
-    val = val - hours * 60 * 60;
-    const minutes = Math.floor(val / 60);
-    val = val - minutes * 60;
-    const seconds = val;
-
-    let str = [];
-    if(hours) str.push(hours + 'h');
-    if(minutes) str.push(minutes + 'min');
-    if(seconds) str.push(seconds + 's');
-    if(str.length === 0) return t('Time out');
-    return str.join(' ');
+    let format = formatTime(time_limit.value);
+    if(format === '') return t('Time out');
+    return format;
 });
+
 const description = computed(() => {
     if(test.value?.description) {
         return test.value.description.replace(/\n/g, "<br />");
@@ -193,7 +184,7 @@ function preventTestSubmit(event: SubmitEvent) {
     <div class="app-test-description" v-if="test">
         <div class="test-description" v-html="description"></div>
         <div class="test-points">
-            ({{ test.max_points }} pts)
+            {{ t('({points} pts)', {points: test.max_points}) }}
         </div>
     </div>
 

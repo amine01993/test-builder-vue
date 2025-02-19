@@ -17,17 +17,21 @@ export function formatDate(date: Date, locale: string): string {
 
 export function formatInterval(startDate: Date, endDate: Date): string {
     const diffInS = Math.floor((<any>endDate - <any>startDate) / 1000);
-    let val = diffInS;
+    return formatTime(diffInS);
+}
+
+export function formatTime(seconds: number) {
+    let val = seconds;
     const hours = Math.floor(val / 60 / 60);
     val = val - hours * 60 * 60;
     const minutes = Math.floor(val / 60);
     val = val - minutes * 60;
-    const seconds = val;
+    const _seconds = val;
 
     let str = [];
     if(hours) str.push(hours + 'h');
     if(minutes) str.push(minutes + 'min');
-    if(seconds) str.push(seconds + 's');
+    if(_seconds) str.push(_seconds + 's');
     return str.join(' ');
 }
 

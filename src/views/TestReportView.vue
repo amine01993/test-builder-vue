@@ -1,54 +1,53 @@
 <script setup lang="ts">
 import { onAuthStateChanged } from 'firebase/auth';
 import { computed, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useUserTestServiceStore } from '@/stores/userTestService';
 import { useAuthenticationStore } from '@/stores/auth';
+import { useLocalizationStore } from '@/stores/localization';
+import { useMainStore } from '@/stores/main';
+import { formatDate, formatInterval } from '@/helpers/utils';
 
 const { user_test_id } = defineProps<{user_test_id: string}>();
+const {t, locale} = useI18n();
+const {spaceLabel} = useLocalizationStore();
 const {auth} = useAuthenticationStore();
 const {testReport, initTestReport} = useUserTestServiceStore();
-const currentDate = new Date();
+const {startLoading, endLoading, showMessage} = useMainStore();
 
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
-    await initTestReport(user_test_id);
+
+    startLoading();
+    try {
+        await initTestReport(user_test_id);
+        if(!testReport.value) {
+            showMessage('failure', t('Test Report Not Found.'));
+            return;
+        }
+    }
+    catch(error) {
+        showMessage('failure', t('Error loading data.'));
+    }
+    finally {
+        endLoading();
+    }
 });
 
 const startedAt = computed(() => {
-    if(testReport.value) {
-        const startDate = testReport.value.started_at.toDate();
-        return new Intl.DateTimeFormat('en-US', {
-            day: 'numeric',
-            month: 'short',
-            year: (currentDate.getFullYear() === startDate.getFullYear() ? undefined : 'numeric'),
-            hour: 'numeric',
-            minute: 'numeric',
-        }).format(startDate);
-    }
-    return '';
+    if(!testReport.value) return '';
+
+    const startDate = testReport.value.started_at.toDate();
+
+    return formatDate(startDate, locale.value);
 });
 
 const lastedFor = computed(() => {
-    if(testReport.value) {
-        const startDate: any = testReport.value.started_at.toDate();
-        const endDate: any = testReport.value.ended_in?.toDate();
-        if(endDate) {
-            const diffInS = Math.floor((endDate - startDate) / 1000);
-            let val = diffInS;
-            const hours = Math.floor(val / 60 / 60);
-            val = val - hours * 60 * 60;
-            const minutes = Math.floor(val / 60);
-            val = val - minutes * 60;
-            const seconds = val;
+    if(!testReport.value || !testReport.value.ended_in) return '';
+    
+    const startDate = testReport.value.started_at.toDate();
+    const endDate = testReport.value.ended_in?.toDate();
 
-            let str = [];
-            if(hours) str.push(hours + 'h');
-            if(minutes) str.push(minutes + 'min');
-            if(seconds) str.push(seconds + 's');
-            return str.join(' ');
-        }
-        return '';
-    }
-    return '';
+    return formatInterval(startDate, endDate);
 });
 
 onUnmounted(() => {
@@ -59,20 +58,20 @@ onUnmounted(() => {
 <template>
     <div class="test-report-container" v-if="testReport">
         <fieldset>
-            <legend class="test-report-header">Test Results</legend>
+            <legend class="test-report-header">{{ t('Test Results') }}</legend>
 
             <div class="test-report-content">
-                <div class="test-item-label">Test:</div>
+                <div class="test-item-label">{{ t('Test') }}{{ spaceLabel }}:</div>
                 <div class="test-item-value">{{ testReport.test.name }}</div>
-                <div class="test-item-label">Full Name:</div>
+                <div class="test-item-label">{{ t('Full Name') }}{{ spaceLabel }}:</div>
                 <div class="test-item-value">{{ testReport.user.displayName }}</div>
-                <div class="test-item-label">Answered Questions:</div>
-                <div class="test-item-value">{{ testReport.report?.length ?? 0 }} out of {{ testReport.test.questionCount }}</div>
-                <div class="test-item-label">Started At:</div>
+                <div class="test-item-label">{{ t('Answered Questions') }}{{ spaceLabel }}:</div>
+                <div class="test-item-value">{{ testReport.report?.length ?? 0 }} {{ t('out of') }} {{ testReport.test.questionCount }}</div>
+                <div class="test-item-label">{{ t('Started At') }}{{ spaceLabel }}:</div>
                 <div class="test-item-value">{{ startedAt }}</div>
-                <div class="test-item-label">Lasted For:</div>
+                <div class="test-item-label">{{ t('Lasted For') }}{{ spaceLabel }}:</div>
                 <div class="test-item-value">{{ lastedFor }}</div>
-                <div class="test-item-label">Score:</div>
+                <div class="test-item-label">{{ t('Score') }}{{ spaceLabel }}:</div>
                 <div class="test-item-value">{{ testReport.result?.score ?? 0 }} / {{ testReport.test.max_points }}</div>
             </div>
         </fieldset>
