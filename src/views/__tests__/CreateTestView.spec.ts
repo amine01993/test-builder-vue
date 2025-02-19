@@ -37,7 +37,7 @@ describe('CreateTestView', () => {
         await flushPromises();
     });
 
-    it('check breadcrumb', async () => {
+    it('check breadcrumb', () => {
         const container = wrapper?.findComponent(AppContainer);
         expect(container?.exists()).toBe(true);
 

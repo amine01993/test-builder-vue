@@ -18,10 +18,8 @@ const {t} = useI18n();
 const {showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {spaceLabel} = useLocalizationStore();
-const {getQuestion} = useQuestionServiceStore();
+const {question, loadQuestion} = useQuestionServiceStore();
 const {addChoice} = useChoiceServiceStore();
-const questionText = ref('');
-const questionType: Ref<QuestionType> = ref(QuestionType.Text);
 
 const text = ref('');
 const points: Ref<number|string> = ref(0);
@@ -47,13 +45,11 @@ const errors = computed(() => {
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
 
     try {
-        const question = await getQuestion(test_id, question_id);
-        if(!question) {
+        await loadQuestion(test_id, question_id);
+        if(!question.value) {
             showMessage('failure', t('Question Not Found.'));
             return;
         }
-        questionText.value = question.text;
-        questionType.value = question.type;
     }
     catch(error) {
         showMessage('failure', t('Error loading question.'));
@@ -97,7 +93,7 @@ async function createChoice() {
             is_correct: correctness.value,
             position: Number(position.value),
             question: {
-                type: questionType.value,
+                type: question.value?.type ?? QuestionType.Text,
             },
         });
         serverErrors.value = [];
@@ -125,12 +121,12 @@ async function createChoice() {
                 </div>
     
                 <div class="mb-3 question-text">
-                    {{ questionText }}
+                    {{ question?.text }}
                 </div>
     
                 <div class="mb-3">
                     <label for="choice-input-text" class="form-label">{{ t('Choice') }}</label>
-                    <input :type="questionType === QuestionType.Number ? 'number' : 'text'" class="form-control" 
+                    <input :type="question?.type === QuestionType.Number ? 'number' : 'text'" class="form-control" 
                         :class="{'is-invalid': errors.text}" id="choice-input-text" v-model="text" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
                 </div>
@@ -151,9 +147,9 @@ async function createChoice() {
                 </div>
     
                 <div class="mb-3">
-                    <label for="question-input-position" class="form-label">{{ t('Position') }}</label>
+                    <label for="choice-input-position" class="form-label">{{ t('Position') }}</label>
                     <span class="label-info" :data-bs-content="t('The position of the choice in the question.')"><i class="bi bi-question-circle-fill"></i></span>
-                    <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
+                    <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="choice-input-position" v-model="position" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
                 </div>
     
