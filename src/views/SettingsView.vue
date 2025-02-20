@@ -105,8 +105,8 @@ async function updateFullName() {
     
                 <div class="mb-3">
                     <label for="test-input-name" class="form-label">{{ t('Full Name') }}</label>
-                    <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="displayName" :disabled="submitting">
-                    <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.displayName}" id="test-input-name" v-model="displayName" :disabled="submitting">
+                    <div class="invalid-feedback is-invalid" v-if="errors.displayName">{{ errors.displayName }}</div>
                 </div>
     
                 <button type="button" class="btn btn-primary" @click="updateFullName" :disabled="submitting">
