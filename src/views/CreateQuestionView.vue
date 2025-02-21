@@ -73,7 +73,7 @@ onUnmounted(() => {
 });
 
 async function createQuestion() {
-    if(submitting.value) return;
+    if(submitting.value || !test.value) return;
 
     submitting.value = true;
     submitted.value = true;
@@ -84,7 +84,7 @@ async function createQuestion() {
     }
 
     try {
-        await addQuestion(test_id, {
+        await addQuestion(test.value, {
             text: text.value,
             max_points: 0,
             choiceCount: 0,

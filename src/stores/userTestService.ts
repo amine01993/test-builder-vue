@@ -11,6 +11,8 @@ import type { UserTest } from "@/models/UserTest";
 export const useUserTestServiceStore = defineStore('userTestService', () => {
 
     const {db} = useFirestoreStore();
+    const {user} = useAuthenticationStore();
+
     let userTestId: string|undefined;
     let testReport: Ref<UserTest|undefined> = ref();
     let test: Ref<Test|undefined> = ref();
@@ -113,18 +115,26 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
         }
     }
 
-    async function loadUserTests(user_id: string) {
-        if(userId.value === user_id) return;
+    async function loadUserTestCount() {
+        if(userId.value === user.value?.uid && userTestCount.value !== undefined) return;
 
-        userId.value = user_id;
+        userId.value = user.value?.uid;
+
+        const userTestsRef = collection(db, 'user_tests');
+        const countQuery = query(userTestsRef, where('test.user_id', '==', user.value?.uid));
+
+        const countSnap = await getCountFromServer(countQuery);
+        userTestCount.value = countSnap.data().count;
+    }
+
+    async function loadUserTests() {
+        if(userId.value === user.value?.uid && userTests.value) return;
+
+        userId.value = user.value?.uid;
 
         const userTestsRef = collection(db, 'user_tests');
 
-        const countQuery = query(userTestsRef, where('test.user_id', '==', user_id));
-        const countSnap = await getCountFromServer(countQuery);
-        userTestCount.value = countSnap.data().count;
-
-        const listQuery = query(userTestsRef, where('test.user_id', '==', user_id), orderBy('started_at', 'desc'), limit(userTestsPerPage));
+        const listQuery = query(userTestsRef, where('test.user_id', '==', user.value?.uid), orderBy('started_at', 'desc'), limit(userTestsPerPage));
         const snaps = await getDocs(listQuery);
         userTests.value = snaps.docs.map(snap => {
             const userTest = <UserTest>snap.data();
@@ -169,6 +179,7 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
         sendReport,
         setTestReport,
         initTestReport,
+        loadUserTestCount,
         loadUserTests,
         loadMoreUserTests,
     }

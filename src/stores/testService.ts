@@ -10,19 +10,27 @@ export const useTestServiceStore = defineStore('testService', () => {
 
     const {db} = useFirestoreStore();
     const {deleteQuestion, getQuestions} = useQuestionServiceStore();
+    const {user} = useAuthenticationStore();
 
     const userId: Ref<string|undefined> = ref();
     const testCount: Ref<number|undefined> = ref();
     const testsPerPage: number = 25;
     let lastDoc:any = null;
-    const tests: Ref<Test[]|null> = ref(null);
+    const tests: Ref<Test[]|undefined> = ref();
     const test: Ref<Test|undefined> = ref();
     const time_limit: Ref<number> = ref(180);
 
-    function updateQuestionCount(test_id: string, count: number) {
+    function incrementQuestionCount(test_id: string) {
         const test = tests.value?.find(t => t.id === test_id);
-        if(test) {
-            test.questionCount = count;
+        if(test?.questionCount) {
+            test.questionCount++;
+        }
+    }
+
+    function decrementQuestionCount(test_id: string) {
+        const test = tests.value?.find(t => t.id === test_id);
+        if(test?.questionCount) {
+            test.questionCount--;
         }
     }
 
@@ -38,85 +46,64 @@ export const useTestServiceStore = defineStore('testService', () => {
         test.max_points = questions.value.reduce((acc, val) => acc + (val.max_points ?? 0), 0);
     }
 
-    async function getTest(test_id: string, loadQuestions: boolean = false): Promise<Test|undefined> {
-        const {user} = useAuthenticationStore();
-        if(!loadQuestions && (!userId.value || user.value?.uid === userId.value)) {
-            const test = tests.value?.find(t => t.id === test_id);
-            if(test) return test;
-        }
-
-        const testRef = doc(db, 'tests', test_id);
-        const snap = await getDoc(testRef);
-        if(!snap.exists()) {
-            return;
-        }
-        const test = <Test>snap.data();
-        test.id = snap.id;
-
-        if(loadQuestions) {
-            test.questions = await getQuestions(snap.id);
-        }
-
-        return test;
-    }
-
     async function loadTest(test_id: string, loadQuestions: boolean = false): Promise<number|undefined> {
-        const {user} = useAuthenticationStore();
-        if(!loadQuestions && (!userId.value || user.value?.uid === userId.value)) {
+        if(user.value && userId.value === user.value?.uid && tests.value) {
             const _test = tests.value?.find(t => t.id === test_id);
             if(_test) {
                 test.value = _test;
             }
         }
 
-        const testRef = doc(db, 'tests', test_id);
-        const snap = await getDoc(testRef);
-        if(!snap.exists()) {
-            return;
+        if(!test.value) {
+            const testRef = doc(db, 'tests', test_id);
+            const snap = await getDoc(testRef);
+            if(!snap.exists()) {
+                return;
+            }
+            const _test = <Test>snap.data();
+            _test.id = snap.id;
+    
+            test.value = _test;
         }
-        const _test = <Test>snap.data();
-        _test.id = snap.id;
 
-        test.value = _test;
 
         if(loadQuestions) {
-            _test.questions = await getQuestions(snap.id);
-            test.value.questions = _test.questions;
+            test.value.questions = await getQuestions(test_id);
 
-            if(_test) {
-                time_limit.value = _test.time_limit;
-    
-                if(time_limit.value > 0) {
-                    let interval: number|undefined = setInterval(() => {
-                        time_limit.value--;
-                        if(time_limit.value === 0) {
-                            clearInterval(interval);
-                            interval = undefined;
-                        }
-                    }, 1000);
-                    return interval;
-                }
+            time_limit.value = test.value.time_limit;
+
+            if(time_limit.value > 0) {
+                let interval: number|undefined = setInterval(() => {
+                    time_limit.value--;
+                    if(time_limit.value === 0) {
+                        clearInterval(interval);
+                        interval = undefined;
+                    }
+                }, 1000);
+                return interval;
             }
         }
     }
 
-    async function loadTestCount(user_id: string) {
-        if(userId.value === user_id && testCount.value === undefined) return;
+    async function loadTestCount() {
+        if(userId.value === user.value?.uid && testCount.value !== undefined) return;
 
-        userId.value = user_id;
+        userId.value = user.value?.uid;
 
         const testsRef = collection(db, 'tests');
-        const testCounyQuery = query(testsRef, where('user_id', '==', user_id));
+        const testCounyQuery = query(testsRef, where('user_id', '==', user.value?.uid));
 
         const countSnap = await getCountFromServer(testCounyQuery);
         testCount.value = countSnap.data().count;
     }
 
-    async function loadTests(user_id: string) {        
-        if(userId.value === user_id && tests.value === undefined) return;
+    async function loadTests() {        
+        if(userId.value === user.value?.uid && tests.value) return;
+
+        userId.value = user.value?.uid;
 
         const testsRef = collection(db, 'tests');
-        const q = query(testsRef, where('user_id', '==', user_id), orderBy('updated_at', 'desc'), limit(testsPerPage));
+        const q = query(testsRef, where('user_id', '==', user.value?.uid), orderBy('updated_at', 'desc'), limit(testsPerPage));
         const snaps = await getDocs(q);
         tests.value = snaps.docs.map(snap => {
             const test = <Test>snap.data();
@@ -155,10 +142,7 @@ export const useTestServiceStore = defineStore('testService', () => {
         test.updated_at = Timestamp.fromDate(new Date);
 
         if(tests.value) {
-            tests.value.unshift(test);
-        }
-        else {
-            tests.value = [test];
+            tests.value = [test, ...tests.value];
         }
 
         if(testCount.value) testCount.value++;
@@ -184,8 +168,6 @@ export const useTestServiceStore = defineStore('testService', () => {
                 _test.updated_at = Timestamp.fromDate(new Date);
 
                 if(index != 0) {
-                    // tests.value.splice(index, 1);
-                    // tests.value.unshift(_test);
                     tests.value = [_test, ...tests.value.slice(0, index), ...tests.value.slice(index + 1)];
                 }
             }
@@ -202,7 +184,6 @@ export const useTestServiceStore = defineStore('testService', () => {
         }
 
         if(testCount.value) testCount.value--;
-        else testCount.value = 0;
 
         // delete questions and choices
         const questionsRef = collection(db, 'tests', test_id, 'questions');
@@ -222,14 +203,14 @@ export const useTestServiceStore = defineStore('testService', () => {
         time_limit: computed(() => time_limit),
         testCount: computed(() => testCount),
         tests: computed(() => tests),
-        getTest,
         loadTest,
         loadTestCount,
         loadTests,
         loadMoreTests,
         addTest,
         updateTest,
-        updateQuestionCount,
+        incrementQuestionCount,
+        decrementQuestionCount,
         updateMaxPoints,
         deleteTest,
     }

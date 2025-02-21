@@ -10,9 +10,9 @@ import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
 import { useChoiceServiceStore } from '@/stores/choiceService';
 import { useLocalizationStore } from '@/stores/localization';
-import { QuestionType, type Question } from '@/models/Question';
-import AppContainer from '@/components/AppContainer.vue';
 import { useTestServiceStore } from '@/stores/testService';
+import { QuestionType } from '@/models/Question';
+import AppContainer from '@/components/AppContainer.vue';
 
 const {t} = useI18n();
 const { test_id, question_id } = defineProps<{test_id: string, question_id: string}>();
@@ -22,7 +22,7 @@ const {isDesktop, startLoading, endLoading, showMessage} = useMainStore();
 const {spaceLabel} = useLocalizationStore();
 const {auth} = useAuthenticationStore();
 const {test, loadTest} = useTestServiceStore();
-const {getQuestion, updateQuestion} = useQuestionServiceStore();
+const {question, loadQuestion, updateQuestion} = useQuestionServiceStore();
 const {choiceCount, choices, loadChoices, updateChoicesPositions} = useChoiceServiceStore();
 
 const ChoiceItem = defineAsyncComponent(() => import('@/components/items/ChoiceItem.vue'));
@@ -63,16 +63,15 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     }
     finally {}
 
-    let question: Question|undefined;
     try {
-        question = await getQuestion(test_id, question_id);
-        if(!question) {
+        await loadQuestion(test_id, question_id);
+        if(!question.value) {
             showMessage('failure', t('Question Not Found.'));
             return;
         }
-        text.value = question.text;
-        type.value = question.type;
-        position.value = question.position;
+        text.value = question.value.text;
+        type.value = question.value.type;
+        position.value = question.value.position;
     }
     catch(error) {
         showMessage('failure', t('Error loading question data.'));
@@ -82,8 +81,8 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     }
 
     try {
-        if(question) {
-            await loadChoices(test_id, question);
+        if(question.value) {
+            await loadChoices(test_id, question.value);
         }
     }
     catch(error) {

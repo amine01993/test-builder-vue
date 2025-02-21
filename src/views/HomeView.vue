@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useTestServiceStore } from '@/stores/testService';
 import { useUserTestServiceStore } from '@/stores/userTestService';
@@ -12,7 +12,7 @@ const { t } = useI18n();
 const {auth, user} = useAuthenticationStore();
 const {isDesktop, showMessage} = useMainStore();
 const {testCount, loadTestCount} = useTestServiceStore();
-const {userTestCount, userTests, loadUserTests, loadMoreUserTests} = useUserTestServiceStore();
+const {userTestCount, userTests, loadUserTestCount, loadUserTests, loadMoreUserTests} = useUserTestServiceStore();
 const loadingUserTests = ref(false);
 let userTestsLoaderEl: any = null;
 const loaderClassName = 'user-tests-loader';
@@ -20,9 +20,9 @@ const loaderClassName = 'user-tests-loader';
 const UserTestItem = defineAsyncComponent(() => import('@/components/items/UserTestItem.vue'));
 const UserTestItemD = defineAsyncComponent(() => import('@/components/items/UserTestItemD.vue'));
 
-const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
+const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     try {
-        await Promise.all([loadTestCount(user!.uid), loadUserTests(user!.uid)]);
+        await Promise.all([loadTestCount(), loadUserTestCount(), loadUserTests()]);
         if(!userTestsLoaderEl) {
             userTestsLoaderEl = document.querySelector(`.${loaderClassName}`);
             checkLoaderVisiblity();

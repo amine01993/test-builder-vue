@@ -2,7 +2,7 @@
 import { RouterLink } from 'vue-router';
 import { defineAsyncComponent, nextTick, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { useTestServiceStore } from '@/stores/testService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
@@ -19,10 +19,10 @@ let testsLoaderEl: any = null;
 const TestItem = defineAsyncComponent(() => import('@/components/items/TestItem.vue'));
 const TestItemD = defineAsyncComponent(() => import('@/components/items/TestItemD.vue'));
 
-const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
+const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     try {
         if(user === null) return;
-        await Promise.all([loadTestCount(user!.uid), loadTests(user!.uid)]);
+        await Promise.all([loadTestCount(), loadTests()]);
         if(!testsLoaderEl) {
             testsLoaderEl = document.querySelector('.tests-loader');
             checkLoaderVisiblity();

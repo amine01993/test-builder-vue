@@ -6,6 +6,7 @@ import { useModalStore } from '@/stores/modal';
 
 const {t} = useI18n();
 const confirmModalEl = useTemplateRef('confirm-modal');
+const contentEl = useTemplateRef('modal-content');
 const {open, content, actionText, actionCb, close} = useModalStore();
 let confirmModal: Modal|null = null;
 
@@ -14,7 +15,13 @@ watch(open, () => {
         if(open.value) confirmModal.show();
         else confirmModal.hide();
     }
-})
+});
+
+watch(content, () => {
+    if(contentEl.value) {
+        contentEl.value.innerHTML = content.value;
+    }
+});
 
 onMounted(() => {
     if(confirmModalEl.value) {
@@ -49,7 +56,7 @@ async function confirmationAction() {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p :v-html="content"></p>
+                    <p ref="modal-content"></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ t('Cancel') }}</button>

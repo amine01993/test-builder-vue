@@ -18,7 +18,7 @@ const {t} = useI18n();
 const {startLoading, endLoading, showMessage} = useMainStore();
 const {auth} = useAuthenticationStore();
 const {spaceLabel} = useLocalizationStore();
-const {getQuestion} = useQuestionServiceStore();
+const {question, loadQuestion} = useQuestionServiceStore();
 const {getChoice, updateChoice} = useChoiceServiceStore();
 const questionText = ref('');
 const questionType: Ref<QuestionType> = ref(QuestionType.Text);
@@ -48,13 +48,13 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
 
     startLoading();
     try {
-        const question = await getQuestion(test_id, question_id);
-        if(!question) {
+        await loadQuestion(test_id, question_id);
+        if(!question.value) {
             showMessage('failure', t('Question Not Found.'));
             return;
         }
-        questionText.value = question.text;
-        questionType.value = question.type;
+        questionText.value = question.value.text;
+        questionType.value = question.value.type;
 
         const choice = await getChoice(test_id, question_id, choice_id);
         if(!choice) {

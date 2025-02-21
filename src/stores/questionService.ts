@@ -18,10 +18,17 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     const questions: Ref<Question[]|undefined> = ref();
     const question: Ref<Question|undefined> = ref();
 
-    function updateChoiceCount(question_id: string, count: number) {
+    function incrementChoiceCount(question_id: string) {
         const question = questions.value?.find(q => q.id === question_id);
-        if(question) {
-            question.choiceCount = count;
+        if(question?.choiceCount) {
+            question.choiceCount++;;
+        }
+    }
+
+    function decrementChoiceCount(question_id: string) {
+        const question = questions.value?.find(q => q.id === question_id);
+        if(question?.choiceCount) {
+            question.choiceCount--;
         }
     }
 
@@ -45,22 +52,6 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
             maxPoints = choices.value.reduce((acc, val) => Math.max(acc, val.points ?? 0), 0);
         }
         question.max_points = maxPoints;
-    }
-
-    async function getQuestion(test_id: string, question_id: string): Promise<Question | undefined> {
-        if(testId.value === test_id) {
-            const question = questions.value?.find(q => q.id === question_id);
-            if(question) return question;
-        }
-
-        const questionRef = doc(db, 'tests', test_id, 'questions', question_id);
-        const snap = await getDoc(questionRef);
-        if(snap.exists()) {
-            const question = <Question>snap.data();
-            question.id = snap.id;
-            return question;
-        }
-        return;
     }
 
     async function loadQuestion(test_id: string, question_id: string): Promise<void> {
@@ -122,18 +113,19 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         });
     }
 
-    async function addQuestion(test_id: string, question: Question) {
+    async function addQuestion(test: Test, _question: Question) {
         const {user} = useAuthenticationStore();
-        const {updateQuestionCount} = useTestServiceStore();
+        const {incrementQuestionCount} = useTestServiceStore();
 
-        question.user_id = user.value?.uid;
-        const questionRef = await addDoc(collection(db, 'tests', test_id, 'questions'), question);
+        questionCount.value = test.questionCount;
+        _question.user_id = user.value?.uid;
+        const questionRef = await addDoc(collection(db, 'tests', test.id!, 'questions'), _question);
 
-        question.id = questionRef.id;
-        question.updated_at = Timestamp.fromDate(new Date);
+        _question.id = questionRef.id;
+        _question.updated_at = Timestamp.fromDate(new Date);
 
         if(questions.value) {
-            questions.value.unshift(question);
+            questions.value.unshift(_question);
             // sort by position
             let i = 0;
             while(i + 1 < questions.value.length) {
@@ -145,13 +137,12 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
                 i++;
             }
         }
-        else {
-            questions.value = [question];
+
+        if(questionCount.value)  {
+            questionCount.value++;
         }
 
-        if(questionCount.value) questionCount.value++;
-        else questionCount.value = 1;
-        updateQuestionCount(test_id, questionCount.value);
+        incrementQuestionCount(test.id!);
 
         return questionRef;
     }
@@ -228,7 +219,7 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
 
     async function deleteQuestion(test_id: string, question_id: string) {
         const {user} = useAuthenticationStore();
-        const {updateQuestionCount} = useTestServiceStore();
+        const {decrementQuestionCount} = useTestServiceStore();
 
         const questionRef = doc(db, 'tests', test_id, 'questions', question_id);
         await deleteDoc(questionRef);
@@ -238,9 +229,11 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
             if(index > -1) questions.value.splice(index, 1);
         }
 
-        if(questionCount.value) questionCount.value--;
-        else questionCount.value = 0;
-        updateQuestionCount(test_id, questionCount.value);
+        if(questionCount.value) {
+            questionCount.value--;
+        }
+
+        decrementQuestionCount(test_id);
 
         // delete choices
         const batch = writeBatch(db);
@@ -257,14 +250,14 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         question: computed(() => question),
         questionCount: computed(() => questionCount),
         questions: computed(() => questions),
-        getQuestion,
         getQuestions,
         loadQuestion,
         loadQuestions,
         addQuestion,
         updateQuestion,
         updateQuestionsPositions,
-        updateChoiceCount,
+        incrementChoiceCount,
+        decrementChoiceCount,
         updateMaxPoints,
         deleteQuestion,
     }

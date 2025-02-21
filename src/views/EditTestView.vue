@@ -10,7 +10,6 @@ import { useMainStore } from '@/stores/main';
 import { useTestServiceStore } from '@/stores/testService';
 import { useQuestionServiceStore } from '@/stores/questionService';
 import { useLocalizationStore } from '@/stores/localization';
-import type { Test } from '@/models/Test';
 import AppContainer from '@/components/AppContainer.vue';
 
 const {t} = useI18n();
@@ -20,7 +19,7 @@ const router = useRouter();
 const {isDesktop, startLoading, endLoading, showMessage} = useMainStore();
 const {spaceLabel} = useLocalizationStore();
 const {auth} = useAuthenticationStore();
-const {getTest, updateTest} = useTestServiceStore();
+const {test, loadTest, updateTest} = useTestServiceStore();
 const {questionCount, questions, loadQuestions, updateQuestionsPositions} = useQuestionServiceStore();
 const QuestionItem = defineAsyncComponent(() => import('@/components/items/QuestionItem.vue'));
 const QuestionItemD = defineAsyncComponent(() => import('@/components/items/QuestionItemD.vue'));
@@ -49,16 +48,15 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
 
     if(showForm.value) startLoading();
 
-    let test: Test|undefined;
     try {
-        test = await getTest(test_id);
-        if(!test) {
+        await loadTest(test_id);
+        if(!test.value) {
             showMessage('failure', t('Test Not Found.'));
             return;
         }
-        name.value = test.name;
-        description.value = test.description;
-        timeLimit.value = test.time_limit;
+        name.value = test.value.name;
+        description.value = test.value.description;
+        timeLimit.value = test.value.time_limit;
     }
     catch(error) {
         showMessage('failure', t('Error loading test data.'));
@@ -68,8 +66,8 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     }
 
     try {
-        if(test) {
-            await loadQuestions(test);
+        if(test.value) {
+            await loadQuestions(test.value);
         }
     }
     catch(error) {

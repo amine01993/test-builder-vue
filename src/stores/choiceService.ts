@@ -17,7 +17,7 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
     const choices: Ref<Choice[]|undefined> = ref();
 
     async function getChoice(test_id: string, question_id: string, choice_id: string): Promise<Choice | undefined> {
-        if(testId.value === test_id && questionId.value === question_id) {
+        if(testId.value === test_id && questionId.value === question_id && choices.value) {
             const choice = choices.value?.find(c => c.id === choice_id);
             if(choice) return choice;
         }
@@ -29,7 +29,6 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
             choice.id = snap.id;
             return choice;
         }
-        return;
     }
 
     async function getChoices(test_id: string, question_id: string) {
@@ -46,7 +45,7 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
     }
 
     async function loadChoices(test_id: string, question: Question) {
-        if(!question.id || testId.value === test_id && questionId.value === question.id) return;
+        if(!question.id || testId.value === test_id && questionId.value === question.id && choices.value) return;
 
         testId.value = test_id;
         questionId.value = question.id;
@@ -65,7 +64,7 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
     async function addChoice(test_id: string, question_id: string, choice: Choice) {
         const {user} = useAuthenticationStore();
         const {updateMaxPoints: updateTestMaxPoints} = useTestServiceStore();
-        const {updateChoiceCount, updateMaxPoints} = useQuestionServiceStore();
+        const {incrementChoiceCount, updateMaxPoints} = useQuestionServiceStore();
 
         choice.user_id = user.value?.uid;
         const choiceRef = await addDoc(collection(db, 'tests', test_id, 'questions', question_id, 'choices'), choice);
@@ -86,13 +85,11 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
                 i++;
             }
         }
-        else {
-            choices.value = [choice];
-        }
 
         if(choiceCount.value) choiceCount.value++;
-        else choiceCount.value = 1;
-        updateChoiceCount(question_id, choiceCount.value);
+
+        incrementChoiceCount(question_id);
+
         if(choice.points && choice.points > 0) {
             updateMaxPoints(question_id);
             updateTestMaxPoints(test_id);
@@ -181,7 +178,7 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
 
     async function deleteChoice(test_id: string, question_id: string, choice_id: string) {
         const {updateMaxPoints: updateTestMaxPoints} = useTestServiceStore();
-        const {updateChoiceCount, updateMaxPoints} = useQuestionServiceStore();
+        const {decrementChoiceCount, updateMaxPoints} = useQuestionServiceStore();
 
         const choiceRef = doc(db, 'tests', test_id, 'questions', question_id, 'choices', choice_id);
         await deleteDoc(choiceRef);
@@ -192,8 +189,8 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
         }
 
         if(choiceCount.value) choiceCount.value--;
-        else choiceCount.value = 0;
-        updateChoiceCount(question_id, choiceCount.value);
+        
+        decrementChoiceCount(question_id);
         updateMaxPoints(question_id);
         updateTestMaxPoints(test_id);
     }
