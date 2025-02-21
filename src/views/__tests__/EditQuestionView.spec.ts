@@ -106,8 +106,8 @@ describe('EditQuestionView', () => {
     });
     
     it('check choice count when (choice = 0)', async () => {
-        const {choiceCount} = useChoiceServiceStore();
-        choiceCount.value = 0;
+        const {choices} = useChoiceServiceStore();
+        choices.value = [];
         await nextTick();
 
         const count = wrapper?.find('.choice-info');
@@ -116,8 +116,8 @@ describe('EditQuestionView', () => {
     });
         
     it('check choice count when defined', async () => {
-        const {choiceCount} = useChoiceServiceStore();
-        choiceCount.value = 10;
+        const {choices} = useChoiceServiceStore();
+        choices.value = choicesData;
         await nextTick();
         
         const count = wrapper?.find('.choice-info');
@@ -125,10 +125,14 @@ describe('EditQuestionView', () => {
         expect(count?.exists()).toBe(true);
         expect(count?.find('.placeholder-wave').exists()).toBe(false);
         expect(count?.find('.choice-info-label').exists()).toBe(true);
-        expect(count?.text()).toContain('Total number of choices: ' + choiceCount.value);
+        expect(count?.text()).toContain('Total number of choices: ' + choices.value.length);
     });
 
-    it('check choice list when undefined', () => {
+    it('check choice list when undefined', async () => {
+        const {choices} = useChoiceServiceStore();
+        choices.value = undefined;
+        await nextTick();
+
         const list = wrapper?.find('.choice-list');
         const choiceItems = wrapper?.findAllComponents(ChoiceItem);
 

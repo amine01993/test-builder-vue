@@ -21,6 +21,8 @@ describe('HomeView', () => {
         router.push('/');
         await router.isReady();
 
+        if(wrapper) return;
+
         setActivePinia(createPinia());
 
         wrapper = mount(HomeView, {
@@ -138,10 +140,11 @@ describe('HomeView', () => {
     });
 
     it('check test report list when defined and no more tests', async () => {
-        const {userTests} = useUserTestServiceStore();
+        const {userTestCount, userTests} = useUserTestServiceStore();
         const reportList = wrapper?.find('.test-report-list');
 
         userTests.value = userTestsData;
+        userTestCount.value = userTestsData.length;
         await nextTick();
         const userTestItems = wrapper?.findAllComponents(UserTestItem);
 

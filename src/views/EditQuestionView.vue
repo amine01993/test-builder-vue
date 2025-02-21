@@ -23,7 +23,7 @@ const {spaceLabel} = useLocalizationStore();
 const {auth} = useAuthenticationStore();
 const {test, loadTest} = useTestServiceStore();
 const {question, loadQuestion, updateQuestion} = useQuestionServiceStore();
-const {choiceCount, choices, loadChoices, updateChoicesPositions} = useChoiceServiceStore();
+const {choices, loadChoices, updateChoicesPositions} = useChoiceServiceStore();
 
 const ChoiceItem = defineAsyncComponent(() => import('@/components/items/ChoiceItem.vue'));
 const ChoiceItemD = defineAsyncComponent(() => import('@/components/items/ChoiceItemD.vue'));
@@ -206,14 +206,14 @@ function onDragEnd() {
             <RouterLink :to="{name: 'create-choice', params: {test_id, question_id}}" class="btn btn-warning">{{ t('Create New Choice') }}</RouterLink>
         </div>
     
-        <div class="choice-info" v-if="choiceCount !== 0">
-            <template v-if="choiceCount">
-                <span class="choice-info-label">{{ t('Total number of choices') }}{{ spaceLabel }}:</span> {{ choiceCount }}
-            </template>
-            <template v-else>
+        <div class="choice-info" v-if="!choices || choices.length > 0">
+            <template v-if="!choices">
                 <div class="placeholder-wave">
                     <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
                 </div>
+            </template>
+            <template v-else>
+                <span class="choice-info-label">{{ t('Total number of choices') }}{{ spaceLabel }}:</span> {{ choices?.length }}
             </template>
         </div>
 

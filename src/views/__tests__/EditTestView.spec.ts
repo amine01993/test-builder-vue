@@ -96,7 +96,11 @@ describe('EditTestView', () => {
         expect(push).toHaveBeenCalledWith({name: 'create-question', params: {test_id: testData.id}});
     });
 
-    it('check question count when undefined', () => {
+    it('check question count when undefined', async () => {
+        const {questions} = useQuestionServiceStore();
+        questions.value = undefined;
+        await nextTick();
+
         const count = wrapper?.find('.question-info');
 
         expect(count?.exists()).toBe(true);
@@ -104,9 +108,9 @@ describe('EditTestView', () => {
         expect(count?.find('.question-info-label').exists()).toBe(false);
     });
     
-    it('check question count when (questionCount = 0)', async () => {
-        const {questionCount} = useQuestionServiceStore();
-        questionCount.value = 0;
+    it('check question count when (count = 0)', async () => {
+        const {questions} = useQuestionServiceStore();
+        questions.value = [];
         await nextTick();
 
         const count = wrapper?.find('.question-info');
@@ -115,8 +119,8 @@ describe('EditTestView', () => {
     });
         
     it('check question count when defined', async () => {
-        const {questionCount} = useQuestionServiceStore();
-        questionCount.value = 10;
+        const {questions} = useQuestionServiceStore();
+        questions.value = questionsData;
         await nextTick();
         
         const count = wrapper?.find('.question-info');
@@ -124,10 +128,14 @@ describe('EditTestView', () => {
         expect(count?.exists()).toBe(true);
         expect(count?.find('.placeholder-wave').exists()).toBe(false);
         expect(count?.find('.question-info-label').exists()).toBe(true);
-        expect(count?.text()).toContain('Total number of questions: ' + questionCount.value);
+        expect(count?.text()).toContain('Total number of questions: ' + questions.value.length);
     });
 
-    it('check question list when undefined', () => {
+    it('check question list when undefined', async () => {
+        const {questions} = useQuestionServiceStore();
+        questions.value = undefined;
+        await nextTick();
+
         const list = wrapper?.find('.question-list');
         const questionItems = wrapper?.findAllComponents(QuestionItem);
 
@@ -137,11 +145,10 @@ describe('EditTestView', () => {
     });
 
     it('check question list when defined', async () => {
-        const {questions, questionCount} = useQuestionServiceStore();
+        const {questions} = useQuestionServiceStore();
         const list = wrapper?.find('.question-list');
 
         questions.value = questionsData;
-        questionCount.value = questionsData.length;
         await nextTick();
         const questionItems = wrapper?.findAllComponents(QuestionItem);
 

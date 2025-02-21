@@ -20,6 +20,8 @@ describe('TestsView', () => {
         router.push('/tests');
         await router.isReady();
 
+        if(wrapper) return;
+
         setActivePinia(createPinia());
         
         wrapper = mount(TestsView, {
@@ -139,10 +141,11 @@ describe('TestsView', () => {
     });
 
     it('check test report list when defined and no more tests', async () => {
-        const {tests} = useTestServiceStore();
+        const {testCount, tests} = useTestServiceStore();
         const list = wrapper?.find('.test-list');
 
         tests.value = testsData;
+        testCount.value = testsData.length;
         await nextTick();
         const testItems = wrapper?.findAllComponents(TestItem);
 

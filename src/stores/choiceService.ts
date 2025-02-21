@@ -13,7 +13,6 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
     const {db} = useFirestoreStore();
     const testId: Ref<string|undefined> = ref();
     const questionId: Ref<string|undefined> = ref();
-    const choiceCount: Ref<number|undefined> = ref();
     const choices: Ref<Choice[]|undefined> = ref();
 
     async function getChoice(test_id: string, question_id: string, choice_id: string): Promise<Choice | undefined> {
@@ -49,7 +48,6 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
 
         testId.value = test_id;
         questionId.value = question.id;
-        choiceCount.value = question.choiceCount;
 
         const choicesRef = collection(db, 'tests', test_id, 'questions', question.id, 'choices');
         const q = query(choicesRef, where('user_id', '==', question.user_id), orderBy('position'));
@@ -85,8 +83,6 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
                 i++;
             }
         }
-
-        if(choiceCount.value) choiceCount.value++;
 
         incrementChoiceCount(question_id);
 
@@ -187,8 +183,6 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
             const index = choices.value.findIndex(c => choice_id === c.id);
             if(index > -1) choices.value.splice(index, 1);
         }
-
-        if(choiceCount.value) choiceCount.value--;
         
         decrementChoiceCount(question_id);
         updateMaxPoints(question_id);
@@ -196,7 +190,6 @@ export const useChoiceServiceStore = defineStore('choiceService', () => {
     }
 
     return {
-        choiceCount: computed(() => choiceCount),
         choices: computed(() => choices),
         getChoice,
         getChoices,

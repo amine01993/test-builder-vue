@@ -14,7 +14,6 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
     const {db} = useFirestoreStore();
     const {getChoices} = useChoiceServiceStore();
     const testId: Ref<string|undefined> = ref();
-    const questionCount: Ref<number|undefined> = ref();
     const questions: Ref<Question[]|undefined> = ref();
     const question: Ref<Question|undefined> = ref();
 
@@ -101,7 +100,6 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         if(!test.id || testId.value === test.id) return;
 
         testId.value = test.id;
-        questionCount.value = test.questionCount;
 
         const questionsRef = collection(db, 'tests', test.id, 'questions');
         const q = query(questionsRef, where('user_id', '==', test.user_id), orderBy('position'));
@@ -117,7 +115,6 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
         const {user} = useAuthenticationStore();
         const {incrementQuestionCount} = useTestServiceStore();
 
-        questionCount.value = test.questionCount;
         _question.user_id = user.value?.uid;
         const questionRef = await addDoc(collection(db, 'tests', test.id!, 'questions'), _question);
 
@@ -136,10 +133,6 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
                 }
                 i++;
             }
-        }
-
-        if(questionCount.value)  {
-            questionCount.value++;
         }
 
         incrementQuestionCount(test.id!);
@@ -229,10 +222,6 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
             if(index > -1) questions.value.splice(index, 1);
         }
 
-        if(questionCount.value) {
-            questionCount.value--;
-        }
-
         decrementQuestionCount(test_id);
 
         // delete choices
@@ -248,7 +237,6 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
 
     return {
         question: computed(() => question),
-        questionCount: computed(() => questionCount),
         questions: computed(() => questions),
         getQuestions,
         loadQuestion,

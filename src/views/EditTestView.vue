@@ -20,7 +20,7 @@ const {isDesktop, startLoading, endLoading, showMessage} = useMainStore();
 const {spaceLabel} = useLocalizationStore();
 const {auth} = useAuthenticationStore();
 const {test, loadTest, updateTest} = useTestServiceStore();
-const {questionCount, questions, loadQuestions, updateQuestionsPositions} = useQuestionServiceStore();
+const {questions, loadQuestions, updateQuestionsPositions} = useQuestionServiceStore();
 const QuestionItem = defineAsyncComponent(() => import('@/components/items/QuestionItem.vue'));
 const QuestionItemD = defineAsyncComponent(() => import('@/components/items/QuestionItemD.vue'));
 
@@ -184,15 +184,15 @@ function onDragEnd() {
         <div class="question-actions">
             <RouterLink :to="{name: 'create-question', params: {test_id}}" class="btn btn-warning create-question">{{ t('Create New Question') }}</RouterLink>
         </div>
-    
-        <div class="question-info" v-if="questionCount !== 0">
-            <template v-if="questionCount">
-                <span class="question-info-label">{{ t('Total number of questions') }}{{ spaceLabel }}:</span> {{ questionCount }}
-            </template>
-            <template v-else>
+
+        <div class="question-info" v-if="!questions || questions.length > 0">
+            <template v-if="!questions">
                 <div class="placeholder-wave">
                     <div class="placeholder placeholder-lg col-8 bg-secondary"></div>
                 </div>
+            </template>
+            <template v-else>
+                <span class="question-info-label">{{ t('Total number of questions') }}{{ spaceLabel }}:</span> {{ questions?.length }}
             </template>
         </div>
         
