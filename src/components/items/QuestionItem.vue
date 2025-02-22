@@ -29,9 +29,14 @@ const {questionType, updatedAt, confirmQuestiondeletion} = useQuestionItem(test_
                 </div>
                 <hr class="question-item-divider">
                 <div class="question-item-actions">
-                    <RouterLink :to="{name: 'preview-question', params: {test_id, question_id: question.id}}" class="btn btn-primary"><i class="bi bi-eye-fill"></i></RouterLink>
-                    <RouterLink :to="{name: 'edit-question', params: {test_id, question_id: question.id}}" class="btn btn-success"><i class="bi bi-pencil-fill"></i></RouterLink>
-                    <button type="button" class="btn btn-danger" @click="confirmQuestiondeletion"><i class="bi bi-trash3-fill"></i></button>
+                    <RouterLink :to="{name: 'preview-question', params: {test_id, question_id: question.id}}" class="btn btn-primary" :aria-label="t('preview question &quot;{text}&quot;', {text: question.text})">
+                        <i class="bi bi-eye-fill"></i></RouterLink>
+                    <RouterLink :to="{name: 'edit-question', params: {test_id, question_id: question.id}}" class="btn btn-success" :aria-label="t('edit question &quot;{text}&quot;', {text: question.text})">
+                        <i class="bi bi-pencil-fill"></i>
+                    </RouterLink>
+                    <button type="button" class="btn btn-danger" @click="confirmQuestiondeletion" :aria-label="t('delete question &quot;{text}&quot;', {text: question.text})">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
                 </div>
             </div>
         </template>

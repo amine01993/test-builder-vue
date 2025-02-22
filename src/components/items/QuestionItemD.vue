@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import type { Question } from '@/models/Question';
 import { useQuestionItem } from '@/composables/items/questionItem';
 
 const { test_id, question } = defineProps<{test_id?: string, question?: Question}>();
+const {t} = useI18n();
 const {questionType, updatedAt, confirmQuestiondeletion} = useQuestionItem(test_id, question);
 </script>
 
@@ -22,9 +24,15 @@ const {questionType, updatedAt, confirmQuestiondeletion} = useQuestionItem(test_
             <td class="question-last-update">{{ updatedAt }}</td>
             <td class="question-item-actions-container">
                 <div class="question-item-actions">
-                    <RouterLink :to="{name: 'preview-question', params: {test_id, question_id: question.id}}" class="btn btn-primary"><i class="bi bi-eye-fill"></i></RouterLink>
-                    <RouterLink :to="{name: 'edit-question', params: {test_id, question_id: question.id}}" class="btn btn-success"><i class="bi bi-pencil-fill"></i></RouterLink>
-                    <button type="button" class="btn btn-danger" @click="confirmQuestiondeletion"><i class="bi bi-trash3-fill"></i></button>
+                    <RouterLink :to="{name: 'preview-question', params: {test_id, question_id: question.id}}" class="btn btn-primary" :aria-label="t('preview question &quot;{text}&quot;', {text: question.text})">
+                        <i class="bi bi-eye-fill"></i>
+                    </RouterLink>
+                    <RouterLink :to="{name: 'edit-question', params: {test_id, question_id: question.id}}" class="btn btn-success" :aria-label="t('edit question &quot;{text}&quot;', {text: question.text})">
+                        <i class="bi bi-pencil-fill"></i>
+                    </RouterLink>
+                    <button type="button" class="btn btn-danger" @click="confirmQuestiondeletion" :aria-label="t('delete question &quot;{text}&quot;', {text: question.text})">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
                 </div>
             </td>
         </template>

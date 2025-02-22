@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import type { Choice } from '@/models/Choice';
 import { useChoiceItem } from '@/composables/items/choiceItem';
 
 const { test_id, question_id, choice } = defineProps<{test_id?: string, question_id?: string, choice?: Choice}>();
+const {t} = useI18n();
 const {updatedAt, confirmChoicedeletion} = useChoiceItem(test_id, question_id, choice);
 </script>
 
@@ -21,8 +23,12 @@ const {updatedAt, confirmChoicedeletion} = useChoiceItem(test_id, question_id, c
             <td class="choice-last-update">{{ updatedAt }}</td>
             <td class="choice-item-actions-container">
                 <div class="choice-item-actions">
-                    <RouterLink :to="{name: 'edit-choice', params: {test_id, question_id, choice_id: choice.id}}" class="btn btn-success"><i class="bi bi-pencil-fill"></i></RouterLink>
-                    <button type="button" class="btn btn-danger" @click="confirmChoicedeletion"><i class="bi bi-trash3-fill"></i></button>
+                    <RouterLink :to="{name: 'edit-choice', params: {test_id, question_id, choice_id: choice.id}}" class="btn btn-success" :aria-label="t('edit choice &quot;{text}&quot;', {text: choice.text})">
+                        <i class="bi bi-pencil-fill"></i>
+                    </RouterLink>
+                    <button type="button" class="btn btn-danger" @click="confirmChoicedeletion" :aria-label="t('delete choice &quot;{text}&quot;', {text: choice.text})">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
                 </div>
             </td>
         </template>

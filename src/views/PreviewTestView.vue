@@ -100,7 +100,7 @@ function submitTest() {
                 :question="question" :choices="question.choices" :nbr="index + 1" :preview="true" />
     
             <div class="app-test-actions">
-                <button type="button" class="btn btn-outline-primary to-the-top" @click="moveToTheTop">
+                <button type="button" class="btn btn-outline-primary to-the-top" @click="moveToTheTop" :aria-label="t('go to the top of the page')">
                     <i class="bi bi-arrow-up"></i>
                 </button>
                 <button type="button" class="btn btn-primary" @click="finishTest">

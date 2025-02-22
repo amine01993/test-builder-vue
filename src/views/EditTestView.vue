@@ -145,7 +145,7 @@ function onDragEnd() {
         <div class="app-main">
             <div class="test-form" :class="{'hide-form': !showForm}">
                 <div class="test-form-title mb-4">{{ t('Edit Test') }}</div>
-                <button class="btn toggle-form-btn" @click="toggleShowForm">
+                <button class="btn toggle-form-btn" @click="toggleShowForm" :aria-label="showForm ? t('hide editing form') : t('show editing form')">
                     <i class="bi" :class="{'bi-chevron-down': !showForm, 'bi-chevron-up': showForm}"></i>
                 </button>
     
@@ -157,24 +157,30 @@ function onDragEnd() {
     
                 <div class="mb-3">
                     <label for="test-input-name" class="form-label">{{ t('Name') }}</label>
-                    <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" :disabled="submitting">
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" 
+                        :disabled="submitting" :tabindex="showForm ? undefined : -1">
                     <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
                 </div>
     
                 <div class="mb-3">
                     <label for="test-input-description" class="form-label">{{ t('Description') }}</label>
-                    <textarea class="form-control" :class="{'is-invalid': errors.description}" id="test-input-description" v-model="description" rows="3" :disabled="submitting"></textarea>
+                    <textarea class="form-control" :class="{'is-invalid': errors.description}" id="test-input-description" v-model="description" 
+                        rows="3" :disabled="submitting" :tabindex="showForm ? undefined : -1"></textarea>
                     <div class="invalid-feedback is-invalid" v-if="errors.description">{{ errors.description }}</div>
                 </div>
     
                 <div class="mb-3">
                     <label for="test-input-timelimit" class="form-label">{{ t('Time Limit') }}</label>
-                    <span class="label-info" :data-bs-content="t('The test Time Limit is in seconds.<br>0 = no Time Limit')"><i class="bi bi-question-circle-fill"></i></span>
-                    <input type="number" class="form-control" :class="{'is-invalid': errors.timeLimit}" id="test-input-timelimit" v-model="timeLimit" :disabled="submitting">
+                    <button class="label-info" :data-bs-content="t('The test Time Limit is in seconds.<br>0 = no Time Limit')" 
+                        :aria-label="t('the test time limit input is in seconds. the value of 0 means no time limit')" :tabindex="showForm ? undefined : -1">
+                        <i class="bi bi-question-circle-fill"></i>
+                    </button>
+                    <input type="number" class="form-control" :class="{'is-invalid': errors.timeLimit}" id="test-input-timelimit" v-model="timeLimit" 
+                        :disabled="submitting" :tabindex="showForm ? undefined : -1">
                     <div class="invalid-feedback is-invalid" v-if="errors.timeLimit">{{ errors.timeLimit }}</div>
                 </div>
     
-                <button type="button" class="btn btn-primary" @click="editTest" :disabled="submitting">
+                <button type="button" class="btn btn-primary" @click="editTest" :disabled="submitting" :tabindex="showForm ? undefined : -1">
                     <template v-if="!submitting">{{ t('Edit') }}</template>
                     <template v-else>{{ t('Editing') }} ...</template>
                 </button>
@@ -303,8 +309,10 @@ function onDragEnd() {
         }
 
         .label-info {
-            padding-left: 1.5vh;
+            margin-left: 1vh;
             color: vars.$app-blue;
+            border: none;
+            background-color: vars.$app-white;
         }
     }
 }

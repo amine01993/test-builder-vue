@@ -27,8 +27,12 @@ const {spaceLabel} = useLocalizationStore();
                 </div>
                 <hr class="choice-item-divider">
                 <div class="choice-item-actions">
-                    <RouterLink :to="{name: 'edit-choice', params: {test_id, question_id, choice_id: choice.id}}" class="btn btn-success"><i class="bi bi-pencil-fill"></i></RouterLink>
-                    <button type="button" class="btn btn-danger" @click="confirmChoicedeletion"><i class="bi bi-trash3-fill"></i></button>
+                    <RouterLink :to="{name: 'edit-choice', params: {test_id, question_id, choice_id: choice.id}}" class="btn btn-success" :aria-label="t('edit choice &quot;{text}&quot;', {text: choice.text})">
+                        <i class="bi bi-pencil-fill"></i>
+                    </RouterLink>
+                    <button type="button" class="btn btn-danger" @click="confirmChoicedeletion" :aria-label="t('delete choice &quot;{text}&quot;', {text: choice.text})">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
                 </div>
             </div>
         </template>

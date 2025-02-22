@@ -7,6 +7,9 @@
     "Sign Out": "Sign Out",
     "Anonymous": "Anonymous",
     "Sign In": "Sign In",
+    "close menu": "close menu",
+    "open menu": "open menu",
+    "open user menu dropdown": "open user menu dropdown",
 
     "Home": "Home",
     "Login": "Login",
@@ -44,6 +47,11 @@
     "Time Limit": "Time Limit",
     "Nbr of Questions": "Nbr of Questions",
     "Actions": "Actions",
+    "preview question \"{text}\"": "preview question \"{text}\"",
+    "edit question \"{text}\"": "edit question \"{text}\"",
+    "delete question \"{text}\"": "delete question \"{text}\"",
+    "hide editing form": "hide editing form",
+    "show editing form": "show editing form",
 
     "Max Score": "Max Score",
     "Total number of questions": "Total number of questions",
@@ -53,6 +61,10 @@
     "Test can not be deleted.": "Test can not be deleted.",
     "Test link copied!": "Test link copied!",
     "Sorry, Test link couldn't be copied!": "Sorry, Test link couldn't be copied!",
+    "preview test \"{name}\"": "preview test \"{name}\"",
+    "edit test \"{name}\"": "edit test \"{name}\"",
+    "delete test \"{name}\"": "delete test \"{name}\"",
+    "copy test \"{name}\" link to clipboard": "copy test \"{name}\" link to clipboard",
 
     "The time limit must be a number": "The time limit must be a number",
     "The time limit can't be a negatif number": "The time limit can't be a negatif number",
@@ -71,6 +83,7 @@
     "Type": "Type",
     "Position": "Position",
     "Nbr of Choices": "Nbr of Choices",
+    "the test time limit input is in seconds. the value of 0 means no time limit": "the test time limit input is in seconds. the value of 0 means no time limit",
 
     "Are you sure you want to delete this question: \"{text}\"?": "Are you sure you want to delete this question: \"{text}\"?",
     "Question deleted with success.": "Question deleted with success.",
@@ -97,6 +110,8 @@
     "Are you sure you want to delete this choice: \"{text}\"?": "Are you sure you want to delete this choice: \"{text}\"?",
     "Choice deleted with success.": "Choice deleted with success.",
     "Choice can not be deleted.": "Choice can not be deleted.",
+    "edit choice \"{text}\"": "edit choice \"{text}\"",
+    "delete choice \"{text}\"": "delete choice \"{text}\"",
 
     "Page not found": "Page not found",
     "This page doesn't exist or was removed.<br>We suggest you back to home.": "This page doesn't exist or was removed.<br>We suggest you back to home.",
@@ -155,7 +170,9 @@
     "Connecting": "Connecting",
     "Loading": "Loading",
     "Cancel": "Cancel",
+    "close confirmation modal": "close confirmation modal",
     "({points} pts)": "({points} pts)",
+    "go to the top of the page": "go to the top of the page",
 
     "Test Results": "Test Results",
     "Test Report Not Found.": "Test Report Not Found."

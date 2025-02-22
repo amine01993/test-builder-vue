@@ -7,6 +7,9 @@
     "Sign Out": "Se Déconnecter",
     "Anonymous": "Anonyme",
     "Sign In": "Se connecter",
+    "close menu": "fermer le menu",
+    "open menu": "ouvrir le menu",
+    "open user menu dropdown": "ouvrir le menu déroulant de l'utilisateur",
 
     "Home": "Accueil",
     "Login": "Se connecter",
@@ -44,16 +47,24 @@
     "Time Limit": "Délai",
     "Nbr of Questions": "Nbre de Questions",
     "Actions": "Actions",
+    "preview question \"{text}\"": "voir l'aperçu de la question \"{text}\"",
+    "edit question \"{text}\"": "modifier la question \"{text}\"",
+    "delete question \"{text}\"": "supprimer la question \"{text}\"",
+    "hide editing form": "masquer le formulaire d'édition",
+    "show editing form": "afficher le formulaire d'édition",
 
     "Max Score": "Score Max",
     "Total number of questions": "Nombre total de questions",
-
     "Are you sure you want to delete this test: \"{name}\"?": "Êtes-vous sûr de vouloir supprimer ce test : \"{name}\" ?",
     "Delete": "Supprimer",
     "Test deleted with success.": "Test supprimé avec succès.",
     "Test can not be deleted.": "Le test ne peut pas être supprimé.",
     "Test link copied!": "Lien de test copié !",
     "Sorry, Test link couldn't be copied!": "Désolé, le lien de test n'a pas pu être copié !",
+    "preview test \"{name}\"": "voir l'aperçu du test \"{name}\"",
+    "edit test \"{name}\"": "modifier le test \"{name}\"",
+    "delete test \"{name}\"": "supprimer le test \"{name}\"",
+    "copy test \"{name}\" link to clipboard": "copier le lien de test \"{name}\" dans le presse-papiers",
 
     "The time limit must be a number": "Le délai doit être un nombre",
     "The time limit can't be a negatif number": "Le délai ne peut pas être un nombre négatif",
@@ -72,6 +83,7 @@
     "Type": "Type",
     "Position": "Position",
     "Nbr of Choices": "Nbre de Choix",
+    "the test time limit input is in seconds. the value of 0 means no time limit": "la limite de temps du test est saisie en secondes. la valeur 0 signifie aucune limite de temps",
 
     "Are you sure you want to delete this question: \"{text}\"?": "Êtes-vous sûr de vouloir supprimer cette question : \"{text}\" ?",
     "Question deleted with success.": "Question supprimée avec succès.",
@@ -98,6 +110,8 @@
     "Are you sure you want to delete this choice: \"{text}\"?": "Etes-vous sûr de vouloir supprimer ce choix : \"{text}\" ?",
     "Choice deleted with success.": "Choix supprimé avec succès.",
     "Choice can not be deleted.": "Le choix ne peut pas être supprimé.",
+    "edit choice \"{text}\"": "modifier le choix \"{text}\"",
+    "delete choice \"{text}\"": "supprimer le choix \"{text}\"",
     
     "Page not found": "Page non trouvée",
     "This page doesn't exist or was removed.<br>We suggest you back to home.": "Cette page n'existe pas ou a été supprimée.<br>Nous vous suggérons de retourner à l'accueil.",
@@ -156,7 +170,9 @@
     "Connecting": "Connexion",
     "Loading": "chargement",
     "Cancel": "Annuler",
+    "close confirmation modal": "fermer la fenêtre modale de confirmation",
     "({points} pts)": "({points} pts)",
+    "go to the top of the page": "aller en haut de la page",
 
     "Test Results": "Résultats du Test",
     "Test Report Not Found.": "Rapport de Test non trouvé."

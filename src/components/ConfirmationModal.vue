@@ -53,7 +53,7 @@ async function confirmationAction() {
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" :aria-label="t('close confirmation modal')"></button>
                 </div>
                 <div class="modal-body">
                     <p ref="modal-content"></p>

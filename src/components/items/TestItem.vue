@@ -4,9 +4,9 @@ import { useLocalizationStore } from '@/stores/localization';
 import type { Test } from '@/models/Test';
 import { useTestItem } from '@/composables/items/testItem';
 
+const { test } = defineProps<{test?: Test}>();
 const {t} = useI18n();
 const {spaceLabel} = useLocalizationStore();
-const { test } = defineProps<{test?: Test}>();
 const {showMore, description, updatedAt, confirmTestdeletion, copyTestLink} = useTestItem(test);
 
 </script>
@@ -25,10 +25,18 @@ const {showMore, description, updatedAt, confirmTestdeletion, copyTestLink} = us
             </div>
             <hr class="test-item-divider">
             <div class="test-item-actions">
-                <RouterLink :to="{name: 'preview-test', params: {test_id: test.id}}" class="btn btn-primary"><i class="bi bi-eye-fill"></i></RouterLink>
-                <RouterLink :to="{name: 'edit-test', params: {test_id: test.id}}" class="btn btn-success"><i class="bi bi-pencil-fill"></i></RouterLink>
-                <button type="button" class="btn btn-danger" @click="confirmTestdeletion"><i class="bi bi-trash3-fill"></i></button>
-                <button type="button" class="btn btn-warning" @click="copyTestLink"><i class="bi bi-copy"></i></button>
+                <RouterLink :to="{name: 'preview-test', params: {test_id: test.id}}" class="btn btn-primary" :aria-label="t('preview test &quot;{name}&quot;', {name: test.name})">
+                    <i class="bi bi-eye-fill"></i>
+                </RouterLink>
+                <RouterLink :to="{name: 'edit-test', params: {test_id: test.id}}" class="btn btn-success" :aria-label="t('edit test &quot;{name}&quot;', {name: test.name})">
+                    <i class="bi bi-pencil-fill"></i>
+                </RouterLink>
+                <button type="button" class="btn btn-danger" @click="confirmTestdeletion" :aria-label="t('delete test &quot;{name}&quot;', {name: test.name})">
+                    <i class="bi bi-trash3-fill"></i>
+                </button>
+                <button type="button" class="btn btn-warning" @click="copyTestLink" :aria-label="t('copy test &quot;{name}&quot; link to clipboard', {name: test.name})">
+                    <i class="bi bi-copy"></i>
+                </button>
             </div>
         </div>
         <div class="test-item-content" v-else>

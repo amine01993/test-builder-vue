@@ -157,7 +157,7 @@ function onDragEnd() {
         <div class="app-main">
             <div class="question-form" :class="{'hide-form': !showForm}">
                 <div class="question-form-title mb-4">{{ t('Edit Question') }}</div>
-                <button class="btn toggle-form-btn" @click="toggleShowForm">
+                <button class="btn toggle-form-btn" @click="toggleShowForm" :aria-label="showForm ? t('hide editing form') : t('show editing form')">
                     <i class="bi" :class="{'bi-chevron-down': !showForm, 'bi-chevron-up': showForm}"></i>
                 </button>
     
@@ -173,13 +173,15 @@ function onDragEnd() {
     
                 <div class="mb-3">
                     <label for="question-input-text" class="form-label">{{ t('Question') }}</label>
-                    <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" :disabled="submitting">
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" 
+                        :disabled="submitting" :tabindex="showForm ? undefined : -1">
                     <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
                 </div>
     
                 <div class="mb-3">
                     <label for="question-input-type" class="form-label">{{ t('Question Type') }}</label>
-                    <select class="form-select" :class="{'is-invalid': errors.type}" id="question-input-type" v-model="type" :disabled="submitting">
+                    <select class="form-select" :class="{'is-invalid': errors.type}" id="question-input-type" v-model="type" 
+                        :disabled="submitting" :tabindex="showForm ? undefined : -1">
                         <option :value="QuestionType.Text">{{ t('Text') }}</option>
                         <option :value="QuestionType.MultipleChoice">{{ t('Multiple Choice') }}</option>
                         <option :value="QuestionType.Number">{{ t('Number') }}</option>
@@ -190,12 +192,16 @@ function onDragEnd() {
     
                 <div class="mb-3">
                     <label for="question-input-position" class="form-label">{{ t('Position') }}</label>
-                    <span class="label-info" :data-bs-content="t('The position of the question in the test.')"><i class="bi bi-question-circle-fill"></i></span>
-                    <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
+                    <button class="label-info" :data-bs-content="t('The position of the question in the test.')" 
+                        :aria-label="t('The position of the question in the test.')" :tabindex="showForm ? undefined : -1">
+                        <i class="bi bi-question-circle-fill"></i>
+                    </button>
+                    <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" 
+                        :disabled="submitting" :tabindex="showForm ? undefined : -1">
                     <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
                 </div>
     
-                <button type="button" class="btn btn-primary" @click="editQuestion" :disabled="submitting">
+                <button type="button" class="btn btn-primary" @click="editQuestion" :disabled="submitting" :tabindex="showForm ? undefined : -1">
                     <template v-if="!submitting">{{ t('Edit') }}</template>
                     <template v-else>{{ t('Editing') }} ...</template>
                 </button>
@@ -328,8 +334,10 @@ function onDragEnd() {
         }
 
         .label-info {
-            padding-left: 1.5vh;
+            margin-left: 1vh;
             color: vars.$app-blue;
+            border: none;
+            background-color: vars.$app-white;
         }
     }
 }

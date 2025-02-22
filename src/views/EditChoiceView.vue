@@ -165,7 +165,10 @@ async function editChoice() {
     
                 <div class="mb-3">
                     <label for="question-input-position" class="form-label">{{ t('Position') }}</label>
-                    <span class="label-info" :data-bs-content="t('The position of the choice in the question.')"><i class="bi bi-question-circle-fill"></i></span>
+                    <button class="label-info" :data-bs-content="t('The position of the choice in the question.')"
+                        :aria-label="t('The position of the choice in the question.')">
+                        <i class="bi bi-question-circle-fill"></i>
+                    </button>
                     <input type="number" class="form-control" :class="{'is-invalid': errors.position}" id="question-input-position" v-model="position" :disabled="submitting">
                     <div class="invalid-feedback is-invalid" v-if="errors.position">{{ errors.position }}</div>
                 </div>
@@ -211,8 +214,10 @@ async function editChoice() {
         }
 
         .label-info {
-            padding-left: 1.5vh;
+            margin-left: 1vh;
             color: vars.$app-blue;
+            border: none;
+            background-color: vars.$app-white;
         }
     }
 }

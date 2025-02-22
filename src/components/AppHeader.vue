@@ -8,10 +8,10 @@ import { useMainStore } from '@/stores/main';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useLocalizationStore } from '@/stores/localization';
 
-const {t} = useI18n();
+const {locale, t} = useI18n();
 const router = useRouter();
 const {lang, toggleLocale} = useLocalizationStore();
-const { toggleMenu, showMessage } = useMainStore();
+const { isMenuOpen, toggleMenu, showMessage } = useMainStore();
 const { user, auth, isAnonymous } = useAuthenticationStore();
 const userDropdown = useTemplateRef('user-dropdown');
 let dropdown: null|Dropdown = null;
@@ -44,9 +44,9 @@ async function signOutUser() {
 <template>
     <div class="app-header">
         <div class="left-side">
-            <div class="menu-btn" @click="toggleMenu">
+            <button class="menu-btn" @click="toggleMenu" :aria-label="isMenuOpen ? t('close menu') : t('open menu')">
                 <i class="bi bi-list"></i>
-            </div>
+            </button>
             <div class="logo">
                 <RouterLink :to="{name: 'home'}">
                     <img :alt="t('Test Builder Logo')" src="@/assets/logo.svg">
@@ -54,11 +54,11 @@ async function signOutUser() {
             </div>
         </div>
         <div class="right-side">
-            <div class="localization" @click="toggleLocale">
+            <button class="localization" @click="toggleLocale" :aria-label="locale === 'fr' ? 'switch to english' : 'passer au français'">
                 <i class="bi bi-globe"></i> {{ lang }}
-            </div>
+            </button>
             <div class="user dropdown" ref="user-dropdown">
-                <button type="button" data-bs-toggle="dropdown">
+                <button type="button" data-bs-toggle="dropdown" aria-label="{{ t('open user menu dropdown') }}">
                     <i class="bi bi-person-circle"></i>
                 </button>
                 <ul class="dropdown-menu">
