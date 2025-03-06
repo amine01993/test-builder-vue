@@ -19,8 +19,13 @@ export const useQuestionServiceStore = defineStore('questionService', () => {
 
     function incrementChoiceCount(question_id: string) {
         const question = questions.value?.find(q => q.id === question_id);
-        if(question?.choiceCount) {
-            question.choiceCount++;;
+        if(question) {
+            if(question?.choiceCount) {
+                question.choiceCount++;
+            }
+            else {
+                question.choiceCount = 1;
+            }
         }
     }
 

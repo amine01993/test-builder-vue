@@ -71,6 +71,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         }
     }
     catch(error) {
+        console.log('EditTestView', error);
         showMessage('failure', t('Error loading questions.'));
     }
 });

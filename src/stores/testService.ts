@@ -22,8 +22,13 @@ export const useTestServiceStore = defineStore('testService', () => {
 
     function incrementQuestionCount(test_id: string) {
         const test = tests.value?.find(t => t.id === test_id);
-        if(test?.questionCount) {
-            test.questionCount++;
+        if(test) {
+            if(test?.questionCount) {
+                test.questionCount++;
+            }
+            else {
+                test.questionCount = 1;
+            }
         }
     }
 

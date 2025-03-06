@@ -29,6 +29,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         }
     }
     catch(error) {
+        console.log('HomeView', error);
         showMessage('failure', t('Error loading test sessions.'));
     }
 });

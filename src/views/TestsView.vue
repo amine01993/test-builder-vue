@@ -29,6 +29,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async () => {
         }
     }
     catch(error) {
+        console.log('TestsView', error);
         showMessage('failure', t('Error loading tests.'));
     }
 });
