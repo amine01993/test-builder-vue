@@ -16,7 +16,7 @@ const email = ref('');
 const password = ref('');
 const confirmPass = ref('');
 const submitting = ref(false);
-let validationStatus: Ref<null|PasswordValidationStatus> = ref(null);
+const validationStatus: Ref<null|PasswordValidationStatus> = ref(null);
 
 const submitted = ref(false);
 const serverErrors: Ref<any[]> = ref([]);

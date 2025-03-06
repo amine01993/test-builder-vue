@@ -27,6 +27,7 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+info.txt
 
 test-results/
 playwright-report/

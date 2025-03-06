@@ -21,7 +21,7 @@ const {test, time_limit, loadTest} = useTestServiceStore();
 let interval: ReturnType<typeof setInterval>|undefined = undefined;
 
 const timeLimit = computed(() => {
-    let format = formatTime(time_limit.value);
+    const format = formatTime(time_limit.value);
     if(format === '') return t('Time out');
     return format;
 

@@ -4,7 +4,7 @@ import { useAuthenticationStore } from "./auth";
 
 export const useFetchStore = defineStore('fetch', () => {
 
-    const BASE_URL = import.meta.env.VITE_FUNCTIONS_BASE_URL + 'api';
+    const BASE_URL = import.meta.env.PROD ? import.meta.env.VITE_FUNCTIONS_BASE_URL_PROD + 'api' : import.meta.env.VITE_FUNCTIONS_BASE_URL + 'api';
 
     async function getHeaders() {
         const {user} = useAuthenticationStore();

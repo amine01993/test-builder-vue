@@ -14,8 +14,8 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
     const {user} = useAuthenticationStore();
 
     let userTestId: string|undefined;
-    let testReport: Ref<UserTest|undefined> = ref();
-    let test: Ref<Test|undefined> = ref();
+    const testReport: Ref<UserTest|undefined> = ref();
+    const test: Ref<Test|undefined> = ref();
     let data: Map<string, string[]> = new Map;
     const requestUserInfo: Ref<boolean> = ref(true);
     const time_limit: Ref<number> = ref(180);

@@ -1,6 +1,5 @@
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vitest } from "vitest";
-import RegisterView from "../RegisterView.vue";
 import { createPinia, setActivePinia } from "pinia";
 import router from "@/router";
 import i18n from "@/i18n";

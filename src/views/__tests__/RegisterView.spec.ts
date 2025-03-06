@@ -1,12 +1,12 @@
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vitest } from "vitest";
-import RegisterView from "../RegisterView.vue";
 import { createPinia, setActivePinia } from "pinia";
 import router from "@/router";
 import i18n from "@/i18n";
 import { createTestingPinia } from "@pinia/testing";
 import AppContainer from "@/components/AppContainer.vue";
 import Breadcrumb from "@/components/Breadcrumb.vue";
+import RegisterView from "../RegisterView.vue";
 
 describe('RegisterView', () => {
     let wrapper: VueWrapper|null = null;

@@ -14,7 +14,7 @@ import CreateQuestionView from "../CreateQuestionView.vue";
 
 describe('CreateQuestionView', () => {
     let wrapper: (VueWrapper|null) = null;
-    let testData: Test = testsData[1];
+    const testData: Test = testsData[1];
 
     beforeEach(async () => {
         router.push(`/test/${testData.id}/question/create`);

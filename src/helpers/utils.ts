@@ -28,7 +28,7 @@ export function formatTime(seconds: number) {
     val = val - minutes * 60;
     const _seconds = val;
 
-    let str = [];
+    const str = [];
     if(hours) str.push(hours + 'h');
     if(minutes) str.push(minutes + 'min');
     if(_seconds) str.push(_seconds + 's');
