@@ -62,7 +62,7 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
             time_limit.value = test.value.time_limit;
 
             if(time_limit.value > 0) {
-                let interval: number|undefined = setInterval(() => {
+                let interval: ReturnType<typeof setInterval>|undefined = setInterval(() => {
                     time_limit.value--;
                     if(time_limit.value === 0) {
                         clearInterval(interval);

@@ -46,7 +46,7 @@ export const useTestServiceStore = defineStore('testService', () => {
         test.max_points = questions.value.reduce((acc, val) => acc + (val.max_points ?? 0), 0);
     }
 
-    async function loadTest(test_id: string, loadQuestions: boolean = false): Promise<number|undefined> {
+    async function loadTest(test_id: string, loadQuestions: boolean = false) {
         if(user.value && userId.value === user.value?.uid && tests.value) {
             const _test = tests.value?.find(t => t.id === test_id);
             if(_test) {
@@ -73,7 +73,7 @@ export const useTestServiceStore = defineStore('testService', () => {
             time_limit.value = test.value.time_limit;
 
             if(time_limit.value > 0) {
-                let interval: number|undefined = setInterval(() => {
+                let interval: ReturnType<typeof setInterval>|undefined = setInterval(() => {
                     time_limit.value--;
                     if(time_limit.value === 0) {
                         clearInterval(interval);

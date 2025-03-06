@@ -33,7 +33,7 @@ const errors = computed(() => {
     return _errors;
 });
 
-let timeoutInterval: number|undefined = undefined;
+let interval: ReturnType<typeof setInterval>|undefined = undefined;
 
 const timeLimit = computed(() => {
     let format = formatTime(time_limit.value);
@@ -63,9 +63,9 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
 onUnmounted(() => {
     onAuthEventDispose();
 
-    if(timeoutInterval !== undefined) {
-        clearInterval(timeoutInterval);
-        timeoutInterval = undefined;
+    if(interval !== undefined) {
+        clearInterval(interval);
+        interval = undefined;
     }
 
     if(testFormEl.value) {
@@ -98,7 +98,7 @@ async function initializingDTest() {
 
     startLoading();
     try {
-        timeoutInterval = await initTest(test_id);
+        interval = await initTest(test_id);
 
         if(!test.value) {
             showMessage('failure', t('Test Not Found.'));

@@ -18,7 +18,7 @@ const {startLoading, endLoading, showMessage} = useMainStore();
 const {confirm: confirmFinish} = useModalStore();
 const {auth} = useAuthenticationStore();
 const {test, time_limit, loadTest} = useTestServiceStore();
-let interval: number|undefined = undefined;
+let interval: ReturnType<typeof setInterval>|undefined = undefined;
 
 const timeLimit = computed(() => {
     let format = formatTime(time_limit.value);
