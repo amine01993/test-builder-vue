@@ -249,7 +249,7 @@ function preventTestSubmit(event: SubmitEvent) {
         }
 
         .test-limit {
-            color: vars.$app-grey2;
+            color: vars.$app-blue-light;
             font-size: .9em;
         }
     }

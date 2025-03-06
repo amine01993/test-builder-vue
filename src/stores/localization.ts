@@ -17,10 +17,13 @@ export const useLocalizationStore = defineStore('localization', () => {
     });
 
     async function initLocale(user: User|null) {
+        document.documentElement.lang = 'en';
+        
         if(user) {
             const result = await user.getIdTokenResult(true);
             if('locale' in result.claims) {
                 locale.value = result.claims.locale === 'fr' ? 'fr' : 'en';
+                document.documentElement.lang = locale.value;
             }
         }
     }
@@ -28,6 +31,8 @@ export const useLocalizationStore = defineStore('localization', () => {
     async function toggleLocale() {
         if(locale.value === 'en') locale.value = 'fr';
         else locale.value = 'en';
+
+        document.documentElement.lang = locale.value;
 
         const {post} = useFetchStore();
         

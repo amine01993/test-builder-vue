@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, watch } from 'vue';
+import { computed, onMounted, onUnmounted, watchEffect } from 'vue';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { RouterView } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -16,8 +16,14 @@ const {LoadingStatus, loadStatus, loading, startLoading, endLoading, initIsDeskt
 const {auth, setUser} = useAuthenticationStore();
 
 const title = computed(() => t('Test Builder App'));
-watch(title, () => {
+const metaDescription = computed(() => t('A Web App for creating customized Tests and sharing them with others through a unique link, while keeping track of all test results.'));
+const metaDescriptionElem = document.querySelector('meta[name="description"]');
+
+watchEffect(() => {
     document.title = title.value;
+    if(metaDescriptionElem) {
+        metaDescriptionElem.setAttribute('content', metaDescription.value);
+    }
 });
 
 initIsDesktop();

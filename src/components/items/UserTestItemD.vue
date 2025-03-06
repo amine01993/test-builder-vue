@@ -18,7 +18,7 @@ const {startedAt, lastedFor, updatedAt} = useUserTestItem(userTest);
             <td>{{ lastedFor }}</td>
             <td>{{ userTest.result?.score }}</td>
             <td>{{ userTest.report?.length ?? 0 }} {{ t('out of') }} {{ userTest.test.questionCount }}</td>
-            <td class="test-last-update">{{ updatedAt }}</td>
+            <td class="user-test-last-update">{{ updatedAt }}</td>
         </template>
         <template v-else>
             <td colspan="8" class="placeholder bg-secondary"></td>

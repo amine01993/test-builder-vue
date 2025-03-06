@@ -199,8 +199,8 @@ async function checkLoaderVisiblity() {
                     padding: 2vh;
                 }
 
-                .test-last-update {
-                    color: vars.$app-grey2;
+                .user-test-last-update {
+                    color: vars.$app-blue-light;
                 }
             }
 
@@ -214,7 +214,7 @@ async function checkLoaderVisiblity() {
 
                 .user-test-last-update {
                     text-align: right;
-                    color: vars.$app-grey2;
+                    color: vars.$app-blue-light;
                     font-size: .9em;
                     margin-top: 1vh;
                 }
