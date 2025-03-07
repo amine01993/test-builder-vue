@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, ref, type Ref } from "vue";
-import { updateEmail, updateProfile } from "firebase/auth";
+import { updateProfile, verifyBeforeUpdateEmail } from "firebase/auth";
 import { collection, doc, getCountFromServer, getDoc, getDocs, limit, orderBy, query, startAfter, Timestamp, where } from "firebase/firestore";
 import { useFetchStore } from "./fetch";
 import { useFirestoreStore } from "./firestore";
@@ -46,7 +46,7 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
                 updateProfile(user.value, {
                     displayName: displayName.value,
                 }),
-                updateEmail(user.value, email.value),
+                verifyBeforeUpdateEmail(user.value, email.value),
             ]);
         }
     }
