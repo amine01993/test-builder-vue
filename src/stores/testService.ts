@@ -139,7 +139,6 @@ export const useTestServiceStore = defineStore('testService', () => {
     }
 
     async function addTest(test: Test) {
-        const {user} = useAuthenticationStore();
         test.user_id = user.value?.uid;
         const testRef = await addDoc(collection(db, 'tests'), test);
         

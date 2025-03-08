@@ -255,3 +255,9 @@ export const _userTestUpdate = onDocumentUpdated('user_tests/{userTestId}', asyn
         updated_at: Timestamp.now(),
     });
 });
+
+export const _contactCreate = onDocumentCreated('contacts/{contactId}', async event => {
+    return db.doc('contacts/' + event.params.contactId).update({
+        created_at: Timestamp.now(),
+    });
+});

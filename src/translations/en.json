@@ -16,6 +16,7 @@
     "Login": "Login",
     "Register": "Register",
     "Settings": "Settings",
+    "Contact us": "Contact us",
     "Tests": "Tests",
     "Create a Test": "Create a Test",
     "Edit Test": "Edit Test",
@@ -25,6 +26,9 @@
     "Edit Question": "Edit Question",
     "Create a Choice": "Create a Choice",
     "Edit Choice": "Edit Choice",
+
+    "Your message was sent successfully, Thanks!": "Your message was sent successfully, Thanks!",
+    "Message": "Message",
 
     "Test Sessions": "Test Sessions",
     "Test": "Test",
@@ -124,6 +128,8 @@
     "Personal Information": "Personal Information",
     "Save": "Save",
     "Saving": "Saving",
+
+    "Message required": "Message required",
 
     "Choice required": "Choice required",
     "Max points must be a number": "Max points must be a number",

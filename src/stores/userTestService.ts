@@ -29,8 +29,6 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
     const userTestsPerPage = 25;
 
     async function updateDisplayName() {
-        const {user} = useAuthenticationStore();
-
         if(user.value) {
             await updateProfile(user.value, {
                 displayName: displayName.value,
@@ -39,8 +37,6 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
     }
 
     async function updateUserInfo() {
-        const {user} = useAuthenticationStore();
-
         if(user.value) {
             await Promise.all([
                 updateProfile(user.value, {

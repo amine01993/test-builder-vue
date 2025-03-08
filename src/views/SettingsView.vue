@@ -25,7 +25,7 @@ const errors = computed(() => {
     return _errors;
 });
 
-const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
+const onAuthEventDispose = onAuthStateChanged(auth, (user: User|null) => {
 
     if(user?.displayName) {
         displayName.value = user.displayName;

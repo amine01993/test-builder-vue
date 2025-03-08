@@ -16,6 +16,7 @@
     "Login": "Se connecter",
     "Register": "S'inscrire",
     "Settings": "Paramètres",
+    "Contact us": "Contactez-nous",
     "Tests": "Tests",
     "Create a Test": "Créer un Test",
     "Edit Test": "Modifier le Test",
@@ -25,6 +26,9 @@
     "Edit Question": "Modifier la Question",
     "Create a Choice": "Créer un Vhoix",
     "Edit Choice": "Modifier le Choix",
+
+    "Your message was sent successfully, Thanks!": "Votre message a été envoyé avec succès, Merci !",
+    "Message": "Message",
 
     "Test Sessions": "Séances de test",
     "Test": "Test",
@@ -124,6 +128,8 @@
     "Personal Information": "Informations personnels",
     "Save": "Sauvegarder",
     "Saving": "Sauvegardement",
+
+    "Message required": "Message requis",
 
     "Choice required": "Choix requis",
     "Max points must be a number": "Le nombre maximum de points doit être un nombre",

@@ -24,6 +24,11 @@ const { isMenuOpen, closeMenu } = useMainStore();
                 {{ t('Settings') }}
             </RouterLink>
         </div>
+        <div class="menu-item">
+            <RouterLink exactActiveClass="selected-item" :to="{name: 'contact-us'}" @click="closeMenu">
+                {{ t('Contact us') }}
+            </RouterLink>
+        </div>
     </div>
 </template>
 

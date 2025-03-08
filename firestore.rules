@@ -44,8 +44,8 @@ service cloud.firestore {
             return request.resource.data.diff(resource.data).unchangedKeys().hasAll(['question', 'created_at', 'user_id']);
         }
 
-        function isNonEmptyString(field) {
-            return field is string && field.size() > 0;
+        function isNonEmptyString(value) {
+            return value is string && value.size() > 0;
         }
 
         match /tests/{testId} {
@@ -84,6 +84,19 @@ service cloud.firestore {
             allow get: if isAuthenticated() && (belongToUser() || belongToTestTaker());
             allow list: if isAuthenticated() && belongToUser();
             allow write: if false;
+        }
+
+        match /contacts/{contactId} {
+            function validInfo() {
+                return isNonEmptyString(request.resource.data['name'])
+                    && isNonEmptyString(request.resource.data['email'])
+                    && isNonEmptyString(request.resource.data['message']);
+            }
+
+            allow read: if false;
+            allow create: if isAuthenticated() && managedByUser() && validInfo();
+            allow update: if false;
+            allow delete: if false;
         }
     }
 }
