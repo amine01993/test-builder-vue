@@ -155,13 +155,15 @@ function preventTestSubmit(event: SubmitEvent) {
     <div class="user-info-form" v-if="!test && requestUserInfo">
         <div class="mb-3">
             <label for="full-name-input" class="form-label">{{ t('Full Name') }}</label>
-            <input type="text" :class="{'is-invalid': errors.displayName}" id="full-name-input" class="form-control" v-model="displayName" :disabled="submitting" />
+            <input type="text" :class="{'is-invalid': errors.displayName}" id="full-name-input" class="form-control" v-model="displayName" 
+                :disabled="submitting" aria-required />
             <div class="invalid-feedback is-invalid" v-if="errors.displayName">{{ errors.displayName }}</div>
         </div>
 
         <div class="mb-3">
             <label for="email-input" class="form-label">{{ t('Email') }}</label>
-            <input type="email" :class="{'is-invalid': errors.email}" id="email-input" class="form-control" v-model="email" :disabled="submitting" />
+            <input type="email" :class="{'is-invalid': errors.email}" id="email-input" class="form-control" v-model="email" 
+                :disabled="submitting" aria-required />
             <div class="invalid-feedback is-invalid" v-if="errors.email">{{ errors.email }}</div>
         </div>
 

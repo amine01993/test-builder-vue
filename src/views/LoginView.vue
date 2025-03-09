@@ -92,7 +92,8 @@ async function signUpWithG() {
                         <label for="login-input-email" class="form-label">{{ t('Email') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-at"></i></span>
-                            <input type="email" class="form-control" :class="{'is-invalid': errors.email}" id="login-input-email" v-model="email" :disabled="submitting">
+                            <input type="email" class="form-control" :class="{'is-invalid': errors.email}" id="login-input-email" v-model="email" 
+                                :disabled="submitting" aria-required>
                             <div class="invalid-feedback is-invalid" v-if="errors.email">{{ errors.email }}</div>
                         </div>
                     </div>
@@ -100,7 +101,8 @@ async function signUpWithG() {
                         <label for="login-input-password" class="form-label">{{ t('Password') }}</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                            <input type="password" class="form-control" :class="{'is-invalid': errors.password}" id="login-input-password" v-model="password" :disabled="submitting">
+                            <input type="password" class="form-control" :class="{'is-invalid': errors.password}" id="login-input-password" v-model="password" 
+                                :disabled="submitting" aria-required>
                             <div class="invalid-feedback is-invalid" v-if="errors.password">{{ errors.password }}</div>
                         </div>
                     </div>

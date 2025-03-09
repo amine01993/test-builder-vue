@@ -92,6 +92,7 @@ async function createQuestion() {
             position: Number(position.value),
         });
         serverErrors.value = [];
+        showMessage('success', t('Question created with success.'));
         router.push({name: 'edit-test', params: {test_id}, query: {sF: 0}});
     }
     catch(error: any) {
@@ -121,7 +122,8 @@ async function createQuestion() {
     
                 <div class="mb-3">
                     <label for="question-input-text" class="form-label">{{ t('Question') }}</label>
-                    <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" :disabled="submitting">
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" 
+                        :disabled="submitting" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
                 </div>
     

@@ -113,6 +113,7 @@ async function editChoice() {
                 type: questionType.value,
             },
         });
+        serverErrors.value = [];
         showMessage('success', t('Choice edited with success.'));
         router.push({name: 'edit-question', params: {test_id, question_id}, query: {sF: 0}});
     }
@@ -144,7 +145,7 @@ async function editChoice() {
                 <div class="mb-3">
                     <label for="choice-input-text" class="form-label">{{ t('Choice') }}</label>
                     <input :type="questionType === QuestionType.Number ? 'number' : 'text'" class="form-control" 
-                        :class="{'is-invalid': errors.text}" id="choice-input-text" v-model="text" :disabled="submitting">
+                        :class="{'is-invalid': errors.text}" id="choice-input-text" v-model="text" :disabled="submitting" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
                 </div>
     

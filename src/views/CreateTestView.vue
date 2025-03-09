@@ -6,10 +6,12 @@ import { useI18n } from 'vue-i18n';
 import { useTestServiceStore } from '@/stores/testService';
 import { useLocalizationStore } from '@/stores/localization';
 import AppContainer from '@/components/AppContainer.vue';
+import { useMainStore } from '@/stores/main';
 
 const router = useRouter();
 const {t} = useI18n();
 const {spaceLabel} = useLocalizationStore();
+const {showMessage} = useMainStore();
 const {addTest} = useTestServiceStore();
 const name = ref('');
 const description = ref('');
@@ -68,6 +70,7 @@ async function createTest() {
             time_limit: Number(timeLimit.value),
         });
         serverErrors.value = [];
+        showMessage('success', t('Test created with success.'));
         router.push({name: 'tests'});
     }
     catch(error: any) {
@@ -93,7 +96,8 @@ async function createTest() {
     
                 <div class="mb-3">
                     <label for="test-input-name" class="form-label">{{ t('Name') }}</label>
-                    <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" :disabled="submitting">
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" 
+                        :disabled="submitting" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
                 </div>
     

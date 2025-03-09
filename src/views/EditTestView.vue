@@ -113,6 +113,7 @@ async function editTest() {
             time_limit: Number(timeLimit.value),
         });
         serverErrors.value = [];
+        showMessage('success', t('Test edited with success.'));
         router.push({name: 'tests'});
     }
     catch(error: any) {
@@ -159,7 +160,7 @@ function onDragEnd() {
                 <div class="mb-3">
                     <label for="test-input-name" class="form-label">{{ t('Name') }}</label>
                     <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" 
-                        :disabled="submitting" :tabindex="showForm ? undefined : -1">
+                        :disabled="submitting" :tabindex="showForm ? undefined : -1" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
                 </div>
     

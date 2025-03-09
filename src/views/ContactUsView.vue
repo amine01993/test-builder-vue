@@ -27,7 +27,7 @@ const errors = computed(() => {
     if(email.value === '') _errors.email = t('Email required');
     else if(!validateEmail(email.value)) _errors.email = t('Invalid email');
 
-    // if(message.value === '') _errors.message = t('Message required');
+    if(message.value === '') _errors.message = t('Message required');
 
     return _errors;
 });
@@ -81,19 +81,22 @@ async function send() {
     
                 <div class="mb-3">
                     <label for="test-input-name" class="form-label">{{ t('Full Name') }}</label>
-                    <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" :disabled="submitting">
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" 
+                        :disabled="submitting" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
                 </div>
 
                 <div class="mb-3">
                     <label for="test-input-email" class="form-label">{{ t('Email') }}</label>
-                    <input type="text" class="form-control" :class="{'is-invalid': errors.email}" id="test-input-email" v-model="email" :disabled="submitting">
+                    <input type="text" class="form-control" :class="{'is-invalid': errors.email}" id="test-input-email" v-model="email" 
+                        :disabled="submitting" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.email">{{ errors.email }}</div>
                 </div>
 
                 <div class="mb-3">
                     <label for="test-input-message" class="form-label">{{ t('Message') }}</label>
-                    <textarea class="form-control" :class="{'is-invalid': errors.message}" id="test-input-message" rows="5" v-model="message" :disabled="submitting"></textarea>
+                    <textarea class="form-control" :class="{'is-invalid': errors.message}" id="test-input-message" rows="5" v-model="message" 
+                        :disabled="submitting" aria-required></textarea>
                     <div class="invalid-feedback is-invalid" v-if="errors.message">{{ errors.message }}</div>
                 </div>
     

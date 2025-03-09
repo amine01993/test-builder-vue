@@ -82,7 +82,7 @@ function submitTest() {
             <div class="test-name">
                 {{ test.name }}
             </div>
-            <div class="test-limit">
+            <div class="test-limit" v-if="time_limit > 0">
                 <i class="bi bi-alarm"></i>
                 {{ timeLimit }}
             </div>
