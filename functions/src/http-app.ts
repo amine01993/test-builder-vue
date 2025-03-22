@@ -1,6 +1,6 @@
 import * as logger from "firebase-functions/logger";
 import { getCredentialsMiddleware } from "./middleware/auth";
-import { finishTest, getTest, startTest } from "./helpers";
+import { finishTest, getTest, sendContactForm, startTest } from "./helpers";
 import { auth } from "./init";
 
 const express = require('express');
@@ -76,5 +76,24 @@ httpApp.post('/update-locale', async (req: any, res: any) => {
     catch(error) {
         logger.error('Error /update-locale', error);
         res.status(500).json({error: 'Error updating locale.'});
+    }
+});
+
+httpApp.post('/contact-form', async (req: any, res: any) => {
+    logger.debug('contact form body data', req.body);
+
+    try {
+        if(!req['uid']) {
+            res.status(403).json({error: 'Access Forbidden.'});
+            return;
+        }
+
+        const response = await sendContactForm(req.body);
+
+        res.status(200).json({response});
+    }
+    catch(error) {
+        logger.error('Error /contact-form', error);
+        res.status(500).json({error: 'Error sending the contact form.'});
     }
 });

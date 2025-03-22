@@ -1,5 +1,7 @@
 
+import * as logger from "firebase-functions/logger";
 import { Timestamp } from 'firebase-admin/firestore';
+import axios from 'axios';
 import {db} from './init';
 
 export async function getTest(test_id: string) {
@@ -128,8 +130,31 @@ function getScore(answers: string[], choices: any) {
     return score;
 }
 
+export async function sendContactForm(params: any) {
+    
+    const response: any = await axios.post('https://www.google.com/recaptcha/api/siteverify', {
+        secret: '6LdZ-PwqAAAAANQQmD-MBS_K1hHRyro-I-w8u6Oh',
+        response: params['token'],
+    });
+
+    logger.debug('contact form response', response.data);
+
+    if(response.data.success) {
+        const contact = {
+            name: params['name'],
+            email: params['email'],
+            message: params['message'],
+            user_id: params['user_id'],
+            created_at: Timestamp.now(),
+        };
+    
+        await db.collection('contacts').add(contact);
+    }
+
+    return response;
+}
+
 export async function updateCounts() {
-    console.log('update counts');
 
     const testsSnaps = await db.collection('tests').get();
 

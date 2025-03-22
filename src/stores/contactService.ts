@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
 import { computed, ref, type Ref } from "vue";
-import { addDoc, collection } from "firebase/firestore";
 import { useFirestoreStore } from "./firestore";
 import { useAuthenticationStore } from "./auth";
 import type { Contact } from "@/models/Contact";
+import { useFetchStore } from "./fetch";
 
 export const useContactServiceStore = defineStore('contactService', () => {
 
@@ -25,7 +25,8 @@ export const useContactServiceStore = defineStore('contactService', () => {
         }
     }
 
-    async function sendContactInfo() {
+    async function sendContactInfo(token: string) {
+        const {post} = useFetchStore();
 
         const contact: Contact = {
             name: name.value,
@@ -37,9 +38,9 @@ export const useContactServiceStore = defineStore('contactService', () => {
             contact.user_id = user.value.uid;
         }
 
-        const contactRef = await addDoc(collection(db, 'contacts'), contact);
-
-        return contactRef;
+        return await post('/contact-form', {
+            ...contact, token,
+        });
     }
 
     return {

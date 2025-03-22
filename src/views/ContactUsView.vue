@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, onUnmounted, ref, type Ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { onAuthStateChanged } from 'firebase/auth';
+import { load, ReCaptchaInstance } from 'recaptcha-v3';
 import { useContactServiceStore } from '@/stores/contactService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
@@ -31,13 +32,30 @@ const errors = computed(() => {
 
     return _errors;
 });
+let token: string|undefined;
+let recaptcha: ReCaptchaInstance|undefined;
+const siteKey = '6LdZ-PwqAAAAAKWgOPyb-O9hhHRyhJY3YHgL_zZb';
 
 const onAuthEventDispose = onAuthStateChanged(auth, () => {
     loadUserInfo();
 });
 
+onMounted(async () => {
+    load(siteKey, {}).then((_recaptcha) => {
+        recaptcha = _recaptcha;
+        recaptcha.execute('test_builder_contact').then((_token) => {
+            token = _token;
+            console.log('token', token);
+        });
+        recaptcha.showBadge();
+    });
+});
+
 onUnmounted(() => {
     onAuthEventDispose();
+    if(recaptcha) {
+        recaptcha.hideBadge();
+    }
 });
 
 async function send() {
@@ -52,10 +70,17 @@ async function send() {
     }
 
     try {
-        await sendContactInfo();
-        serverErrors.value = [];
-        message.value = '';
-        showMessage('success', t('Your message was sent successfully, Thanks!'));
+        if(token) {
+            const response = await sendContactInfo(token);
+            console.log('response', response)
+            if(response.error) {
+                showMessage('failure', response.error);
+            }
+            else {
+                showMessage('success', t('Your message was sent successfully, Thanks!'));
+            }
+            serverErrors.value = [];
+        }
     }
     catch(error: any) {
         serverErrors.value = [t('Server Error') + spaceLabel.value + ': ' + error.code]
