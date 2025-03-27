@@ -10,7 +10,7 @@ import AppContainer from '@/components/AppContainer.vue';
 
 const router = useRouter();
 const {t} = useI18n();
-const {auth, isAnonymous, signUpWithGoogle} = useAuthenticationStore();
+const {auth, isAnonymous, signInWithGoogle} = useAuthenticationStore();
 const {spaceLabel} = useLocalizationStore();
 const email = ref('');
 const password = ref('');
@@ -64,9 +64,9 @@ async function login() {
     }
 }
 
-async function signUpWithG() {
+async function signInWithG() {
     try {
-        await signUpWithGoogle();
+        await signInWithGoogle();
         router.push({name: 'home'});
     }
     catch(error: any) {
@@ -113,8 +113,8 @@ async function signUpWithG() {
     
                 </div>
                 <div class="signup-parties">
-                    {{ t('Or Sign Up Using') }}<br>
-                    <button type="button" class="btn btn-danger google-auth" @click="signUpWithG">
+                    {{ t('Or Sign In Using') }}<br>
+                    <button type="button" class="btn btn-danger google-auth" @click="signInWithG">
                         <i class="bi bi-google"></i>
                     </button>
                 </div>

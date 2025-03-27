@@ -1,6 +1,6 @@
 import { ref, computed, type Ref } from 'vue';
 import { defineStore } from 'pinia';
-import { connectAuthEmulator, getAuth, GoogleAuthProvider, linkWithPopup, type User } from 'firebase/auth';
+import { connectAuthEmulator, getAuth, GoogleAuthProvider, linkWithPopup, signInWithPopup, type User } from 'firebase/auth';
 import { useFirebaseStore } from './firebase';
 
 export const useAuthenticationStore = defineStore('auth', () => {
@@ -29,11 +29,18 @@ export const useAuthenticationStore = defineStore('auth', () => {
         await linkWithPopup(user.value!, provider);
     }
 
+    async function signInWithGoogle() {
+        const provider = new GoogleAuthProvider();
+    
+        await signInWithPopup(auth, provider);
+    }
+
     return {
         user: computed(() => user),
         setUser,
         auth,
         isAnonymous,
         signUpWithGoogle,
+        signInWithGoogle,
     };
 })
