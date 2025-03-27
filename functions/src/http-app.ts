@@ -88,9 +88,9 @@ httpApp.post('/contact-form', async (req: any, res: any) => {
             return;
         }
 
-        const response = await sendContactForm(req.body);
+        const response = await sendContactForm(req.body, req['uid']);
 
-        res.status(200).json({response});
+        res.status(200).json(response);
     }
     catch(error) {
         logger.error('Error /contact-form', error);

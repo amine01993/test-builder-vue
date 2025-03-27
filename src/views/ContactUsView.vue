@@ -2,7 +2,6 @@
 import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { onAuthStateChanged } from 'firebase/auth';
-import { load, ReCaptchaInstance } from 'recaptcha-v3';
 import { useContactServiceStore } from '@/stores/contactService';
 import { useAuthenticationStore } from '@/stores/auth';
 import { useMainStore } from '@/stores/main';
@@ -32,30 +31,13 @@ const errors = computed(() => {
 
     return _errors;
 });
-let token: string|undefined;
-let recaptcha: ReCaptchaInstance|undefined;
-const siteKey = '6LdZ-PwqAAAAAKWgOPyb-O9hhHRyhJY3YHgL_zZb';
 
 const onAuthEventDispose = onAuthStateChanged(auth, () => {
     loadUserInfo();
 });
 
-onMounted(async () => {
-    load(siteKey, {}).then((_recaptcha) => {
-        recaptcha = _recaptcha;
-        recaptcha.execute('test_builder_contact').then((_token) => {
-            token = _token;
-            console.log('token', token);
-        });
-        recaptcha.showBadge();
-    });
-});
-
 onUnmounted(() => {
     onAuthEventDispose();
-    if(recaptcha) {
-        recaptcha.hideBadge();
-    }
 });
 
 async function send() {
@@ -70,17 +52,15 @@ async function send() {
     }
 
     try {
-        if(token) {
-            const response = await sendContactInfo(token);
-            console.log('response', response)
-            if(response.error) {
-                showMessage('failure', response.error);
-            }
-            else {
-                showMessage('success', t('Your message was sent successfully, Thanks!'));
-            }
-            serverErrors.value = [];
+        const response = await sendContactInfo();
+        console.log('response', response)
+        if(!response.success) {
+            showMessage('failure', response.message ?? response.error);
         }
+        else {
+            showMessage('success', t('Your message was sent successfully, Thanks!'));
+        }
+        serverErrors.value = [];
     }
     catch(error: any) {
         serverErrors.value = [t('Server Error') + spaceLabel.value + ': ' + error.code]
@@ -105,21 +85,21 @@ async function send() {
                 <div class="form-title mb-4">{{ t('Contact us') }}</div>
     
                 <div class="mb-3">
-                    <label for="test-input-name" class="form-label">{{ t('Full Name') }}</label>
+                    <label for="test-input-name" class="form-label">{{ t('Full Name') }}<span class="required">*</span></label>
                     <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" 
                         :disabled="submitting" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="test-input-email" class="form-label">{{ t('Email') }}</label>
+                    <label for="test-input-email" class="form-label">{{ t('Email') }}<span class="required">*</span></label>
                     <input type="text" class="form-control" :class="{'is-invalid': errors.email}" id="test-input-email" v-model="email" 
                         :disabled="submitting" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.email">{{ errors.email }}</div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="test-input-message" class="form-label">{{ t('Message') }}</label>
+                    <label for="test-input-message" class="form-label">{{ t('Message') }}<span class="required">*</span></label>
                     <textarea class="form-control" :class="{'is-invalid': errors.message}" id="test-input-message" rows="5" v-model="message" 
                         :disabled="submitting" aria-required></textarea>
                     <div class="invalid-feedback is-invalid" v-if="errors.message">{{ errors.message }}</div>
@@ -153,6 +133,11 @@ async function send() {
                 font-size: 1.7em;
                 font-weight: 600;
                 text-align: center;
+            }
+
+            .required {
+                color: vars.$app-red;
+                margin-left: 5px;
             }
 
             [type=button] {
