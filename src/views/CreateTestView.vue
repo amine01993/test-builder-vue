@@ -95,7 +95,7 @@ async function createTest() {
                 </div>
     
                 <div class="mb-3">
-                    <label for="test-input-name" class="form-label">{{ t('Name') }}</label>
+                    <label for="test-input-name" class="form-label">{{ t('Name') }}<span class="required">*</span></label>
                     <input type="text" class="form-control" :class="{'is-invalid': errors.name}" id="test-input-name" v-model="name" 
                         :disabled="submitting" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.name">{{ errors.name }}</div>
@@ -146,6 +146,11 @@ async function createTest() {
 
         .alert ul {
             margin-bottom: 0;
+        }
+
+        .required {
+            color: vars.$app-red;
+            margin-left: 5px;
         }
 
         .label-info {

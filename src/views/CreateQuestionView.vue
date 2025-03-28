@@ -121,7 +121,7 @@ async function createQuestion() {
                 </div>
     
                 <div class="mb-3">
-                    <label for="question-input-text" class="form-label">{{ t('Question') }}</label>
+                    <label for="question-input-text" class="form-label">{{ t('Question') }}<span class="required">*</span></label>
                     <input type="text" class="form-control" :class="{'is-invalid': errors.text}" id="question-input-text" v-model="text" 
                         :disabled="submitting" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
@@ -184,6 +184,11 @@ async function createQuestion() {
             margin-bottom: 0;
         }
 
+        .required {
+            color: vars.$app-red;
+            margin-left: 5px;
+        }
+        
         .label-info {
             padding-left: 1.5vh;
             color: vars.$app-blue;

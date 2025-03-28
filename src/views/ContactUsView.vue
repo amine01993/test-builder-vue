@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, type Ref } from 'vue';
+import { computed, onUnmounted, ref, type Ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { onAuthStateChanged } from 'firebase/auth';
 import { useContactServiceStore } from '@/stores/contactService';

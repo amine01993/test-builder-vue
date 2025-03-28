@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { addDoc, collection, deleteDoc, doc, getCountFromServer, getDoc, getDocs, limit, orderBy, query, startAfter, Timestamp, updateDoc, where } from "firebase/firestore";
-import { computed, ref, type Ref } from "vue";
+import { computed, ref, watch, type Ref } from "vue";
 import { useFirestoreStore } from "./firestore";
 import { useQuestionServiceStore } from "./questionService";
 import { useAuthenticationStore } from "./auth";
@@ -12,13 +12,19 @@ export const useTestServiceStore = defineStore('testService', () => {
     const {deleteQuestion, getQuestions} = useQuestionServiceStore();
     const {user} = useAuthenticationStore();
 
-    const userId: Ref<string|undefined> = ref();
     const testCount: Ref<number|undefined> = ref();
     const testsPerPage: number = 25;
     let lastDoc:any = null;
     const tests: Ref<Test[]|undefined> = ref();
     const test: Ref<Test|undefined> = ref();
     const time_limit: Ref<number> = ref(180);
+
+    watch(user, () => {
+        testCount.value = undefined;
+        lastDoc = null;
+        tests.value = undefined;
+        test.value = undefined;
+    });
 
     function incrementQuestionCount(test_id: string) {
         const test = tests.value?.find(t => t.id === test_id);
@@ -52,7 +58,7 @@ export const useTestServiceStore = defineStore('testService', () => {
     }
 
     async function loadTest(test_id: string, loadQuestions: boolean = false) {
-        if(user.value && userId.value === user.value?.uid && tests.value) {
+        if(user.value && tests.value) {
             const _test = tests.value?.find(t => t.id === test_id);
             if(_test) {
                 test.value = _test;
@@ -91,24 +97,20 @@ export const useTestServiceStore = defineStore('testService', () => {
     }
 
     async function loadTestCount() {
-        if(userId.value === user.value?.uid && testCount.value !== undefined) return;
-
-        userId.value = user.value?.uid;
+        if(!user.value?.uid || testCount.value !== undefined) return;
 
         const testsRef = collection(db, 'tests');
-        const testCounyQuery = query(testsRef, where('user_id', '==', user.value?.uid));
+        const testCounyQuery = query(testsRef, where('user_id', '==', user.value.uid));
 
         const countSnap = await getCountFromServer(testCounyQuery);
         testCount.value = countSnap.data().count;
     }
 
     async function loadTests() {        
-        if(userId.value === user.value?.uid && tests.value) return;
-
-        userId.value = user.value?.uid;
+        if(!user.value?.uid || tests.value) return;
 
         const testsRef = collection(db, 'tests');
-        const q = query(testsRef, where('user_id', '==', user.value?.uid), orderBy('updated_at', 'desc'), limit(testsPerPage));
+        const q = query(testsRef, where('user_id', '==', user.value.uid), orderBy('updated_at', 'desc'), limit(testsPerPage));
         const snaps = await getDocs(q);
         tests.value = snaps.docs.map(snap => {
             const test = <Test>snap.data();
@@ -120,11 +122,11 @@ export const useTestServiceStore = defineStore('testService', () => {
     }
 
     async function loadMoreTests() {
-        if(!tests.value || !lastDoc) return;
+        if(!user.value?.uid || !tests.value || !lastDoc) return;
 
         const testsRef = collection(db, 'tests');
 
-        const q = query(testsRef, where('user_id', '==', userId.value), orderBy('updated_at', 'desc'), startAfter(lastDoc), limit(testsPerPage))
+        const q = query(testsRef, where('user_id', '==', user.value.uid), orderBy('updated_at', 'desc'), startAfter(lastDoc), limit(testsPerPage))
         const snaps = await getDocs(q);
 
         const newTests = snaps.docs.map(snap => {
@@ -179,6 +181,8 @@ export const useTestServiceStore = defineStore('testService', () => {
     }
 
     async function deleteTest(test_id: string) {
+        if(!user.value?.uid) return;
+
         const testRef = doc(db, 'tests', test_id);
         await deleteDoc(testRef);
 
@@ -191,7 +195,7 @@ export const useTestServiceStore = defineStore('testService', () => {
 
         // delete questions and choices
         const questionsRef = collection(db, 'tests', test_id, 'questions');
-        const listQuestions = query(questionsRef, where('user_id', '==', userId.value));
+        const listQuestions = query(questionsRef, where('user_id', '==', user.value.uid));
         await getDocs(listQuestions)
         .then(snaps => {
             const promises: Promise<void>[] = [];

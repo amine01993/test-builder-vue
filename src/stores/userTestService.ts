@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed, ref, type Ref } from "vue";
+import { computed, ref, watch, type Ref } from "vue";
 import { updateProfile, verifyBeforeUpdateEmail } from "firebase/auth";
 import { collection, doc, getCountFromServer, getDoc, getDocs, limit, orderBy, query, startAfter, Timestamp, where } from "firebase/firestore";
 import { useFetchStore } from "./fetch";
@@ -22,11 +22,16 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
     const displayName: Ref<string> = ref('');
     const email: Ref<string> = ref('');
 
-    const userId: Ref<string|undefined> = ref();
     const userTestCount: Ref<number|undefined> = ref();
     const userTests: Ref<UserTest[]|undefined> = ref();
     let lastDoc: any = null;
     const userTestsPerPage = 25;
+
+    watch(user, () => {
+        userTestCount.value = undefined;
+        lastDoc = null;
+        userTests.value = undefined;
+    });
 
     async function updateDisplayName() {
         if(user.value) {
@@ -112,25 +117,21 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
     }
 
     async function loadUserTestCount() {
-        if(userId.value === user.value?.uid && userTestCount.value !== undefined) return;
-
-        userId.value = user.value?.uid;
+        if(!user.value?.uid || userTestCount.value !== undefined) return;
 
         const userTestsRef = collection(db, 'user_tests');
-        const countQuery = query(userTestsRef, where('test.user_id', '==', user.value?.uid));
+        const countQuery = query(userTestsRef, where('test.user_id', '==', user.value.uid));
 
         const countSnap = await getCountFromServer(countQuery);
         userTestCount.value = countSnap.data().count;
     }
 
     async function loadUserTests() {
-        if(userId.value === user.value?.uid && userTests.value) return;
-
-        userId.value = user.value?.uid;
+        if(!user.value?.uid || userTests.value) return;
 
         const userTestsRef = collection(db, 'user_tests');
 
-        const listQuery = query(userTestsRef, where('test.user_id', '==', user.value?.uid), orderBy('started_at', 'desc'), limit(userTestsPerPage));
+        const listQuery = query(userTestsRef, where('test.user_id', '==', user.value.uid), orderBy('started_at', 'desc'), limit(userTestsPerPage));
         const snaps = await getDocs(listQuery);
         userTests.value = snaps.docs.map(snap => {
             const userTest = <UserTest>snap.data();
@@ -142,11 +143,11 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
     }
     
     async function loadMoreUserTests() {
-        if(!userTests.value || !lastDoc) return;
+        if(!user.value?.uid || !userTests.value || !lastDoc) return;
 
         const userTestsRef = collection(db, 'user_tests');
 
-        const listQuery = query(userTestsRef, where('test.user_id', '==', userId.value), orderBy('started_at', 'desc'), startAfter(lastDoc), limit(userTestsPerPage))
+        const listQuery = query(userTestsRef, where('test.user_id', '==', user.value.uid), orderBy('started_at', 'desc'), startAfter(lastDoc), limit(userTestsPerPage))
         const snaps = await getDocs(listQuery);
 
         const newUserTests = snaps.docs.map(snap => {

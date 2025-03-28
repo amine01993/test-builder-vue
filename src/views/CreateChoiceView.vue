@@ -126,7 +126,7 @@ async function createChoice() {
                 </div>
     
                 <div class="mb-3">
-                    <label for="choice-input-text" class="form-label">{{ t('Choice') }}</label>
+                    <label for="choice-input-text" class="form-label">{{ t('Choice') }}<span class="required">*</span></label>
                     <input :type="question?.type === QuestionType.Number ? 'number' : 'text'" class="form-control" 
                         :class="{'is-invalid': errors.text}" id="choice-input-text" v-model="text" :disabled="submitting" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.text">{{ errors.text }}</div>
@@ -192,6 +192,11 @@ async function createChoice() {
 
         .alert ul {
             margin-bottom: 0;
+        }
+
+        .required {
+            color: vars.$app-red;
+            margin-left: 5px;
         }
 
         .label-info {

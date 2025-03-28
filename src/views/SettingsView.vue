@@ -104,7 +104,7 @@ async function updateFullName() {
                 <div class="form-title mb-4">{{ t('Personal Information') }}</div>
     
                 <div class="mb-3">
-                    <label for="test-input-name" class="form-label">{{ t('Full Name') }}</label>
+                    <label for="test-input-name" class="form-label">{{ t('Full Name') }}<span class="required">*</span></label>
                     <input type="text" class="form-control" :class="{'is-invalid': errors.displayName}" id="test-input-name" v-model="displayName" 
                         :disabled="submitting" aria-required>
                     <div class="invalid-feedback is-invalid" v-if="errors.displayName">{{ errors.displayName }}</div>
@@ -126,6 +126,11 @@ async function updateFullName() {
 
         .alert ul {
             margin-bottom: 0;
+        }
+
+        .required {
+            color: vars.$app-red;
+            margin-left: 5px;
         }
 
         .photo-form, .personal-info-form {
