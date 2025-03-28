@@ -1,0 +1,50 @@
+@use '@/assets/mixins' as mxs;
+
+.table {
+    .placeholder {
+        @include mxs.desktopOnly {
+            display: table-cell;
+            padding: 2vh;
+        }
+    }
+}
+
+.placeholder {
+    display: inline-block;
+    min-height: 1em;
+    vertical-align: middle;
+    cursor: wait;
+    background-color: currentcolor;
+    opacity: $placeholder-opacity-max;
+  
+    &.btn::before {
+        display: inline-block;
+        content: "";
+    }
+}
+  
+// Sizing
+.placeholder-xs {
+    min-height: .6em;
+}
+  
+.placeholder-sm {
+    min-height: .8em;
+}
+  
+.placeholder-lg {
+    min-height: 1.2em;
+}
+  
+.placeholder-wave {
+    mask-image: linear-gradient(130deg, $black 55%, rgba(0, 0, 0, (1 - $placeholder-opacity-min)) 75%, $black 100%);
+    mask-size: 200% 100%;
+    animation: placeholder-wave 1s linear infinite;
+}
+
+@keyframes placeholder-wave {
+    100% {
+      mask-position: -200% 0%;
+    }
+}
+  

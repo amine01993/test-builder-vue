@@ -339,7 +339,7 @@ function onDragEnd() {
             color: vars.$app-red;
             margin-left: 5px;
         }
-        
+
         .label-info {
             margin-left: 1vh;
             color: vars.$app-blue;
@@ -393,11 +393,6 @@ function onDragEnd() {
             box-shadow: none;
             font-size: .9em;
             display: table-row;
-
-            .placeholder {
-                display: table-cell;
-                padding: 2vh;
-            }
 
             .choice-item-sort-handler-container {
                 padding: 0;
@@ -481,11 +476,6 @@ function onDragEnd() {
                     padding: 0.5em 1em;
                 }
             }
-        }
-
-        &.placeholder-wave {
-            mask-image: linear-gradient(110deg, #000 65%, rgba(0, 0, 0, 0.8) 80%, #000 100%);
-            animation-duration: 1s;
         }
     }
 }

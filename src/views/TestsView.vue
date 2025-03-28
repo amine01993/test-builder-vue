@@ -21,7 +21,6 @@ const TestItemD = defineAsyncComponent(() => import('@/components/items/TestItem
 
 const onAuthEventDispose = onAuthStateChanged(auth, async () => {
     try {
-        if(user === null) return;
         await Promise.all([loadTestCount(), loadTests()]);
         if(!testsLoaderEl) {
             testsLoaderEl = document.querySelector('.tests-loader');
@@ -185,11 +184,6 @@ async function checkLoaderVisiblity() {
                 box-shadow: none;
                 font-size: .9em;
 
-                .placeholder {
-                    display: table-cell;
-                    padding: 2vh;
-                }
-
                 .test-last-update {
                     color: vars.$app-blue-light;
                 }
@@ -262,11 +256,6 @@ async function checkLoaderVisiblity() {
                         padding: 0.5em 1em;
                     }
                 }
-            }
-
-            &.placeholder-wave {
-                mask-image: linear-gradient(110deg, #000 65%, rgba(0, 0, 0, 0.8) 80%, #000 100%);
-                animation-duration: 1s;
             }
         }
     }

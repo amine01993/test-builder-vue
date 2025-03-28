@@ -195,11 +195,6 @@ async function checkLoaderVisiblity() {
                 box-shadow: none;
                 font-size: .9em;
 
-                .placeholder {
-                    display: table-cell;
-                    padding: 2vh;
-                }
-
                 .user-test-last-update {
                     color: vars.$app-blue-light;
                 }
