@@ -22,12 +22,12 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(name.value === '') _errors.name = t('Full Name required');
+    if(name.value.trim() === '') _errors.name = t('Full Name required');
 
-    if(email.value === '') _errors.email = t('Email required');
+    if(email.value.trim() === '') _errors.email = t('Email required');
     else if(!validateEmail(email.value)) _errors.email = t('Invalid email');
 
-    if(message.value === '') _errors.message = t('Message required');
+    if(message.value.trim() === '') _errors.message = t('Message required');
 
     return _errors;
 });

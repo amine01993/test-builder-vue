@@ -45,7 +45,7 @@ service cloud.firestore {
         }
 
         function isNonEmptyString(value) {
-            return value is string && value.size() > 0;
+            return value is string && value.trim().size() > 0;
         }
 
         match /tests/{testId} {

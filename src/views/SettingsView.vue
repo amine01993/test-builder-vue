@@ -20,7 +20,7 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(displayName.value === '') _errors.displayName = t('Full Name required');
+    if(displayName.value.trim() === '') _errors.displayName = t('Full Name required');
 
     return _errors;
 });

@@ -27,9 +27,9 @@ export const useContactServiceStore = defineStore('contactService', () => {
         const {post} = useFetchStore();
 
         const contact: Contact = {
-            name: name.value,
-            email: email.value,
-            message: message.value,
+            name: name.value.trim(),
+            email: email.value.trim(),
+            message: message.value.trim(),
         };
 
         return await post('/contact-form', contact);

@@ -36,7 +36,7 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(name.value === '') _errors.name = t('Name required');
+    if(name.value.trim() === '') _errors.name = t('Name required');
 
     if(typeof timeLimit.value === 'string') _errors.timeLimit = t('The time limit must be a number');
     else if(timeLimit.value < 0) _errors.timeLimit = t('The time limit can\'t be a negatif number');
@@ -108,8 +108,8 @@ async function editTest() {
 
     try {
         await updateTest(test_id, {
-            name: name.value,
-            description: description.value,
+            name: name.value.trim(),
+            description: description.value.trim(),
             time_limit: Number(timeLimit.value),
         });
         serverErrors.value = [];

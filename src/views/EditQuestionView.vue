@@ -40,7 +40,7 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(text.value === '') _errors.text = t('Question required');
+    if(text.value.trim() === '') _errors.text = t('Question required');
 
     if(typeof position.value === 'string') _errors.position = t('The position must be a number');
 
@@ -122,7 +122,7 @@ async function editQuestion() {
 
     try {
         await updateQuestion(test_id, question_id, {
-            text: text.value,
+            text: text.value.trim(),
             type: type.value,
             position: Number(position.value),
         });

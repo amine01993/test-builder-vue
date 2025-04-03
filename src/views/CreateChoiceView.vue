@@ -33,7 +33,7 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(text.value === '') _errors.text = t('Choice required');
+    if(text.value.trim() === '') _errors.text = t('Choice required');
 
     if(typeof points.value === 'string') _errors.points = t('Max points must be a number');
 
@@ -88,7 +88,7 @@ async function createChoice() {
 
     try {
         await addChoice(test_id, question_id, {
-            text: text.value,
+            text: text.value.trim(),
             points: Number(points.value),
             is_correct: correctness.value,
             position: Number(position.value),

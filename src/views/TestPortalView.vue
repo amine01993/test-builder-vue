@@ -25,10 +25,10 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(displayName.value === '') _errors.displayName = t('Full Name required');
+    if(displayName.value.trim() === '') _errors.displayName = t('Full Name required');
 
-    if(email.value === '') _errors.email = t('Email required');
-    else if(!validateEmail(email.value)) _errors.email = t('Invalid email');
+    if(email.value.trim() === '') _errors.email = t('Email required');
+    else if(!validateEmail(email.value.trim())) _errors.email = t('Invalid email');
 
     return _errors;
 });
@@ -54,7 +54,7 @@ const onAuthEventDispose = onAuthStateChanged(auth, async (user: User|null) => {
         if(user.displayName) displayName.value = user.displayName;
         if(user.email) email.value = user.email;
 
-        if(displayName.value && email.value || !requestUserInfo.value) {
+        if(displayName.value.trim() && email.value.trim() || !requestUserInfo.value) {
             await initializingDTest();
         }
     }    

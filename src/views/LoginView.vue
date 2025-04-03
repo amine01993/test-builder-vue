@@ -22,10 +22,10 @@ const errors = computed(() => {
     const _errors: {[key: string]: string} = {};
     if(!submitted.value) return _errors;
 
-    if(email.value === '') _errors.email = t('Email required');
-    else if(!validateEmail(email.value)) _errors.email = t('Invalid email');
+    if(email.value.trim() === '') _errors.email = t('Email required');
+    else if(!validateEmail(email.value.trim())) _errors.email = t('Invalid email');
 
-    if(password.value === '') _errors.password = t('Password required');
+    if(password.value.trim() === '') _errors.password = t('Password required');
 
     return _errors;
 });
@@ -53,7 +53,7 @@ async function login() {
     }
 
     try {
-        await signInWithEmailAndPassword(auth, email.value, password.value);
+        await signInWithEmailAndPassword(auth, email.value.trim(), password.value.trim());
         serverErrors.value = [];
     }
     catch(error: any) {

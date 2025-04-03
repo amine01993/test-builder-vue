@@ -24,10 +24,10 @@ const errors = computed(() => {
     const _errors:{[key: string]: string|string[]} = {};
     if(!submitted.value) return _errors;
 
-    if(email.value === '') _errors.email = t('Email required');
-    else if(!validateEmail(email.value)) _errors.email = t('Invalid email');
+    if(email.value.trim() === '') _errors.email = t('Email required');
+    else if(!validateEmail(email.value.trim())) _errors.email = t('Invalid email');
 
-    if(password.value === '') _errors.password = [t('Password required')];
+    if(password.value.trim() === '') _errors.password = [t('Password required')];
     else if (validationStatus.value && !validationStatus.value.isValid) {
         const list = [];
         if(validationStatus.value.containsLowercaseLetter !== true) list.push(t('Require lowercase character'));
@@ -56,7 +56,7 @@ async function register() {
 
     submitting.value = true;
     if(import.meta.env.PROD) {
-        validationStatus.value = await validatePassword(auth, password.value);
+        validationStatus.value = await validatePassword(auth, password.value.trim());
     }
     submitted.value = true;
 
@@ -67,7 +67,7 @@ async function register() {
     }
 
     try {
-        const credential = EmailAuthProvider.credential(email.value, password.value);
+        const credential = EmailAuthProvider.credential(email.value.trim(), password.value.trim());
         await linkWithCredential(user.value!, credential);
 
         router.push({name: 'home'});

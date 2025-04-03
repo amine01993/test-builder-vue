@@ -56,7 +56,7 @@ describe('AppMenu', () => {
     it('test menu items', () => {
         const items = wrapper?.findAll('.menu-item');
 
-        expect(items?.length).toBe(3);
+        expect(items?.length).toBe(4);
     });
 
     it('navigate to home page', async () => {
@@ -120,5 +120,26 @@ describe('AppMenu', () => {
 
         expect(push).toHaveBeenCalledOnce();
         expect(push).toHaveBeenCalledWith({name: 'settings'});
+    });
+
+    it('navigate to contact us page', async () => {
+        const push = vitest.spyOn(router, 'push');
+        const {openMenu} = useMainStore();
+        const menuItems = wrapper?.findAll('.menu-item');
+
+        openMenu();
+        await nextTick();
+
+        const contactUs = menuItems?.at(3);
+        expect(contactUs?.exists()).toBe(true);
+
+        const link = contactUs?.find('a');
+        expect(link?.exists()).toBe(true);
+        expect(link?.text()).toContain('Contact us');
+
+        await link?.trigger('click');
+
+        expect(push).toHaveBeenCalledOnce();
+        expect(push).toHaveBeenCalledWith({name: 'contact-us'});
     });
 });

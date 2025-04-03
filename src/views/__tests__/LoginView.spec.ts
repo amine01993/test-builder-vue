@@ -96,7 +96,7 @@ describe('LoginView', () => {
         const btn = container?.find('.google-auth');
 
         expect(container?.exists()).toBe(true);
-        expect(container?.html()).toContain('Or Sign Up Using');
+        expect(container?.html()).toContain('Or Sign In Using');
         expect(btn?.exists()).toBe(true);
         expect(btn?.find('i.bi.bi-google')?.exists()).toBe(true);
     });

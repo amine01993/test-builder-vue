@@ -36,7 +36,7 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
     async function updateDisplayName() {
         if(user.value) {
             await updateProfile(user.value, {
-                displayName: displayName.value,
+                displayName: displayName.value.trim(),
             });
         }
     }
@@ -55,7 +55,7 @@ export const useUserTestServiceStore = defineStore('userTestService', () => {
     async function initTest(test_id: string) {
         const {get} = useFetchStore();
 
-        const testData = await get('/test', {testId: test_id, displayName: displayName.value, email: email.value});
+        const testData = await get('/test', {testId: test_id, displayName: displayName.value.trim(), email: email.value.trim()});
         test.value = <Test|undefined>testData.test;
         userTestId = testData.userTestId;
 
